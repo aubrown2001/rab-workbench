@@ -354,6 +354,9 @@ textarea.mono,input.mono{font-family:var(--f-mono);font-size:17.8px}
 .ai-results{display:flex;flex-direction:column;gap:7px}
 .ai-result{border-top:1px solid var(--line);padding-top:7px;font-size:16.5px;line-height:1.4;color:var(--ink-2)}
 .ai-result-top{display:flex;align-items:center;gap:7px;margin-bottom:3px}
+.manual-claude{border-top:1px solid var(--line);padding-top:9px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end}
+.manual-claude textarea{min-height:74px;resize:vertical}
+@media (max-width:680px){.manual-claude{grid-template-columns:1fr}.manual-claude .btn{justify-self:start}}
 .mini{display:flex;flex-direction:column;gap:4px}
 .mini-k{font-family:var(--f-mono);font-size:12.8px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);display:flex;align-items:center;gap:10px}
 
@@ -1316,7 +1319,7 @@ var HELP_KB=[
 "",
 "THE GUIDED RUN. A step bar at the top offers two paths. 'Review an answer' (5 steps) is for an answer that already exists: paste it, break it into claims, clear each claim, optionally grade it, save. 'Build an answer' (7 steps) is for one you are producing: load evidence, set constraints in the console, generate a grounded answer, then the same claim work. Both end at the claim ledger because grounding narrows what a model may say but never proves what it said. The Guide button hides the step bar.",
 "",
-"FACT-CHECK PANEL. Paste the answer, press Extract claims, and an available model splits it into checkable claims with a type, a risk rating and suggested search queries linked to Google Search and Scholar. Each claim starts Unverified. You set the status: Verified, Unsupported or Refuted. Three Source Check ticks record the work: claim isolated, citation provided, independent source matched. The Claude, ChatGPT and Gemini buttons ask each connected provider for an independent AI cross-check; their opinions are saved with the audit but never change its status. Two dials: claim granularity (coarse 8 claims / balanced 15 / fine 25) and STANDARD OF PROOF, which sets how many of the three ticks are required before a claim may be marked Verified — below that bar the Verified button is disabled and clicking it explains why. Raising the bar shows a banner offering to reopen claims cleared under a lower standard.",
+"FACT-CHECK PANEL. Paste the answer, press Extract claims, and an available model splits it into checkable claims with a type, a risk rating and suggested search queries linked to Google Search and Scholar. Each claim starts Unverified. You set the status: Verified, Unsupported or Refuted. Three Source Check ticks record the work: claim isolated, citation provided, independent source matched. ChatGPT and Gemini can run automatic AI cross-checks when their API keys are connected. Without a Claude API key, Open Claude + Copy copies the question and opens the free Claude website; paste Claude's answer back into the claim to save it. AI opinions never change a claim's status. Two dials: claim granularity (coarse 8 claims / balanced 15 / fine 25) and STANDARD OF PROOF, which sets how many of the three ticks are required before a claim may be marked Verified — below that bar the Verified button is disabled and clicking it explains why. Raising the bar shows a banner offering to reopen claims cleared under a lower standard.",
 "",
 "PROMPT CONSOLE. Temperature dial with three bands, chain-of-thought scaffolds, and switches for grounding, citations, flagging uncertainty, refusing rather than guessing, saying what could not be answered, and structured JSON output. It compiles all of that into a prompt you can copy. The run button sends the answer to the fact-check ledger. Temperature IS live in this deployment: the value is sent with every run. Internal calls (extraction, AI cross-checks, judge) always run at 0 so they do not vary.",
 "",
@@ -1326,7 +1329,7 @@ var HELP_KB=[
 "",
 "SAVED AUDITS AND REPORTS. Saving keeps the response, every claim and verdict, the dial settings and the judge scores, as separate database rows rather than a blob — which is what makes the Reports panel possible. Reports shows, across every audit: where claims ended up, which claim types fail checking most often, which model produces answers that survive it, audits per week, and how often a refuted claim was recorded with no source. It refuses an untitled audit and asks for a name. The archive is shared with everyone who can open this page.",
 "",
-"KNOWN LIMITS. The 'which model produced this answer' dropdown is a label for the record only. Claude, ChatGPT and Gemini cross-checks require their respective API keys in Render. These cross-checks do not browse the web and are judgements from model knowledge, not source verification. Use Web, Scholar and authoritative primary sources before changing a claim's status."
+"KNOWN LIMITS. The 'which model produced this answer' dropdown is a label for the record only. Automatic ChatGPT and Gemini cross-checks require their respective API keys in Render. Claude can instead use the free website through the copy-and-paste flow. Automatic cross-checks do not browse the web and are judgements from model knowledge, not source verification. Use Web, Scholar and authoritative primary sources before changing a claim's status."
 ].join("\n");
 
 function helpState(){
@@ -1660,8 +1663,11 @@ var CHECK_PROVIDERS=[
 function checkButtons(){
   return CHECK_PROVIDERS.map(function(p){
     var on=!!SERVER.providers[p.id];
+    if(p.id==="anthropic"&&!on){
+      return '<button class="btn sm" data-act="manual-check" data-provider="anthropic" title="Copies the question and opens the free Claude website">Open Claude + Copy</button>';
+    }
     return '<button class="btn sm" data-act="ai-check" data-provider="'+p.id+'"'+
-      (on?'':' disabled title="Add '+p.key+' in Render to connect '+p.label+'"')+'>'+p.label+'</button>';
+      (on?'':' disabled title="Add a free '+p.key+' in Render to connect '+p.label+'"')+'>'+p.label+'</button>';
   }).join("");
 }
 function checkResults(c){
@@ -1672,6 +1678,12 @@ function checkResults(c){
     return '<div class="ai-result"><div class="ai-result-top"><b>'+p.label+'</b><span class="verdict '+cls+'">'+esc(r.assessment||"uncertain")+'</span></div>'+
       esc(r.reason||"")+' <b>Human check:</b> '+esc(r.what_to_check||"")+'</div>';
   }).join("");
+}
+function manualClaudeBox(){
+  if(SERVER.providers.anthropic) return "";
+  return '<div class="manual-claude"><label class="fld"><span class="fld-k">Paste Claude\'s response here</span>'+
+    '<textarea data-role="manual-claude" placeholder="After Claude answers, copy its response and paste it here."></textarea></label>'+
+    '<button class="btn sm" data-act="save-manual-claude">Save Claude response</button></div>';
 }
 function renderLedger(){
   renderReopen();
@@ -1699,7 +1711,7 @@ function renderLedger(){
           '</div>'+
           '<div class="ai-check"><div class="ai-check-head"><span class="mini-k">AI cross-check</span>'+checkButtons()+'</div>'+
             '<div class="ai-check-note">AI opinions can expose disagreements, but they are not sources and never mark a claim verified.</div>'+
-            '<div class="ai-results" data-role="ai-results">'+checkResults(c)+'</div></div>'+
+            '<div class="ai-results" data-role="ai-results">'+checkResults(c)+'</div>'+manualClaudeBox()+'</div>'+
           '<div class="row"><button class="btn sm ghost" data-act="del">Remove claim</button></div>'+
         '</div>'+
         '<div class="srccheck"><h4>Source check</h4>'+
@@ -1731,6 +1743,8 @@ $("#ledger").addEventListener("click",function(e){
   }
   else if(a==="del"){ S.claims=S.claims.filter(function(x){return x.id!==c.id}); renderLedger(); }
   else if(a==="ai-check"){ providerCheck(c,wrap,b,b.dataset.provider); }
+  else if(a==="manual-check"){ openManualClaude(c); }
+  else if(a==="save-manual-claude"){ saveManualClaude(c,wrap); }
 });
 $("#ledger").addEventListener("input",function(e){
   var b=e.target.closest("[data-act]"); if(!b) return;
@@ -1752,6 +1766,30 @@ function providerCheck(c,wrap,btn,provider){
     out.innerHTML=checkResults(c)+'<div class="ai-result err">'+esc((e&&e.message)||"The cross-check failed. Try again.")+'</div>';
     btn.disabled=false; btn.textContent=label;
   });
+}
+function manualCheckPrompt(c){
+  return "You are assisting a human fact-checker. Assess this claim from an AI-generated answer.\n\nCLAIM:\n"+c.text+
+    (S.judgeRef?"\n\nREFERENCE MATERIAL:\n"+S.judgeRef.slice(0,8000):"")+
+    "\n\nState whether the claim is SUPPORTED, UNCERTAIN, or DOUBTFUL. Give one concise reason, clearly identify the limits of your knowledge, and name the single most decisive authoritative source or fact I should check. Do not imply that you browsed or verified a source unless you actually did.";
+}
+function openManualClaude(c){
+  var tab=window.open("https://claude.ai/new","_blank");
+  if(tab) tab.opener=null;
+  copyText(manualCheckPrompt(c)).then(function(){
+    toast("Question copied. Paste it into Claude, then paste Claude's response back into this claim.");
+  }).catch(function(){
+    toast("Claude opened, but the question could not be copied. Please copy the claim manually.",true);
+  });
+  if(!tab) toast("Your browser blocked the Claude tab. Allow pop-ups for this site and try again.",true);
+}
+function saveManualClaude(c,wrap){
+  var input=wrap.querySelector('[data-role="manual-claude"]');
+  var response=(input&&input.value||"").trim();
+  if(!response){ toast("Paste Claude's response first.",true); if(input) input.focus(); return; }
+  c.aiChecks=c.aiChecks||{};
+  c.aiChecks.anthropic={provider:"anthropic",label:"Claude",model:"claude.ai free website",assessment:"manual response",
+    reason:response.slice(0,4000),what_to_check:"Review this answer against an authoritative independent source.",manual:true};
+  S.saved=false; renderLedger(); toast("Claude's response was added to this claim.");
 }
 
 $("#btn-extract").addEventListener("click",function(){

@@ -266,7 +266,9 @@ const CHECK_PROVIDERS = {
   },
   gemini: {
     label: "Gemini",
-    model: () => process.env.GEMINI_CHECK_MODEL || "gemini-3.8-flash",
+    /* Gemini 2.5 Flash has a developer API free tier. An environment override
+       keeps the deployment easy to move if Google changes its free models. */
+    model: () => process.env.GEMINI_CHECK_MODEL || "gemini-2.5-flash",
   },
 };
 
