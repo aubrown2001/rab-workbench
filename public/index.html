@@ -196,7 +196,7 @@ a{color:var(--accent)}
 .g-num{font-family:var(--f-mono);font-size:31px;font-weight:600;fill:#EEF3FB;text-anchor:middle;letter-spacing:-.02em}
 .g-den{font-family:var(--f-mono);font-size:11px;fill:#7E8CA3;text-anchor:middle;letter-spacing:.18em}
 .g-end{font-family:var(--f-mono);font-size:11px;fill:#93A1B8;text-anchor:middle;dominant-baseline:middle}
-.g-needle{transform-origin:100px 100px;transition:transform .95s cubic-bezier(.16,.9,.2,1)}
+.g-needle{transform-box:view-box;transform-origin:50% 50%;transition:transform .95s cubic-bezier(.16,.9,.2,1)}
 @media (prefers-reduced-motion: reduce){.g-needle{transition:none}}
 
 /* ---------- dials ---------- */
@@ -206,6 +206,11 @@ a{color:var(--accent)}
 .dial-l{font-family:var(--f-mono);font-size:12.8px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
 .dial-v{font-family:var(--f-mono);font-size:19px;font-variant-numeric:tabular-nums;color:var(--ink)}
 .dial-n{font-size:15px;color:var(--ink-2);line-height:1.4}
+.save-strip{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
+  padding:16px 18px;border:1px solid color-mix(in srgb,var(--accent) 38%,var(--line));border-radius:12px;
+  background:linear-gradient(135deg,var(--accent-soft),var(--surface));box-shadow:var(--shadow-1)}
+.save-strip b{display:block;font-size:.96rem}.save-strip span{display:block;margin-top:3px;color:var(--ink-2);font-size:.84rem}
+.save-strip .btn{min-width:190px}
 .seg{display:flex;border:1px solid var(--line-2);border-radius:8px;overflow:hidden}
 .seg button{flex:1;background:var(--surface);border:0;border-right:1px solid var(--line-2);padding:7px 10px;
   font-size:16px;cursor:pointer;color:var(--ink-2);white-space:nowrap}
@@ -622,7 +627,7 @@ textarea:focus,input:focus,select:focus{box-shadow:0 0 0 3px color-mix(in srgb,v
         <button class="helpbtn" id="btn-help" aria-expanded="false" aria-controls="help" title="Ask for help with this tool"><span class="ic ic-nav ic-2" data-ic="help"></span></button>
         <button class="tsw" id="btn-theme" role="switch" aria-checked="false" aria-label="Dark mode" title="Light and dark theme"><span class="tsw-i">☀</span><span class="tsw-i">☾</span><span class="tsw-k"></span></button>
         <button class="btn sm" id="btn-new">New audit</button>
-        <button class="btn sm pri" id="btn-save">Save audit</button>
+        <button class="btn sm pri" id="btn-save" data-save-audit>Save audit</button>
       </div>
       <div class="steps" id="steps"></div>
     </header>
@@ -693,6 +698,10 @@ textarea:focus,input:focus,select:focus{box-shadow:0 0 0 3px color-mix(in srgb,v
           </div>
           <div class="reopen" id="reopen" hidden></div>
           <div class="ledger" id="ledger"></div>
+        </div>
+        <div class="save-strip">
+          <div><b>Keep this review in the shared archive</b><span>Saves the response, claims, verdicts, sources, settings, and judge scores to Supabase.</span></div>
+          <button class="btn pri" data-save-audit>Save audit to archive</button>
         </div>
       </section>
 
@@ -869,6 +878,10 @@ textarea:focus,input:focus,select:focus{box-shadow:0 0 0 3px color-mix(in srgb,v
             </div>
             <div id="diffout"></div>
           </div>
+        </div>
+        <div class="save-strip">
+          <div><b>Finished grading?</b><span>Save the current audit and its judge scores to the shared archive.</span></div>
+          <button class="btn pri" data-save-audit>Save audit to archive</button>
         </div>
       </section>
 
@@ -2080,6 +2093,28 @@ function renderRubric(){
   sweepNeedles();
   stats();
 }
+function judgeKey(v){
+  return String(v==null?"":v).toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");
+}
+function normalizeJudgeScores(raw){
+  var rows=Array.isArray(raw)?raw:(raw&&Array.isArray(raw.scores)?raw.scores:[]);
+  var used=[];
+  return S.rubric.map(function(r,i){
+    var keys=[judgeKey(r.id),judgeKey(r.name)];
+    var found=-1;
+    rows.some(function(s,j){
+      if(used.indexOf(j)>=0) return false;
+      var k=judgeKey(s&&(s.criterion||s.criterion_id||s.name));
+      if(keys.indexOf(k)>=0){found=j;return true}
+      return false;
+    });
+    if(found<0&&rows[i]&&used.indexOf(i)<0) found=i;
+    var s=found>=0?rows[found]:{}; if(found>=0) used.push(found);
+    var n=Number(s&&(s.score!=null?s.score:(s.rating!=null?s.rating:s.value)));
+    if(!Number.isFinite(n)) n=1;
+    return {criterion:r.id,score:Math.max(1,Math.min(5,Math.round(n))),justification:String(s&&s.justification||s&&s.reason||"")};
+  });
+}
 $("#rubric").addEventListener("input",function(e){
   var f=e.target.dataset.f; if(f!=="name"&&f!=="desc") return;
   var r=S.rubric[Number(e.target.closest(".crit").dataset.i)]; if(!r) return;
@@ -2121,8 +2156,8 @@ $("#btn-judge").addEventListener("click",function(){
     (ref?"\n\nREFERENCE MATERIAL THE ANSWER SHOULD AGREE WITH:\n"+ref.slice(0,12000):"\n\nNo reference material was supplied: grade internal consistency, calibration and traceability only, and say so in each justification.")+
     "\n\nReply with only a JSON array, one object per rubric criterion, in the rubric's order: {\"criterion\": the id, \"score\": integer 1-5, \"justification\": one or two sentences citing the specific wording that decided the score}.";
   SAMPLE.json(p,{modelTier:"complex"}).then(function(arr){
-    if(!Array.isArray(arr)) throw {code:"invalid_json"};
-    S.scores=arr.map(function(s){return {criterion:String(s.criterion||""),score:Math.max(1,Math.min(5,Number(s.score)||0)),justification:String(s.justification||"")}});
+    if(!Array.isArray(arr)&&!(arr&&Array.isArray(arr.scores))) throw {code:"invalid_json"};
+    S.scores=normalizeJudgeScores(arr);
     renderRubric();
     var a=judgeAvg();
     $("#judge-status").innerHTML='Graded · <b>'+(a?a.toFixed(1):"—")+'/5</b> average';
@@ -2325,8 +2360,7 @@ function untitled(){
   var t=(S.title||"").trim();
   return !t||t.toLowerCase()==="untitled audit";
 }
-$("#btn-save").addEventListener("click",function(){
-  var b=this;
+function requestSave(b){
   if(untitled()){
     ask("Name this audit before saving",
         "The archive is a shared record — a row called “Untitled audit” is one nobody can find again. Give it the subject of the answer you checked.",
@@ -2336,18 +2370,29 @@ $("#btn-save").addEventListener("click",function(){
     return;
   }
   doSave(b);
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-save-audit]");
+  if(b) requestSave(b);
 });
+function setSaveButtons(busy,label){
+  document.querySelectorAll("[data-save-audit]").forEach(function(b){
+    if(!b.dataset.saveLabel) b.dataset.saveLabel=b.textContent;
+    b.disabled=busy;
+    b.textContent=label||b.dataset.saveLabel;
+  });
+}
 function doSave(b){
-  var rec=snapshot(); b.disabled=true;
+  var rec=snapshot(); setSaveButtons(true,"Saving…");
   if(!DB){
     localRecords.unshift(Object.assign({id:uid()},rec)); S.saved=true; stats(); renderRecords();
-    b.disabled=false; b.textContent="Saved (session)"; toast("Saved to this browser tab only — the shared archive is unavailable here.");
-    setTimeout(function(){b.textContent="Save audit"},1600); return;
+    setSaveButtons(false,"Saved in this tab"); toast("Saved to this browser tab only — the shared archive is unavailable here.");
+    setTimeout(function(){setSaveButtons(false)},1600); return;
   }
   DB.collection("audits").add(rec).then(function(){
-    S.saved=true; stats(); b.textContent="Saved"; toast("Saved to the archive as “"+rec.title+"”."); setTimeout(function(){b.textContent="Save audit"},1600);
-  }).catch(function(e){ toast(e&&e.code==="quota_exceeded"?"The archive is full — delete some older audits first.":"Could not save it. Try again.",true); })
-  .then(function(){b.disabled=false});
+    S.saved=true; stats(); setSaveButtons(false,"Saved ✓"); toast("Saved to the archive as “"+rec.title+"”."); setTimeout(function(){setSaveButtons(false)},1600);
+  }).catch(function(e){ setSaveButtons(false); toast(e&&e.code==="quota_exceeded"?"The archive is full — delete some older audits first.":"Could not save it. Try again.",true); })
+  .then(function(){ document.querySelectorAll("[data-save-audit]").forEach(function(x){x.disabled=false}) });
 }
 $("#btn-new").addEventListener("click",function(){
   ask("Start a new audit?","This clears the response, the claim ledger and the judge's scores. Anything you have not saved is lost. The evidence set and prompt settings are kept.","Start new",function(){
