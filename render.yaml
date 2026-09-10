@@ -1,0 +1,22 @@
+# Render blueprint. Point Render at this repo and it reads this file.
+# Secrets are NOT here — set them in the Render dashboard (Environment tab).
+services:
+  - type: web
+    name: rab
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: RAB_USERNAME
+        sync: false
+      - key: RAB_PASSWORD
+        sync: false
