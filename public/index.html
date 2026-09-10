@@ -6,7 +6,7 @@
 <title>RAB Workbench</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600;700&display=swap">
 <style>
 :root{
   --ground:#F1F5FE; --surface:#FFFFFF; --surface-2:#F6F9FF; --surface-3:#E5EDFC;
@@ -597,11 +597,80 @@ textarea:focus,input:focus,select:focus{box-shadow:0 0 0 3px color-mix(in srgb,v
   main{padding:20px 14px 48px}.phead{align-items:flex-start}.phead>div:first-child{grid-template-columns:38px minmax(0,1fr)}.phead .ic-head{width:38px;height:38px}.ptitle{font-size:1.55rem}.psub{font-size:.9rem}
   .card-h{align-items:flex-start}.grid2{grid-template-columns:1fr}.pipe{grid-template-columns:1fr}.stage{border-right:0;border-bottom:1px solid var(--line)}.stage:last-child{border-bottom:0}.claim-body{padding-left:0;grid-template-columns:1fr}.bands{grid-template-columns:1fr}.crit{grid-template-columns:1fr}.rec{grid-template-columns:1fr}.rec>.row{justify-content:flex-start}
 }
+
+/* ---------- RAB 3.0 bright operations skin ---------- */
+:root{
+  --ground:#F3F7FD;--surface-2:#F8FBFF;--surface-3:#E8EFF9;
+  --ink:#0A1425;--ink-2:#45556A;--ink-3:#718096;
+  --line:#D8E2EF;--line-2:#BFCDE0;
+  --accent:#1769E8;--accent-2:#0D4FBD;--accent-soft:#E7F0FF;
+  --shadow-1:0 1px 2px rgba(15,35,65,.07),0 8px 24px -22px rgba(15,35,65,.55);
+  --shadow-2:0 20px 52px -32px rgba(13,39,77,.46),0 2px 8px rgba(13,39,77,.06);
+  --rail:258px;
+}
+body{font-size:16.5px;background:
+  radial-gradient(circle at 88% -5%,rgba(23,105,232,.12),transparent 32rem),
+  linear-gradient(180deg,#F8FBFF 0,var(--ground) 34rem)}
+.rail{padding:18px 13px;background:linear-gradient(180deg,#252C38 0%,#202733 58%,#1B222D 100%);border-right:1px solid #354052;gap:18px;box-shadow:8px 0 30px -26px rgba(4,12,24,.8)}
+.rail-brand{padding:2px 8px 17px;border-bottom:1px solid #3B4657}
+.rail-brand-mark{display:flex;align-items:center;gap:10px;color:#FFFFFF}
+.rail-brand-rab{font-size:1.65rem;font-weight:700;letter-spacing:-.07em;line-height:1}
+.rail-brand-rab::after{content:"";display:block;width:100%;height:3px;margin-top:4px;border-radius:2px;background:linear-gradient(90deg,#2B7FFF,#38D7F0)}
+.rail-brand-copy{font-size:.62rem;font-weight:700;line-height:1.25;letter-spacing:.14em;text-transform:uppercase;color:#AEBACB}
+.nav{gap:6px}
+.nav-h{padding:5px 12px 7px;font-size:.69rem;font-weight:700;letter-spacing:.17em;color:#8F9CAD}
+.nav button{position:relative;grid-template-columns:34px 1fr auto;gap:11px;min-height:48px;padding:7px 10px;border-radius:9px;color:#D0D8E5}
+.nav button:hover{background:#313B4A;color:#FFFFFF;transform:translateX(2px)}
+.nav button[aria-current="true"]{background:linear-gradient(135deg,#1264E8,#3182F6);color:#FFFFFF;box-shadow:0 9px 20px -12px rgba(41,126,255,.9),inset 0 1px 0 rgba(255,255,255,.18)}
+.nav button[aria-current="true"]::before{content:"";position:absolute;left:-7px;top:12px;bottom:12px;width:3px;border-radius:3px;background:#53E2F5;box-shadow:0 0 12px rgba(83,226,245,.75)}
+.nav button[aria-current="true"] .nav-i{color:#D9F8FF}
+.nav-t{font-size:.96rem;font-weight:700;letter-spacing:-.01em}
+.nav-i{margin-left:6px;font-weight:600;color:#8795A8}
+.nav-dot{width:7px;height:7px;background:#596779}.nav-dot.on{background:#3DE1A7;box-shadow:0 0 0 3px rgba(61,225,167,.15),0 0 12px rgba(61,225,167,.45)}
+.rail .ic{width:32px;height:32px;background:#343E4D;color:#C1D1E7;border-color:#465368}
+.rail button[aria-current="true"] .ic{background:rgba(7,35,83,.28);color:#FFFFFF;border-color:rgba(255,255,255,.22)}
+.rail-foot{padding:0 11px}.rail-foot .sep{background:#3A4556}.cap{font-size:.72rem;color:#8592A4}.cap b{color:#D5DCE7;font-weight:700}
+
+.top{padding:12px 26px;background:rgba(255,255,255,.94);box-shadow:0 1px 0 var(--line),0 8px 24px -25px rgba(15,35,65,.75)}
+.runname{font-weight:700;background:#F7FAFE;border-color:#CED9E7}
+.stats{border-color:#D4DFEC;background:#F7FAFE}.stat-k{font-weight:700;color:#718096}.stat-v{font-weight:700;color:#13233A}
+.btn{font-weight:700;border-color:#C7D3E3;background:#FFFFFF}.btn:hover:not(:disabled){border-color:#91A7C2}.btn.pri{background:linear-gradient(135deg,#1769E8,#2B7FFF);border-color:#1769E8;box-shadow:0 9px 20px -13px rgba(23,105,232,.9)}
+main{max-width:1540px}
+.phead{position:relative;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.phead::after{content:"";position:absolute;left:0;bottom:-1px;width:92px;height:3px;border-radius:3px;background:linear-gradient(90deg,#1769E8,#38CDEB)}
+.kicker{font-weight:700;color:#1769E8}.ptitle{font-weight:700;color:#0A1425}.psub{color:#52627A}
+.card{border-color:#D5E0ED;box-shadow:var(--shadow-1)}
+.card-h{background:linear-gradient(180deg,#FFFFFF,#F7FAFE);border-bottom-color:#DDE6F1}
+.card-t{font-weight:700;color:#233650}.card-b{background:#FFFFFF}
+.fld-k,.dial-l{font-weight:700;color:#5F7087}.hint{color:#61728A}
+textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color:#CED9E7;color:#142238}
+.seg{background:#E7EEF8}.seg button{font-weight:600}.seg button[aria-pressed="true"]{font-weight:700;background:linear-gradient(135deg,#1769E8,#2B7FFF)}
+.claim-txt,.rec-t,.crit-name,.stage-t{font-weight:700}
+.note{background:linear-gradient(90deg,#E8F1FF,#F6FAFF);border-left-color:#2474EE;color:#20344F}
+
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --accent:#73A2FF;--accent-2:#9AB8FF;--accent-soft:#20335A;
+}}
+:root[data-theme="dark"]{--accent:#73A2FF;--accent-2:#9AB8FF;--accent-soft:#20335A}
+:root[data-theme="dark"] body{background:radial-gradient(circle at 88% -5%,rgba(76,125,235,.15),transparent 32rem),var(--ground)}
+:root[data-theme="dark"] .top{background:rgba(18,27,43,.94)}
+:root[data-theme="dark"] .runname,:root[data-theme="dark"] .stats,:root[data-theme="dark"] textarea,:root[data-theme="dark"] input[type=text],:root[data-theme="dark"] input[type=url],:root[data-theme="dark"] select{background:var(--surface-2);border-color:var(--line)}
+:root[data-theme="dark"] .stat-v,:root[data-theme="dark"] .ptitle{color:var(--ink)}
+:root[data-theme="dark"] .card-b{background:var(--surface)}
+
+@media (max-width:760px){
+  body{font-size:15.5px}.rail{padding:7px 9px;gap:8px}.rail-brand{padding:0 8px 0 2px;border-bottom:0;border-right:1px solid #3B4657;flex:none}.rail-brand-copy{display:none}.rail-brand-rab{font-size:1.15rem}.rail-brand-rab::after{height:2px;margin-top:2px}
+  .nav button{min-height:40px;padding:4px 8px}.nav button[aria-current="true"]::before{display:none}.nav-t{font-size:.81rem}.rail .ic{width:29px;height:29px}
+  .top{top:54px}.phead::after{width:70px}
+}
 </style>
 </head>
 <body>
 <div class="shell">
   <aside class="rail">
+    <div class="rail-brand" aria-label="RAB Verification Workbench">
+      <div class="rail-brand-mark"><span class="rail-brand-rab">RAB</span><span class="rail-brand-copy">Verification<br>Workbench</span></div>
+    </div>
     <nav class="nav" id="nav">
       <div class="nav-h">Controls</div>
       <button data-p="check" aria-current="true"><span class="ic ic-nav ic-1" data-ic="ledger"></span><span class="nav-t">Fact-check<span class="nav-i">P1</span></span><span class="nav-dot" id="dot-check"></span></button>
