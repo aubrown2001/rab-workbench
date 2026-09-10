@@ -268,9 +268,9 @@ const CHECK_PROVIDERS = {
   },
   gemini: {
     label: "Gemini",
-    /* Gemini 2.5 Flash has a developer API free tier. An environment override
-       keeps the deployment easy to move if Google changes its free models. */
-    model: () => process.env.GEMINI_CHECK_MODEL || "gemini-2.5-flash",
+    /* Keep an environment override because Google retires older models for
+       new accounts even while existing projects may still have access. */
+    model: () => process.env.GEMINI_CHECK_MODEL || "gemini-3.6-flash",
   },
 };
 
@@ -298,7 +298,9 @@ async function runProviderCheck(provider, prompt) {
     upstream = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model, max_tokens: 800, temperature: 0, messages: [{ role: "user", content: prompt }] }),
+      /* Current Claude models reject the legacy temperature option. The
+         tightly constrained prompt supplies the consistency we need here. */
+      body: JSON.stringify({ model, max_tokens: 800, messages: [{ role: "user", content: prompt }] }),
     });
   } else if (provider === "openai") {
     upstream = await fetch("https://api.openai.com/v1/chat/completions", {
