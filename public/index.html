@@ -344,6 +344,16 @@ textarea.mono,input.mono{font-family:var(--f-mono);font-size:17.8px}
 .qchip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:34ch}
 .qchip a{text-decoration:none;font-family:var(--f-mono);font-size:14.2px;letter-spacing:.06em;color:var(--ink-3);border-left:1px solid var(--line);padding-left:7px}
 .qchip a:hover{color:var(--accent)}
+.ai-check{border:1px solid var(--line);border-radius:7px;background:var(--surface-2);padding:10px 12px;display:flex;flex-direction:column;gap:9px}
+.ai-check-head{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.ai-check-head .mini-k{margin-right:4px}
+.ai-check-head .btn[data-provider="anthropic"]{border-color:#d8a78b}
+.ai-check-head .btn[data-provider="openai"]{border-color:#75aaa0}
+.ai-check-head .btn[data-provider="gemini"]{border-color:#8caaf2}
+.ai-check-note{font-size:16px;color:var(--ink-3);line-height:1.35}
+.ai-results{display:flex;flex-direction:column;gap:7px}
+.ai-result{border-top:1px solid var(--line);padding-top:7px;font-size:16.5px;line-height:1.4;color:var(--ink-2)}
+.ai-result-top{display:flex;align-items:center;gap:7px;margin-bottom:3px}
 .mini{display:flex;flex-direction:column;gap:4px}
 .mini-k{font-family:var(--f-mono);font-size:12.8px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);display:flex;align-items:center;gap:10px}
 
@@ -680,7 +690,7 @@ textarea:focus,input:focus,select:focus{box-shadow:0 0 0 3px color-mix(in srgb,v
               <div class="card-h"><span class="card-t">Verification Method Tips</span></div>
               <div class="card-b" style="display:flex;flex-direction:column;gap:13px">
                 <div class="mini"><div class="mini-k"><span class="ic ic-sm ic-1" data-ic="link"></span>1 · Check the sources</div><div class="hint">Ask for citations, then open them. Confirm the cited text actually says what the answer claims.</div></div>
-                <div class="mini"><div class="mini-k"><span class="ic ic-sm ic-1" data-ic="target"></span>2 · Verify exact data points</div><div class="hint">Cross-reference every number, name, date and legal reference against a trusted database or Google Fact Check Explorer.</div></div>
+                <div class="mini"><div class="mini-k"><span class="ic ic-sm ic-1" data-ic="target"></span>2 · Verify exact data points</div><div class="hint">Cross-reference every number, name, date and legal reference against an authoritative independent source.</div></div>
                 <div class="mini"><div class="mini-k"><span class="ic ic-sm ic-1" data-ic="compare"></span>3 · Read laterally</div><div class="hint">Leave the document. Compare each claim with an independent, authoritative source that has no stake in the answer.</div></div>
               </div>
             </div>
@@ -761,7 +771,7 @@ textarea:focus,input:focus,select:focus{box-shadow:0 0 0 3px color-mix(in srgb,v
             <div class="card-b"><pre class="compiled" id="compiled"></pre></div>
           </div>
         </div>
-        <div class="note warnnote"><b>The temperature dial is live.</b> This deployment sends the value with every run, so lowering it really does make the model more deterministic. Internal calls — claim extraction, the second opinion, the judge — always run at 0 regardless of the dial.</div>
+        <div class="note warnnote"><b>The temperature dial is live.</b> This deployment sends the value with every run, so lowering it really does make the model more deterministic. Internal calls — claim extraction, AI cross-checks, the judge — always run at 0 regardless of the dial.</div>
       </section>
 
       <!-- ============ RAG ============ -->
@@ -1204,7 +1214,7 @@ function apiDb(){
     capLine($("#cap-db"),SERVER.archive,"Archive",SERVER.archive?"connected":"not configured");
 
     if(SERVER.models.length) S.cfg.tier=SERVER.models[0].id;
-    renderModelSelect(); renderModelNote(); renderRunButton();
+    renderModelSelect(); renderModelNote(); renderRunButton(); renderLedger();
     renderRecords(); if(DB) watchRecords();
     $("#dot-reports").classList.toggle("on",SERVER_REPORTS);
   }).catch(function(){
@@ -1306,9 +1316,9 @@ var HELP_KB=[
 "",
 "THE GUIDED RUN. A step bar at the top offers two paths. 'Review an answer' (5 steps) is for an answer that already exists: paste it, break it into claims, clear each claim, optionally grade it, save. 'Build an answer' (7 steps) is for one you are producing: load evidence, set constraints in the console, generate a grounded answer, then the same claim work. Both end at the claim ledger because grounding narrows what a model may say but never proves what it said. The Guide button hides the step bar.",
 "",
-"FACT-CHECK PANEL. Paste the answer, press Extract claims, and Claude splits it into checkable claims with a type, a risk rating and suggested search queries linked to Google, Google Fact Check Explorer and Scholar. Each claim starts Unverified. You set the status: Verified, Unsupported or Refuted. Three Source Check ticks record the work: claim isolated, citation provided, independent source matched. 'Second opinion' asks Claude about one claim but never changes its status. Two dials: claim granularity (coarse 8 claims / balanced 15 / fine 25) and STANDARD OF PROOF, which sets how many of the three ticks are required before a claim may be marked Verified — below that bar the Verified button is disabled and clicking it explains why. Raising the bar shows a banner offering to reopen claims cleared under a lower standard.",
+"FACT-CHECK PANEL. Paste the answer, press Extract claims, and an available model splits it into checkable claims with a type, a risk rating and suggested search queries linked to Google Search and Scholar. Each claim starts Unverified. You set the status: Verified, Unsupported or Refuted. Three Source Check ticks record the work: claim isolated, citation provided, independent source matched. The Claude, ChatGPT and Gemini buttons ask each connected provider for an independent AI cross-check; their opinions are saved with the audit but never change its status. Two dials: claim granularity (coarse 8 claims / balanced 15 / fine 25) and STANDARD OF PROOF, which sets how many of the three ticks are required before a claim may be marked Verified — below that bar the Verified button is disabled and clicking it explains why. Raising the bar shows a banner offering to reopen claims cleared under a lower standard.",
 "",
-"PROMPT CONSOLE. Temperature dial with three bands, chain-of-thought scaffolds, and switches for grounding, citations, flagging uncertainty, refusing rather than guessing, saying what could not be answered, and structured JSON output. It compiles all of that into a prompt you can copy. 'Run with Claude' runs it and sends the answer to the fact-check ledger. Temperature IS live in this deployment: the value is sent with every run. Internal calls (extraction, second opinion, judge) always run at 0 so they do not vary.",
+"PROMPT CONSOLE. Temperature dial with three bands, chain-of-thought scaffolds, and switches for grounding, citations, flagging uncertainty, refusing rather than guessing, saying what could not be answered, and structured JSON output. It compiles all of that into a prompt you can copy. The run button sends the answer to the fact-check ledger. Temperature IS live in this deployment: the value is sent with every run. Internal calls (extraction, AI cross-checks, judge) always run at 0 so they do not vary.",
 "",
 "GROUNDING PANEL. Add trusted sources, then Retrieve passages runs a real relevance search over them and shows match percentages. Two dials: how many passages are retrieved, and a minimum match below which passages are dropped. Generate cited answer sends ONLY those passages to the model, which must cite [S1.1] markers and flag UNCERTAIN. The four numbered stages are a status display, not buttons. The page cannot fetch URLs — paste the source text itself.",
 "",
@@ -1316,7 +1326,7 @@ var HELP_KB=[
 "",
 "SAVED AUDITS AND REPORTS. Saving keeps the response, every claim and verdict, the dial settings and the judge scores, as separate database rows rather than a blob — which is what makes the Reports panel possible. Reports shows, across every audit: where claims ended up, which claim types fail checking most often, which model produces answers that survive it, audits per week, and how often a refuted claim was recorded with no source. It refuses an untitled audit and asks for a name. The archive is shared with everyone who can open this page.",
 "",
-"KNOWN LIMITS. The 'which model produced this answer' dropdown is a label for the record only — it does not change what does the checking, which is always Claude through this page. If AI steps fail saying permission was declined, the browser permission prompt was dismissed; a decline sticks for the whole visit, so reload the page and choose Allow. Claude here cannot browse the web, so a second opinion is a judgement from training data, not a live source check."
+"KNOWN LIMITS. The 'which model produced this answer' dropdown is a label for the record only. Claude, ChatGPT and Gemini cross-checks require their respective API keys in Render. These cross-checks do not browse the web and are judgements from model knowledge, not source verification. Use Web, Scholar and authoritative primary sources before changing a claim's status."
 ].join("\n");
 
 function helpState(){
@@ -1640,8 +1650,28 @@ function searchLinks(q){
   var e=encodeURIComponent(q);
   return '<span class="qchip"><span>'+esc(q)+'</span>'+
     '<a href="https://www.google.com/search?q='+e+'" target="_blank" rel="noopener">WEB</a>'+
-    '<a href="https://toolbox.google.com/factcheck/explorer/search/'+e+'" target="_blank" rel="noopener">FACTCHECK</a>'+
     '<a href="https://scholar.google.com/scholar?q='+e+'" target="_blank" rel="noopener">SCHOLAR</a></span>';
+}
+var CHECK_PROVIDERS=[
+  {id:"anthropic",label:"Claude",key:"ANTHROPIC_API_KEY"},
+  {id:"openai",label:"ChatGPT",key:"OPENAI_API_KEY"},
+  {id:"gemini",label:"Gemini",key:"GEMINI_API_KEY"}
+];
+function checkButtons(){
+  return CHECK_PROVIDERS.map(function(p){
+    var on=!!SERVER.providers[p.id];
+    return '<button class="btn sm" data-act="ai-check" data-provider="'+p.id+'"'+
+      (on?'':' disabled title="Add '+p.key+' in Render to connect '+p.label+'"')+'>'+p.label+'</button>';
+  }).join("");
+}
+function checkResults(c){
+  var checks=c.aiChecks||{};
+  return CHECK_PROVIDERS.map(function(p){
+    var r=checks[p.id]; if(!r) return "";
+    var cls=r.assessment==="supported"?"ok":r.assessment==="doubtful"?"bad":"warn";
+    return '<div class="ai-result"><div class="ai-result-top"><b>'+p.label+'</b><span class="verdict '+cls+'">'+esc(r.assessment||"uncertain")+'</span></div>'+
+      esc(r.reason||"")+' <b>Human check:</b> '+esc(r.what_to_check||"")+'</div>';
+  }).join("");
 }
 function renderLedger(){
   renderReopen();
@@ -1667,9 +1697,10 @@ function renderLedger(){
             '<label class="fld"><span class="fld-k">Source consulted (URL or citation)</span><input type="text" data-act="url" value="'+esc(c.url)+'" placeholder="Where you checked"></label>'+
             '<label class="fld"><span class="fld-k">Reviewer note</span><input type="text" data-act="note" value="'+esc(c.note)+'" placeholder="What the source actually said"></label>'+
           '</div>'+
-          '<div class="row"><button class="btn sm" data-act="second" data-needs-ai>Second opinion</button>'+
-          '<button class="btn sm ghost" data-act="del">Remove claim</button>'+
-          '<span class="hint" data-role="op"></span></div>'+
+          '<div class="ai-check"><div class="ai-check-head"><span class="mini-k">AI cross-check</span>'+checkButtons()+'</div>'+
+            '<div class="ai-check-note">AI opinions can expose disagreements, but they are not sources and never mark a claim verified.</div>'+
+            '<div class="ai-results" data-role="ai-results">'+checkResults(c)+'</div></div>'+
+          '<div class="row"><button class="btn sm ghost" data-act="del">Remove claim</button></div>'+
         '</div>'+
         '<div class="srccheck"><h4>Source check</h4>'+
           [["claim","Claim isolated"],["citation","Citation provided"],["independent","Independent source matched"]].map(function(k){
@@ -1699,7 +1730,7 @@ $("#ledger").addEventListener("click",function(e){
     renderLedger();   /* the Verified gate and the reopen banner both depend on this */
   }
   else if(a==="del"){ S.claims=S.claims.filter(function(x){return x.id!==c.id}); renderLedger(); }
-  else if(a==="second"){ secondOpinion(c,wrap,b); }
+  else if(a==="ai-check"){ providerCheck(c,wrap,b,b.dataset.provider); }
 });
 $("#ledger").addEventListener("input",function(e){
   var b=e.target.closest("[data-act]"); if(!b) return;
@@ -1709,18 +1740,18 @@ $("#ledger").addEventListener("input",function(e){
   if(b.dataset.act==="note") c.note=b.value;
 });
 
-function secondOpinion(c,wrap,btn){
-  if(!SAMPLE) return;
-  var out=wrap.querySelector('[data-role="op"]');
-  btn.disabled=true; out.innerHTML='<span class="busy">Thinking</span>';
-  var p="You are assisting a human fact-checker. Assess this single claim taken from an AI-generated answer.\n\nCLAIM: "+c.text+
-    (S.judgeRef?"\n\nREFERENCE MATERIAL THE ANSWER SHOULD AGREE WITH:\n"+S.judgeRef.slice(0,4000):"")+
-    "\n\nReply with only a JSON object: {\"assessment\": \"supported\"|\"uncertain\"|\"doubtful\", \"reason\": \"one sentence\", \"what_to_check\": \"the single most decisive thing a human should look up\"}. Do not claim to have browsed anything. If you are working from training data alone, say so in the reason.";
-  SAMPLE.json(p,{modelTier:"default"}).then(function(r){
-    var cls=r.assessment==="supported"?"ok":r.assessment==="doubtful"?"bad":"warn";
-    out.innerHTML='<span class="verdict '+cls+'">'+esc(r.assessment||"?")+'</span> <span style="color:var(--ink-2)">'+esc(r.reason||"")+' <b>Check:</b> '+esc(r.what_to_check||"")+'</span>';
-  }).catch(function(e){ out.innerHTML=aiErrHtml(e); })
-  .then(function(){btn.disabled=false});
+function providerCheck(c,wrap,btn,provider){
+  var out=wrap.querySelector('[data-role="ai-results"]');
+  var label=btn.textContent; btn.disabled=true; btn.textContent=label+'…';
+  fetch("/api/check",{method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({provider:provider,claim:c.text,reference:S.judgeRef||""})})
+  .then(function(res){return res.json().then(function(d){if(d.error) return Promise.reject(d.error);return d})})
+  .then(function(r){
+    c.aiChecks=c.aiChecks||{}; c.aiChecks[provider]=r; S.saved=false; renderLedger();
+  }).catch(function(e){
+    out.innerHTML=checkResults(c)+'<div class="ai-result err">'+esc((e&&e.message)||"The cross-check failed. Try again.")+'</div>';
+    btn.disabled=false; btn.textContent=label;
+  });
 }
 
 $("#btn-extract").addEventListener("click",function(){
@@ -1742,7 +1773,7 @@ $("#btn-extract").addEventListener("click",function(){
     S.claims=arr.slice(0,G.n).map(function(c){
       return {id:uid(),text:String(c.text||"").trim(),type:String(c.type||"general"),risk:["high","medium","low"].indexOf(c.risk)>=0?c.risk:"medium",
         why:String(c.why||""),queries:Array.isArray(c.queries)?c.queries.map(String).slice(0,3):[],
-        status:"unverified",checks:{claim:true,citation:false,independent:false},note:"",url:""};
+        status:"unverified",checks:{claim:true,citation:false,independent:false},aiChecks:{},note:"",url:""};
     }).filter(function(c){return c.text});
     S.isExample=false; $("#ex-badge").innerHTML="";
     st.innerHTML=S.claims.length+" claims extracted. Every one starts unverified — clearing them is the human step.";
@@ -1751,7 +1782,7 @@ $("#btn-extract").addEventListener("click",function(){
   .then(function(){btn.disabled=false});
 });
 $("#btn-addclaim").addEventListener("click",function(){
-  S.claims.push({id:uid(),text:"New claim — edit the text in the response and re-extract, or note it here.",type:"general",risk:"medium",why:"",queries:[],status:"unverified",checks:{claim:true,citation:false,independent:false},note:"",url:""});
+  S.claims.push({id:uid(),text:"New claim — edit the text in the response and re-extract, or note it here.",type:"general",risk:"medium",why:"",queries:[],status:"unverified",checks:{claim:true,citation:false,independent:false},aiChecks:{},note:"",url:""});
   renderLedger();
 });
 $("#btn-clearclaims").addEventListener("click",function(){ S.claims=[]; renderLedger(); });
@@ -2462,7 +2493,7 @@ $("#records").addEventListener("click",function(e){
   var p; try{ p=JSON.parse(r.payload||"{}") }catch(err){ toast("This record could not be read — its saved data is corrupt.",true); return; }
   S.title=r.title||"Untitled"; S.response=p.response||""; S.prompt=p.prompt||"";
   S.model=p.model||"unspecified"; S.appliedTier=p.appliedTier||null;
-  S.claims=(p.claims||[]).map(function(c){ c.checks=c.checks||{claim:false,citation:false,independent:false}; return c });
+  S.claims=(p.claims||[]).map(function(c){ c.checks=c.checks||{claim:false,citation:false,independent:false}; c.aiChecks=c.aiChecks||{}; return c });
   S.cfg=Object.assign(S.cfg,p.cfg||{}); S.sources=p.sources||S.sources; S.question=p.question||"";
   S.answer=p.answer||""; S.scores=p.scores||null; S.judgeRef=p.judgeRef||"";
   S.baseline=p.baseline||S.baseline; S.candidate=p.candidate||S.candidate; S.fmt=p.fmt||"json"; S.isExample=false; S.saved=true; S.wiz.at=null;

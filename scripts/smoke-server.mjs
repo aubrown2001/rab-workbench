@@ -48,7 +48,17 @@ try {
     throw new Error("Model configuration fallback did not behave as expected.");
   }
 
-  console.log("Server, static app, capability discovery, reports fallback, and model fallback passed.");
+  const check = await fetch(base + "/api/check", {
+    method: "POST",
+    headers: { "content-type": "application/json", ...authHeader },
+    body: JSON.stringify({ provider: "gemini", claim: "The sky is blue." }),
+  });
+  const checkBody = await check.json();
+  if (check.status !== 503 || checkBody?.error?.code !== "not_configured") {
+    throw new Error("Provider-specific cross-check fallback did not behave as expected.");
+  }
+
+  console.log("Server, static app, capability discovery, reports fallback, model fallback, and cross-check fallback passed.");
 } finally {
   await new Promise((resolve) => server.close(resolve));
 }

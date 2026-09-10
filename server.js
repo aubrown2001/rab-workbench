@@ -7,6 +7,7 @@
  *
  *   GET    /api/models          which models this deployment can actually run
  *   POST   /api/sample          model proxy (Anthropic + OpenAI), streaming or JSON
+ *   POST   /api/check           provider-specific claim cross-check
  *   GET    /api/audits          the archive, newest first
  *   POST   /api/audits          save one audit (audit + claims + scores, relational)
  *   DELETE /api/audits/:id      remove one
@@ -111,7 +112,12 @@ const TIER_CANDIDATES = {
   complex: ["claude-opus-5", "gpt-6-astra"],
 };
 
-const hasKey = (p) => !!(p === "anthropic" ? process.env.ANTHROPIC_API_KEY : process.env.OPENAI_API_KEY);
+const PROVIDER_KEY_NAMES = {
+  anthropic: "ANTHROPIC_API_KEY",
+  openai: "OPENAI_API_KEY",
+  gemini: "GEMINI_API_KEY",
+};
+const hasKey = (p) => !!(PROVIDER_KEY_NAMES[p] && process.env[PROVIDER_KEY_NAMES[p]]);
 const byId = (id) => MODEL_CATALOG.find((m) => m.id === id) || null;
 function resolveModel(requested) {
   const want = typeof requested === "string" && requested ? requested : "default";
@@ -139,7 +145,7 @@ const fail = (res, status, code, message) => res.status(status).json({ error: { 
 app.get("/api/models", (req, res) => {
   res.json({
     models: MODEL_CATALOG.map((m) => ({ id: m.id, label: m.label, provider: m.provider, note: m.note, available: hasKey(m.provider) })),
-    providers: { anthropic: hasKey("anthropic"), openai: hasKey("openai") },
+    providers: { anthropic: hasKey("anthropic"), openai: hasKey("openai"), gemini: hasKey("gemini") },
     archive: archiveOn(),
     reports: archiveOn(),
   });
@@ -246,6 +252,115 @@ app.post("/api/sample", rateLimit({ windowMs: 60_000, max: 20, key: "models" }),
     send({ error: { code: "upstream_error", message: e.message } });
   }
   res.end();
+});
+
+/* -------------------------------------------------------------- POST /check */
+const CHECK_PROVIDERS = {
+  anthropic: {
+    label: "Claude",
+    model: () => process.env.ANTHROPIC_CHECK_MODEL || process.env.ANTHROPIC_MODEL_DEFAULT || "claude-sonnet-5",
+  },
+  openai: {
+    label: "ChatGPT",
+    model: () => process.env.OPENAI_CHECK_MODEL || process.env.OPENAI_MODEL_DEFAULT || "gpt-4o-mini",
+  },
+  gemini: {
+    label: "Gemini",
+    model: () => process.env.GEMINI_CHECK_MODEL || "gemini-3.8-flash",
+  },
+};
+
+function parseJsonReply(text) {
+  const raw = String(text || "").trim();
+  try { return JSON.parse(raw); } catch {}
+  const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fenced) { try { return JSON.parse(fenced[1]); } catch {} }
+  const start = raw.indexOf("{");
+  const end = raw.lastIndexOf("}");
+  if (start >= 0 && end > start) { try { return JSON.parse(raw.slice(start, end + 1)); } catch {} }
+  return null;
+}
+
+function checkPrompt(claim, reference) {
+  return `You are one independent AI reviewer assisting a human fact-checker. Assess the claim below. You do not have live web access in this request, so never imply that you searched or verified a source. Distinguish established knowledge from uncertainty.\n\nCLAIM:\n${claim}\n${reference ? `\nREFERENCE MATERIAL:\n${reference}\n` : ""}\nReturn only JSON with this exact shape: {"assessment":"supported"|"uncertain"|"doubtful","reason":"one concise sentence that names the basis and its limits","what_to_check":"the single most decisive source or fact a human should check"}.`;
+}
+
+async function runProviderCheck(provider, prompt) {
+  const spec = CHECK_PROVIDERS[provider];
+  const apiKey = process.env[PROVIDER_KEY_NAMES[provider]];
+  const model = spec.model();
+  let upstream;
+  if (provider === "anthropic") {
+    upstream = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+      body: JSON.stringify({ model, max_tokens: 800, temperature: 0, messages: [{ role: "user", content: prompt }] }),
+    });
+  } else if (provider === "openai") {
+    upstream = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({ model, temperature: 0, max_completion_tokens: 800, messages: [{ role: "user", content: prompt }] }),
+    });
+  } else {
+    upstream = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
+      body: JSON.stringify({ model, input: prompt, store: false, generation_config: { max_output_tokens: 800, thinking_level: "low" } }),
+    });
+  }
+
+  if (!upstream.ok) {
+    const detail = await upstream.text().catch(() => "");
+    let message = "";
+    try { message = JSON.parse(detail)?.error?.message || ""; } catch { message = detail.slice(0, 300); }
+    const err = new Error(message || `${spec.label} returned ${upstream.status}.`);
+    err.status = upstream.status;
+    throw err;
+  }
+
+  const data = await upstream.json();
+  const text = provider === "anthropic"
+    ? (data.content || []).filter((b) => b.type === "text").map((b) => b.text).join("")
+    : provider === "openai"
+      ? data.choices?.[0]?.message?.content || ""
+      : (data.steps || []).filter((s) => s.type === "model_output").flatMap((s) => s.content || []).filter((b) => b.type === "text").map((b) => b.text).join("");
+  const parsed = parseJsonReply(text);
+  if (!parsed) {
+    const err = new Error(`${spec.label} returned an answer the workbench could not read.`);
+    err.status = 502;
+    throw err;
+  }
+  return { result: parsed, model, label: spec.label };
+}
+
+app.post("/api/check", rateLimit({ windowMs: 60_000, max: 30, key: "checks" }), async (req, res) => {
+  const provider = String(req.body?.provider || "");
+  const spec = CHECK_PROVIDERS[provider];
+  if (!spec) return fail(res, 400, "invalid_request", "Choose Claude, ChatGPT, or Gemini.");
+  if (!hasKey(provider)) return fail(res, 503, "not_configured", `${spec.label} is not connected. Add ${PROVIDER_KEY_NAMES[provider]} in Render.`);
+
+  const claim = String(req.body?.claim || "").trim().slice(0, 8000);
+  const reference = String(req.body?.reference || "").trim().slice(0, 8000);
+  if (!claim) return fail(res, 400, "invalid_request", "A claim is required.");
+
+  try {
+    const checked = await runProviderCheck(provider, checkPrompt(claim, reference));
+    const assessment = ["supported", "uncertain", "doubtful"].includes(checked.result.assessment)
+      ? checked.result.assessment : "uncertain";
+    res.json({
+      provider,
+      label: checked.label,
+      model: checked.model,
+      assessment,
+      reason: String(checked.result.reason || "No reason was provided.").slice(0, 1200),
+      what_to_check: String(checked.result.what_to_check || "Find an authoritative independent source.").slice(0, 1200),
+    });
+  } catch (e) {
+    const status = e.status === 429 ? 429 : 502;
+    const code = e.status === 401 || e.status === 403 ? "auth_failed" : e.status === 429 ? "rate_limited" : "upstream_error";
+    fail(res, status, code, e.message);
+  }
 });
 
 /* ------------------------------------------------------------- GET /audits */
@@ -391,13 +506,13 @@ app.get("/api/reports", async (req, res) => {
 
 /* ------------------------------------------------------------------ health */
 app.get("/healthz", (req, res) =>
-  res.json({ ok: true, protected: accessProtected(), archive: archiveOn(), anthropic: hasKey("anthropic"), openai: hasKey("openai") }));
+  res.json({ ok: true, protected: accessProtected(), archive: archiveOn(), anthropic: hasKey("anthropic"), openai: hasKey("openai"), gemini: hasKey("gemini") }));
 
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`RAB listening on ${PORT}`);
     if (!archiveOn()) console.warn("No SUPABASE_URL / SUPABASE_SECRET_KEY — archive and reports are disabled.");
-    if (!hasKey("anthropic") && !hasKey("openai")) console.warn("No model API key set — AI steps are disabled.");
+    if (!hasKey("anthropic") && !hasKey("openai") && !hasKey("gemini")) console.warn("No model API key set — AI steps are disabled.");
     if (!accessProtected()) console.warn("No RAB_USERNAME / RAB_PASSWORD — this deployment is public.");
   });
 }
