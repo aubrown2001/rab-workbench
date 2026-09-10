@@ -107,9 +107,11 @@ const MODEL_CATALOG = [
   { id: "gpt-5.6-luna",     label: "GPT-5.6 Luna",     provider: "openai",    apiId: process.env.OPENAI_MODEL_QUICK || "gpt-5.6-luna", note: "Cost-sensitive workloads" },
 ];
 const TIER_CANDIDATES = {
-  quick: ["claude-haiku-4-5", "gpt-5.6-luna"],
-  default: ["claude-sonnet-5", "gpt-5.6-terra"],
-  complex: ["claude-opus-5", "gpt-6-astra"],
+  /* Core workbench tasks use the already-tested OpenAI connection first.
+     Provider-specific claim checks still call Claude and Gemini directly. */
+  quick: ["gpt-5.6-luna", "claude-haiku-4-5"],
+  default: ["gpt-5.6-terra", "claude-sonnet-5"],
+  complex: ["gpt-6-astra", "claude-opus-5"],
 };
 
 const PROVIDER_KEY_NAMES = {

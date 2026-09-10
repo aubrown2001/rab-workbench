@@ -1216,7 +1216,10 @@ function apiDb(){
     DB=SERVER.archive?apiDb():null;
     capLine($("#cap-db"),SERVER.archive,"Archive",SERVER.archive?"connected":"not configured");
 
-    if(SERVER.models.length) S.cfg.tier=SERVER.models[0].id;
+    if(SERVER.models.length){
+      var preferred=SERVER.models.filter(function(m){return m.provider==="openai"})[0]||SERVER.models[0];
+      S.cfg.tier=preferred.id;
+    }
     renderModelSelect(); renderModelNote(); renderRunButton(); renderLedger();
     renderRecords(); if(DB) watchRecords();
     $("#dot-reports").classList.toggle("on",SERVER_REPORTS);
@@ -1240,7 +1243,8 @@ function aiErr(e){
     capability_disabled:"The AI features are not available in this view.",
     not_declared:"This version of the page no longer requests Claude access.",
     cancelled:""};
-  return (e&&m[e.code]!==undefined)?m[e.code]:"Something went wrong. Try again.";
+  if(e&&m[e.code]!==undefined) return m[e.code];
+  return (e&&e.message)?e.message:"Something went wrong. Try again.";
 }
 /* not_granted and session_expired are both fixed by reloading, so offer it. */
 function aiErrHtml(e){
