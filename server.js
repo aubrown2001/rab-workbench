@@ -533,21 +533,48 @@ app.delete("/api/audits/:id", rateLimit({ windowMs: 60_000, max: 30, key: "write
 app.get("/api/reports", async (req, res) => {
   if (!archiveOn()) return res.json({ archive: false });
   try {
-    const [types, models, discipline, weekly, totals, claims] = await Promise.all([
+    const [types, models, discipline, weekly, totals, claims, scores] = await Promise.all([
       supa.from("v_claim_type_quality").select("*"),
       supa.from("v_model_quality").select("*"),
       supa.from("v_review_discipline").select("*").single(),
       supa.from("v_audits_weekly").select("*"),
-      supa.from("audits").select("id,judge_avg,claim_count,cleared_count"),
-      supa.from("claims").select("status"),
+      supa.from("audits").select("id,title,created_at,verdict,model_label,judge_avg,claim_count,cleared_count,proof_standard,granularity,strictness").order("created_at", { ascending: false }),
+      supa.from("claims").select("audit_id,status,risk,tick_claim,tick_citation,tick_independent,source_url"),
+      supa.from("scores").select("criterion,criterion_name,score"),
     ]);
-    const err = [types, models, discipline, weekly, totals, claims].find((r) => r.error);
+    const err = [types, models, discipline, weekly, totals, claims, scores].find((r) => r.error);
     if (err) return fail(res, 500, "db_error", err.error.message);
 
     const auditRows = totals.data || [];
     const judged = auditRows.filter((r) => r.judge_avg != null);
     const byStatus = { verified: 0, unsupported: 0, refuted: 0, unverified: 0 };
     (claims.data || []).forEach((c) => { if (byStatus[c.status] != null) byStatus[c.status]++; });
+    const claimRows = claims.data || [];
+    const decided = claimRows.filter((c) => c.status !== "unverified");
+    const countTrue = (key) => claimRows.filter((c) => c[key]).length;
+    const sourced = decided.filter((c) => String(c.source_url || "").trim()).length;
+    const riskLevels = ["high", "medium", "low", "unspecified"].map((risk) => {
+      const rows = claimRows.filter((c) => (c.risk || "unspecified") === risk);
+      const checked = rows.filter((c) => c.status !== "unverified");
+      const failed = rows.filter((c) => c.status === "unsupported" || c.status === "refuted");
+      return { risk, claims: rows.length, checked: checked.length, failed: failed.length,
+        failurePct: checked.length ? Math.round(1000 * failed.length / checked.length) / 10 : null };
+    }).filter((r) => r.claims);
+    const verdicts = {};
+    auditRows.forEach((a) => { const key = a.verdict || "Unspecified"; verdicts[key] = (verdicts[key] || 0) + 1; });
+    const proofStandards = [1, 2, 3].map((proof) => ({
+      proof, audits: auditRows.filter((a) => Number(a.proof_standard) === proof).length,
+    }));
+    const criterionMap = new Map();
+    (scores.data || []).forEach((s) => {
+      const key = s.criterion_name || s.criterion || "Unspecified";
+      const row = criterionMap.get(key) || { criterion: key, total: 0, scores: 0 };
+      if (s.score != null) { row.total += Number(s.score); row.scores += 1; }
+      criterionMap.set(key, row);
+    });
+    const criteria = Array.from(criterionMap.values()).map((r) => ({
+      criterion: r.criterion, scores: r.scores, average: r.scores ? Math.round(100 * r.total / r.scores) / 100 : null,
+    })).sort((a, b) => (a.average ?? 9) - (b.average ?? 9));
 
     res.json({
       archive: true,
@@ -558,6 +585,26 @@ app.get("/api/reports", async (req, res) => {
         avgJudge: judged.length ? judged.reduce((s, r) => s + Number(r.judge_avg), 0) / judged.length : null,
       },
       byStatus,
+      quality: {
+        decisionRate: claimRows.length ? Math.round(1000 * decided.length / claimRows.length) / 10 : 0,
+        sourceCoverage: decided.length ? Math.round(1000 * sourced / decided.length) / 10 : 0,
+        citationRate: claimRows.length ? Math.round(1000 * countTrue("tick_citation") / claimRows.length) / 10 : 0,
+        independentRate: claimRows.length ? Math.round(1000 * countTrue("tick_independent") / claimRows.length) / 10 : 0,
+        judgeCoverage: auditRows.length ? Math.round(1000 * judged.length / auditRows.length) / 10 : 0,
+      },
+      funnel: {
+        claims: claimRows.length,
+        isolated: countTrue("tick_claim"),
+        citations: countTrue("tick_citation"),
+        independent: countTrue("tick_independent"),
+        verified: byStatus.verified,
+      },
+      riskLevels,
+      verdicts: Object.entries(verdicts).map(([verdict, audits]) => ({ verdict, audits })),
+      proofStandards,
+      criteria,
+      recent: auditRows.slice(0, 8).map((a) => ({ id: a.id, title: a.title, createdAt: a.created_at, verdict: a.verdict,
+        model: a.model_label, judge: a.judge_avg, claims: a.claim_count, cleared: a.cleared_count })),
       claimTypes: types.data || [],
       models: models.data || [],
       discipline: discipline.data || null,
