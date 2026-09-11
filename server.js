@@ -12,6 +12,7 @@
  *   POST   /api/audits          save one audit (audit + claims + scores, relational)
  *   DELETE /api/audits/:id      remove one
  *   GET    /api/reports         aggregates for the in-app dashboard
+ *   GET    /api/operations      live, non-sensitive service telemetry
  *   GET    /healthz             liveness, and a cheap way to keep Render warm
  */
 
@@ -64,6 +65,33 @@ app.use((req, res, next) => {
 });
 app.use(express.json({ limit: "2mb" }));
 app.use(express.static(path.join(__dirname, "public"), { maxAge: "1h" }));
+
+/* A lightweight observability layer inspired by mature API control planes.
+   It deliberately stores no prompts, claims, responses, IP addresses, or API
+   keys. Render's free instances restart, so these figures describe only the
+   current process lifetime; durable audit outcomes remain in Supabase. */
+const operations = {
+  startedAt: new Date().toISOString(), requests: 0, errors: 0, latencyMs: 0,
+  routes: new Map(), events: [],
+};
+app.use((req, res, next) => {
+  if (!req.path.startsWith("/api/") || req.path === "/api/operations") return next();
+  const started = Date.now();
+  res.on("finish", () => {
+    const latency = Date.now() - started;
+    const route = `${req.method} ${req.route?.path || req.path}`;
+    const provider = ["anthropic", "openai", "gemini"].includes(req.body?.provider) ? req.body.provider : null;
+    const prior = operations.routes.get(route) || { requests: 0, errors: 0, latencyMs: 0 };
+    prior.requests += 1; prior.latencyMs += latency;
+    if (res.statusCode >= 400) prior.errors += 1;
+    operations.routes.set(route, prior);
+    operations.requests += 1; operations.latencyMs += latency;
+    if (res.statusCode >= 400) operations.errors += 1;
+    operations.events.unshift({ at: new Date().toISOString(), route, provider, status: res.statusCode, latency });
+    if (operations.events.length > 60) operations.events.length = 60;
+  });
+  next();
+});
 
 /* This in-process limiter protects a single Render instance from accidental
    request loops and casual API-credit abuse. Use a shared Redis-backed limiter
@@ -150,6 +178,36 @@ app.get("/api/models", (req, res) => {
     providers: { anthropic: hasKey("anthropic"), openai: hasKey("openai"), gemini: hasKey("gemini") },
     archive: archiveOn(),
     reports: archiveOn(),
+  });
+});
+
+/* ---------------------------------------------------------- GET /operations */
+app.get("/api/operations", (req, res) => {
+  const routes = Array.from(operations.routes.entries()).map(([route, m]) => ({
+    route,
+    requests: m.requests,
+    errors: m.errors,
+    avgLatency: m.requests ? Math.round(m.latencyMs / m.requests) : 0,
+  })).sort((a, b) => b.requests - a.requests);
+  res.json({
+    since: operations.startedAt,
+    uptimeSeconds: Math.round(process.uptime()),
+    summary: {
+      requests: operations.requests,
+      errors: operations.errors,
+      errorRate: operations.requests ? Math.round(1000 * operations.errors / operations.requests) / 10 : 0,
+      avgLatency: operations.requests ? Math.round(operations.latencyMs / operations.requests) : 0,
+    },
+    providers: ["anthropic", "openai", "gemini"].map((provider) => ({
+      provider,
+      label: CHECK_PROVIDERS[provider].label,
+      connected: hasKey(provider),
+      model: CHECK_PROVIDERS[provider].model(),
+    })),
+    archive: archiveOn(),
+    limits: { modelRunsPerMinute: 20, claimChecksPerMinute: 30, archiveWritesPerMinute: 60 },
+    routes,
+    events: operations.events.slice(0, 20),
   });
 });
 
