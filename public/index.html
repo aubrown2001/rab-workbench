@@ -747,7 +747,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
       <div class="row">
         <button class="btn sm ghost" id="btn-guide" aria-pressed="true">Guide</button>
         <a class="btn sm ghost help-center-link" href="/help.html" target="_blank" rel="noopener">Help Center</a>
-        <button class="helpbtn" id="btn-help" aria-expanded="false" aria-controls="help" title="Ask ChatGPT about this tool"><span class="ic ic-nav ic-2" data-ic="help"></span></button>
+        <button class="helpbtn" id="btn-help" aria-expanded="false" aria-controls="help" title="Ask Verity about this tool"><span class="ic ic-nav ic-2" data-ic="help"></span></button>
         <button class="tsw" id="btn-theme" role="switch" aria-checked="false" aria-label="Dark mode" title="Light and dark theme"><span class="tsw-i">☀</span><span class="tsw-i">☾</span><span class="tsw-k"></span></button>
         <button class="btn sm" id="btn-new">New audit</button>
         <button class="btn sm pri" id="btn-save" data-save-audit>Save audit</button>
@@ -1105,7 +1105,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 <aside class="help" id="help" role="dialog" aria-modal="false" aria-label="Help" inert>
   <header class="help-h">
     <span class="ic ic-sm ic-2" data-ic="help"></span>
-    <div><div class="help-t">ChatGPT Help</div><div class="help-s">Ask about anything in this workbench</div></div>
+    <div><div class="help-t">Verity</div><div class="help-s">Your RAB Help Assistant</div></div>
     <button class="btn sm ghost" id="help-close" aria-label="Close help">Close</button>
   </header>
   <div class="help-log" id="help-log"></div>
@@ -1480,7 +1480,7 @@ document.querySelectorAll("[data-ic]").forEach(function(el){
    the workbench plus a snapshot of what the user is actually looking at, so
    "why can't I clear this claim" gets a real answer instead of a generic one. */
 var HELP_KB=[
-"You are the built-in help for RAB — Rigor Above Belief — a workbench for verifying AI-generated answers.",
+"Your name is Verity. You are the built-in help assistant for RAB — Rigor Above Belief — a workbench for verifying AI-generated answers.",
 "Answer ONLY about this tool and about verification practice. If asked something unrelated, say so in one line and offer to help with the workbench instead.",
 "Be brief: two or three short paragraphs at most, no headings, no bullet lists unless listing steps. Speak plainly to a working reviewer.",
 "Never invent a feature. If the answer is not in what follows, say you are not sure and suggest where in the interface to look.",
@@ -1546,7 +1546,7 @@ function renderChips(){
 function renderHelp(){
   var log=$("#help-log");
   if(!helpTurns.length){
-    log.innerHTML='<div class="help-greet"><b>How can ChatGPT help you?</b>'+
+    log.innerHTML='<div class="help-greet"><b>Hi, I’m Verity. How can I help?</b>'+
       'Ask about any control on this page, what a step wants from you, or why something is not doing what you expect. '+
       'I can see which panel you are on and the state of your audit.</div>';
   } else {
@@ -1561,7 +1561,7 @@ function helpAsk(q){
   q=(q||"").trim(); if(!q||helpBusy) return;
   if(!SAMPLE||!HELP_OPENAI_MODEL){
     helpTurns.push({role:"user",content:q});
-    helpTurns.push({role:"assistant",content:"ChatGPT Help is unavailable because the OpenAI connection is not configured on this deployment.",err:true});
+    helpTurns.push({role:"assistant",content:"Verity is unavailable because the OpenAI connection is not configured on this deployment.",err:true});
     renderHelp(); return;
   }
   helpTurns.push({role:"user",content:q});
