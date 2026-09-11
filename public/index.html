@@ -173,6 +173,13 @@ a{color:var(--accent)}
 .hmsg.ai{align-self:flex-start;background:var(--surface-2);border:1px solid var(--line)}
 .hmsg.ai b{font-weight:600}
 .hmsg.err{background:var(--bad-soft);border-color:var(--bad-line);color:var(--bad)}
+.hfeedback{align-self:flex-start;display:flex;align-items:center;flex-wrap:wrap;gap:6px;max-width:92%;margin-top:-9px;padding-left:5px}
+.hfeedback>span{font-size:13px;color:var(--ink-3);margin-right:2px}
+.hvote{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:999px;padding:4px 9px;font:inherit;font-size:13px;cursor:pointer}
+.hvote:hover{border-color:var(--accent);color:var(--ink);background:var(--accent-soft)}
+.hvote[aria-pressed="true"][data-help-vote="1"]{background:var(--ok-soft);border-color:var(--ok-line);color:var(--ok)}
+.hvote[aria-pressed="true"][data-help-vote="-1"]{background:var(--bad-soft);border-color:var(--bad-line);color:var(--bad)}
+.hfeedback-note{font-size:12px;color:var(--ink-3)}
 .help-greet{color:var(--ink-2);font-size:17px;line-height:1.55}
 .help-greet b{color:var(--ink);font-family:var(--f-display);font-size:21px;display:block;margin-bottom:5px;font-weight:600}
 .help-foot{border-top:1px solid var(--line);padding:13px 17px 15px;display:flex;flex-direction:column;gap:11px}
@@ -1501,6 +1508,8 @@ var HELP_KB=[
 "",
 "SAVED AUDITS AND REPORTS. Saving keeps the response, every claim and verdict, the dial settings and the judge scores, as separate database rows rather than a blob — which is what makes the Reports panel possible. Reports shows headline quality measures, claim outcomes, the evidence-completion funnel, source and judge coverage, failure rate by risk and claim type, rubric averages, model comparisons, weekly volume, verdict and proof-standard usage, recent audits, and reviewer discipline. It refuses an untitled audit and asks for a name. The archive is shared with everyone who can open this page.",
 "",
+"VERITY FEEDBACK. Helpful and Not helpful buttons appear below each Verity answer. A rating guides later Verity answers during the current browser visit. When the optional Supabase help_feedback table is installed, RAB also stores the question, answer, rating and optional reason so the product guidance can be improved over time. This feedback does not retrain OpenAI's base model automatically.",
+"",
 "KNOWN LIMITS. The 'which model produced this answer' dropdown is a label for the record only. Automatic ChatGPT and Gemini cross-checks require their respective API keys in Render. Claude can instead use the free website through the copy-and-paste flow. Automatic cross-checks do not browse the web and are judgements from model knowledge, not source verification. Use Web, Scholar and authoritative primary sources before changing a claim's status."
 ].join("\n");
 
@@ -1550,12 +1559,44 @@ function renderHelp(){
       'Ask about any control on this page, what a step wants from you, or why something is not doing what you expect. '+
       'I can see which panel you are on and the state of your audit.</div>';
   } else {
-    log.innerHTML=helpTurns.map(function(t){
-      return '<div class="hmsg '+(t.role==="user"?"me":(t.err?"ai err":"ai"))+'">'+esc(t.content)+'</div>';
+    log.innerHTML=helpTurns.map(function(t,i){
+      var html='<div class="hmsg '+(t.role==="user"?"me":(t.err?"ai err":"ai"))+'">'+esc(t.content)+'</div>';
+      if(t.role==="assistant"&&!t.err&&t.content!=="Thinking…"){
+        html+='<div class="hfeedback" data-help-feedback="'+i+'"><span>Was this helpful?</span>'+
+          '<button type="button" class="hvote" data-help-vote="1" aria-pressed="'+(t.feedback===1)+'" title="Helpful">👍 Helpful</button>'+
+          '<button type="button" class="hvote" data-help-vote="-1" aria-pressed="'+(t.feedback===-1)+'" title="Not helpful">👎 Not helpful</button>'+
+          (t.feedback?'<small class="hfeedback-note">Thank you'+(t.feedbackReason?' — feedback saved.':'.')+'</small>':'')+'</div>';
+      }
+      return html;
     }).join("");
     log.scrollTop=log.scrollHeight;
   }
   renderChips();
+}
+function helpQuestionFor(i){
+  for(var n=i-1;n>=0;n--) if(helpTurns[n].role==="user") return helpTurns[n].content;
+  return "";
+}
+function helpFeedbackGuidance(){
+  var rows=[];
+  helpTurns.forEach(function(t,i){
+    if(t.role!=="assistant"||!t.feedback) return;
+    var q=helpQuestionFor(i).slice(0,300);
+    rows.push((t.feedback===1?"HELPFUL":"NOT HELPFUL")+': question "'+q+'"'+
+      (t.feedbackReason?'; user explanation "'+t.feedbackReason.slice(0,300)+'"':""));
+  });
+  if(!rows.length) return "";
+  return "\n\nFEEDBACK FROM THIS VISIT:\n"+rows.slice(-3).join("\n")+
+    "\nUse this guidance to improve clarity and usefulness. Do not mention the feedback unless the user asks.";
+}
+function saveHelpFeedback(t,i){
+  if(!t.feedbackId) t.feedbackId=uid()+"_"+Date.now();
+  var panel=(document.querySelector(".panel.on")||{}).id||"";
+  return fetch("/api/help-feedback",{
+    method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({clientId:t.feedbackId,rating:t.feedback,question:helpQuestionFor(i),
+      response:t.content,reason:t.feedbackReason||"",model:HELP_OPENAI_MODEL||"",page:panel})
+  }).then(function(r){return r.ok?r.json():null}).catch(function(){return null});
 }
 function helpAsk(q){
   q=(q||"").trim(); if(!q||helpBusy) return;
@@ -1574,7 +1615,7 @@ function helpAsk(q){
   var convo=helpTurns.slice(0,-1).filter(function(t){return !t.err}).slice(-8)
     .map(function(t){return {role:t.role,content:t.content}});
   var input=[
-    {role:"user",content:HELP_KB+"\n\n"+helpState()},
+    {role:"user",content:HELP_KB+"\n\n"+helpState()+helpFeedbackGuidance()},
     {role:"assistant",content:"I understand. I am Verity, and I will answer only about RAB in plain language."}
   ].concat(convo);
   helpCtl=new AbortController();
@@ -1593,6 +1634,23 @@ $("#btn-help").addEventListener("click",function(){ helpOpen(!$("#help").classLi
 $("#help-close").addEventListener("click",function(){ if(helpCtl) helpCtl.abort(); helpOpen(false); });
 $("#help-chips").addEventListener("click",function(e){
   var b=e.target.closest("[data-q]"); if(b) helpAsk(b.dataset.q);
+});
+$("#help-log").addEventListener("click",function(e){
+  var b=e.target.closest("[data-help-vote]"); if(!b) return;
+  var wrap=b.closest("[data-help-feedback]"), i=Number(wrap.dataset.helpFeedback), t=helpTurns[i];
+  if(!t||t.role!=="assistant") return;
+  t.feedback=Number(b.dataset.helpVote);
+  if(t.feedback===1) t.feedbackReason="";
+  if(!t.feedbackId) t.feedbackId=uid()+"_"+Date.now();
+  renderHelp(); saveHelpFeedback(t,i);
+  if(t.feedback===-1){
+    ask("Help Verity improve","What was missing or unclear? Your rating is already saved.","Save feedback",function(reason){
+      t.feedbackReason=reason; renderHelp(); saveHelpFeedback(t,i);
+      toast("Thanks — Verity will use that guidance in this visit.");
+    },{field:{placeholder:"Example: Make it shorter and explain the score first"}});
+  } else {
+    toast("Thanks — Verity will use that feedback in this visit.");
+  }
 });
 $("#help-form").addEventListener("submit",function(e){
   e.preventDefault(); var i=$("#help-in"); helpAsk(i.value); i.value="";
