@@ -647,6 +647,19 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 .seg{background:#E7EEF8}.seg button{font-weight:600}.seg button[aria-pressed="true"]{font-weight:700;background:linear-gradient(135deg,#1769E8,#2B7FFF)}
 .claim-txt,.rec-t,.crit-name,.stage-t{font-weight:700}
 .note{background:linear-gradient(90deg,#E8F1FF,#F6FAFF);border-left-color:#2474EE;color:#20344F}
+.ops-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);gap:18px}
+.scorecard{display:grid;grid-template-columns:150px 1fr;gap:22px;align-items:center}
+.score-ring{width:136px;height:136px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent) calc(var(--score)*1%),var(--surface-3) 0);position:relative}
+.score-ring::after{content:"";position:absolute;inset:12px;border-radius:50%;background:var(--surface)}
+.score-ring strong{position:relative;z-index:1;font-size:2.15rem;line-height:1;color:var(--ink)}
+.score-ring span{position:relative;z-index:1;display:block;font-size:.65rem;text-transform:uppercase;letter-spacing:.13em;color:var(--ink-3);text-align:center;margin-top:5px;font-weight:700}
+.checklist{display:grid;gap:8px}.checkrow{display:grid;grid-template-columns:24px 1fr auto;gap:9px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);font-size:.84rem}
+.checkmark{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--surface-3);color:var(--ink-3);font-size:.72rem;font-weight:700}.checkrow.done .checkmark{background:var(--ok-soft);color:var(--ok)}.checkpts{font-family:var(--f-mono);font-size:.66rem;color:var(--ink-3)}
+.policy-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}.policy-summary{margin-top:12px;padding:12px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 9px 9px 0;font-size:.84rem;color:var(--ink-2)}
+.health-list{display:grid;gap:9px}.healthrow{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:center;padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:var(--surface-2)}
+.healthdot{width:9px;height:9px;border-radius:50%;background:var(--bad)}.healthdot.on{background:var(--ok);box-shadow:0 0 0 3px var(--ok-soft)}.healthname{font-size:.88rem;font-weight:700}.healthmeta{font-size:.68rem;color:var(--ink-3);font-family:var(--f-mono)}
+.alert-list{display:grid;gap:8px}.op-alert{padding:10px 12px;border:1px solid var(--warn-line);border-radius:9px;background:var(--warn-soft);font-size:.82rem;color:var(--ink)}.op-alert.ok{border-color:var(--ok-line);background:var(--ok-soft)}
+.event-table{width:100%;border-collapse:collapse;font-size:.78rem}.event-table th{text-align:left;padding:8px;color:var(--ink-3);font-size:.62rem;text-transform:uppercase;letter-spacing:.11em;border-bottom:1px solid var(--line)}.event-table td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}.event-table tr:last-child td{border-bottom:0}.http-ok{color:var(--ok);font-weight:700}.http-bad{color:var(--bad);font-weight:700}
 
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --accent:#73A2FF;--accent-2:#9AB8FF;--accent-soft:#20335A;
@@ -662,6 +675,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
   body{font-size:15.5px}.rail{padding:7px 9px;gap:8px}.rail-brand{padding:0 8px 0 2px;border-bottom:0;border-right:1px solid #3B4657;flex:none}.rail-brand-copy{display:none}.rail-brand-rab{font-size:1.15rem}.rail-brand-rab::after{height:2px;margin-top:2px}
   .nav button{min-height:40px;padding:4px 8px}.nav button[aria-current="true"]::before{display:none}.nav-t{font-size:.81rem}.rail .ic{width:29px;height:29px}
   .top{top:54px}.phead::after{width:70px}
+  .ops-grid,.scorecard{grid-template-columns:1fr}.score-ring{margin:0 auto}.policy-row{grid-template-columns:1fr}.event-table th:nth-child(2),.event-table td:nth-child(2){display:none}
 }
 </style>
 </head>
@@ -677,6 +691,8 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
       <button data-p="console"><span class="ic ic-nav ic-2" data-ic="dial"></span><span class="nav-t">Prompt console<span class="nav-i">P2</span></span><span class="nav-dot" id="dot-console"></span></button>
       <button data-p="rag"><span class="ic ic-nav ic-3" data-ic="layers"></span><span class="nav-t">Grounding<span class="nav-i">P2</span></span><span class="nav-dot" id="dot-rag"></span></button>
       <button data-p="judge"><span class="ic ic-nav ic-4" data-ic="meter"></span><span class="nav-t">Judge &amp; tests<span class="nav-i">P3</span></span><span class="nav-dot" id="dot-judge"></span></button>
+      <div class="nav-h" style="padding-top:14px">Governance</div>
+      <button data-p="ops"><span class="ic ic-nav ic-2" data-ic="target"></span><span class="nav-t">Operations</span><span class="nav-dot" id="dot-ops"></span></button>
       <div class="nav-h" style="padding-top:14px">Archive</div>
       <button data-p="records"><span class="ic ic-nav ic-5" data-ic="archive"></span><span class="nav-t">Saved audits</span><span class="nav-dot" id="dot-records"></span></button>
       <button data-p="reports"><span class="ic ic-nav ic-1" data-ic="chart"></span><span class="nav-t">Reports</span><span class="nav-dot" id="dot-reports"></span></button>
@@ -964,6 +980,57 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
         <div class="save-strip">
           <div><b>Finished grading?</b><span>Save the current audit and its judge scores to the shared archive.</span></div>
           <button class="btn pri" data-save-audit>Save audit to archive</button>
+        </div>
+      </section>
+
+      <!-- ============ OPERATIONS & GOVERNANCE ============ -->
+      <section class="panel" id="p-ops">
+        <div class="phead">
+          <div>
+            <span class="ic ic-head ic-2" data-ic="target"></span>
+            <div class="kicker">Governance · live control plane</div>
+            <h1 class="ptitle">Set the standard, then watch the system</h1>
+            <p class="psub">Apply a reusable verification policy, see whether this audit is ready to approve, and monitor the model connections that power the workbench.</p>
+          </div>
+          <div class="row"><button class="btn" id="btn-ops-refresh">Refresh telemetry</button></div>
+        </div>
+
+        <div class="ops-grid">
+          <div style="display:flex;flex-direction:column;gap:18px">
+            <div class="card">
+              <div class="card-h"><span class="card-t">RAB verification score</span><span class="tag" id="gov-grade">Not ready</span></div>
+              <div class="card-b scorecard" id="gov-score"></div>
+            </div>
+            <div class="card">
+              <div class="card-h"><span class="card-t">Recent service activity</span><span class="hint" id="ops-since"></span></div>
+              <div class="card-b" id="ops-events"><div class="empty">Loading…</div></div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:18px">
+            <div class="card">
+              <div class="card-h"><span class="card-t">Shared policy profiles</span></div>
+              <div class="card-b">
+                <div class="policy-row">
+                  <select id="policy-profile" aria-label="Verification policy profile">
+                    <option value="standard">Standard review</option>
+                    <option value="high">High-stakes review</option>
+                    <option value="rapid">Rapid screening</option>
+                  </select>
+                  <button class="btn pri" id="btn-policy-apply">Apply policy</button>
+                </div>
+                <div class="policy-summary" id="policy-summary"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-h"><span class="card-t">Provider health</span><span class="hint" id="ops-summary"></span></div>
+              <div class="card-b"><div class="health-list" id="ops-health"></div></div>
+            </div>
+            <div class="card">
+              <div class="card-h"><span class="card-t">Active alerts</span></div>
+              <div class="card-b"><div class="alert-list" id="ops-alerts"></div></div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1292,6 +1359,7 @@ function apiDb(){
     renderModelSelect(); renderModelNote(); renderRunButton(); renderLedger();
     renderRecords(); if(DB) watchRecords();
     $("#dot-reports").classList.toggle("on",SERVER_REPORTS);
+    $("#dot-ops").classList.toggle("on",Object.keys(SERVER.providers).some(function(k){return SERVER.providers[k]}));
   }).catch(function(){
     capLine($("#cap-sample"),false,"Models","API unreachable");
     capLine($("#cap-db"),false,"Archive","API unreachable");
@@ -1332,6 +1400,7 @@ $("#nav").addEventListener("click",function(e){
 });
 function show(p){
   if(p==="reports") setTimeout(function(){loadReports(false)},0);
+  if(p==="ops") setTimeout(function(){loadOperations(false)},0);
   document.querySelectorAll("#nav button").forEach(function(b){b.setAttribute("aria-current",b.dataset.p===p?"true":"false")});
   document.querySelectorAll(".panel").forEach(function(s){s.classList.toggle("on",s.id==="p-"+p)});
   window.scrollTo({top:0,behavior:"instant"});
@@ -1400,6 +1469,8 @@ var HELP_KB=[
 "",
 "JUDGE AND TESTS. A second model scores the answer against a rubric you control. Every criterion name and description is editable in place; you can add, remove or reset them, and editing clears the current scores. Strictness recalibrates what a 5 means. The pass mark sets the score below which an audit is flagged 'Below bar' in the header, and draws the red zone on each gauge. Below that, a programmatic check compares JSON or CSV output against a baseline field by field — no model involved.",
 "",
+"OPERATIONS. This is RAB's control plane. Policy profiles apply a consistent bundle of review settings: Standard, High-stakes, or Rapid screening. The RAB verification score is a transparent 100-point readiness checklist, not an AI opinion. Provider health shows whether Claude, ChatGPT, Gemini, and Supabase are configured. Telemetry shows route, HTTP status, latency, and provider for the current Render process only; it never stores prompts, answers, claims, IP addresses, or keys. Active alerts call out disconnected services, high error rates, recent rate limits, and an audit score below 70.",
+"",
 "SAVED AUDITS AND REPORTS. Saving keeps the response, every claim and verdict, the dial settings and the judge scores, as separate database rows rather than a blob — which is what makes the Reports panel possible. Reports shows, across every audit: where claims ended up, which claim types fail checking most often, which model produces answers that survive it, audits per week, and how often a refuted claim was recorded with no source. It refuses an untitled audit and asks for a name. The archive is shared with everyone who can open this page.",
 "",
 "KNOWN LIMITS. The 'which model produced this answer' dropdown is a label for the record only. Automatic ChatGPT and Gemini cross-checks require their respective API keys in Render. Claude can instead use the free website through the copy-and-paste flow. Automatic cross-checks do not browse the web and are judgements from model knowledge, not source verification. Use Web, Scholar and authoritative primary sources before changing a claim's status."
@@ -1407,7 +1478,7 @@ var HELP_KB=[
 
 function helpState(){
   var panel=(document.querySelector(".panel.on")||{}).id||"", names={
-    "p-check":"Fact-check","p-console":"Prompt console","p-rag":"Grounding","p-judge":"Judge & tests","p-records":"Saved audits"};
+    "p-check":"Fact-check","p-console":"Prompt console","p-rag":"Grounding","p-judge":"Judge & tests","p-ops":"Operations","p-reports":"Reports","p-records":"Saved audits"};
   var n=function(st){return S.claims.filter(function(c){return c.status===st}).length};
   var st=steps()[curStep()];
   return ["WHAT THE USER IS LOOKING AT RIGHT NOW (use it only if relevant):",
@@ -1430,7 +1501,7 @@ var HELP_CHIPS=[
   "Where do I start?",
   "Why can't I mark this claim Verified?",
   "What's the difference between Review and Build?",
-  "Is the temperature dial actually doing anything?"
+  "What does the RAB verification score measure?"
 ];
 function helpOpen(on){
   var el=$("#help");
@@ -2369,6 +2440,85 @@ $("#btn-diff").addEventListener("click",function(){
   }
   renderDiff(rows,"Compared field by field. No model was involved in this check — it is a script, and it is the only part of the pipeline that cannot be talked into agreeing with you.");
 });
+
+/* ---------------- operations & governance ----------------
+   RAB borrows the control-plane ideas that make mature API platforms useful:
+   define standards once, score work against them, and expose operational
+   health without exposing the content or credentials moving through it. */
+var OPS=null, opsBusy=false;
+var POLICIES={
+  standard:{name:"Standard review",desc:"Balanced claim splitting, two verification checks, grounded answers, citations, explicit uncertainty, and a 3.5 judge pass mark.",cfg:{gran:"balanced",proof:2,strict:"standard",pass:3.5,ground:true,cite:true,uncert:true,refuse:true,scope:true,structured:false}},
+  high:{name:"High-stakes review",desc:"Fine-grained claims, all three verification checks, harsh judging, structured output, and a 4.2 pass mark. Use for legal, medical, financial, or executive decisions.",cfg:{gran:"fine",proof:3,strict:"harsh",pass:4.2,ground:true,cite:true,uncert:true,refuse:true,scope:true,structured:true}},
+  rapid:{name:"Rapid screening",desc:"Coarse claims and one verification check with a 3.0 judge threshold. Useful for triage only; it is not an approval standard.",cfg:{gran:"coarse",proof:1,strict:"lenient",pass:3,ground:true,cite:true,uncert:true,refuse:false,scope:true,structured:false}}
+};
+function currentPolicy(){ return POLICIES[$("#policy-profile").value]||POLICIES.standard }
+function renderPolicy(){ $("#policy-summary").innerHTML='<b>'+esc(currentPolicy().name)+':</b> '+esc(currentPolicy().desc) }
+function applyPolicy(){
+  var p=currentPolicy(); Object.keys(p.cfg).forEach(function(k){S.cfg[k]=p.cfg[k]});
+  S.saved=false; renderSwitches(); renderConsole(); renderDials(); renderLedger(); renderRubric(); stats(); renderGovernanceScore();
+  toast(p.name+" applied to this audit.");
+}
+$("#policy-profile").addEventListener("change",renderPolicy);
+$("#btn-policy-apply").addEventListener("click",applyPolicy);
+
+function governanceChecks(){
+  var claims=S.claims||[], decided=claims.filter(function(c){return c.status!=="unverified"});
+  var sourced=decided.filter(function(c){return String(c.url||"").trim()});
+  var crossed=claims.filter(function(c){return c.aiChecks&&Object.keys(c.aiChecks).length});
+  return [
+    {done:!!String(S.response||S.answer||"").trim(),pts:10,label:"Answer captured for review"},
+    {done:claims.length>0,pts:15,label:"Answer split into checkable claims"},
+    {done:claims.length>0&&decided.length===claims.length,pts:25,label:"Every claim has a human verdict"},
+    {done:decided.length>0&&sourced.length===decided.length,pts:15,label:"Every verdict records a source"},
+    {done:claims.length>0&&crossed.length===claims.length,pts:10,label:"Every claim has an independent AI cross-check"},
+    {done:S.cfg.ground&&S.cfg.cite&&S.cfg.uncert,pts:10,label:"Grounding guardrails are active"},
+    {done:!!(S.scores&&S.scores.length),pts:10,label:"Judge rubric has been run"},
+    {done:!untitled(S.title),pts:5,label:"Audit has a searchable name"}
+  ];
+}
+function renderGovernanceScore(){
+  var checks=governanceChecks(), score=checks.reduce(function(n,c){return n+(c.done?c.pts:0)},0);
+  var grade=score>=90?"Ready to approve":score>=70?"Needs review":"Not ready";
+  var ge=$("#gov-grade"); ge.textContent=grade; ge.className="tag "+(score>=90?"risk-low":score>=70?"risk-medium":"risk-high");
+  $("#gov-score").innerHTML='<div class="score-ring" style="--score:'+score+'"><div><strong>'+score+'</strong><span>out of 100</span></div></div><div class="checklist">'+
+    checks.map(function(c){return '<div class="checkrow '+(c.done?'done':'')+'"><span class="checkmark">'+(c.done?'✓':'—')+'</span><span>'+esc(c.label)+'</span><span class="checkpts">'+c.pts+' pts</span></div>'}).join("")+'</div>';
+  return score;
+}
+function fmtUptime(sec){
+  sec=Number(sec)||0; var h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60);
+  return h?h+"h "+m+"m":m?m+"m":sec+"s";
+}
+function renderOperations(){
+  var score=renderGovernanceScore(); renderPolicy();
+  if(opsBusy){ $("#ops-events").innerHTML='<div class="empty"><span class="busy">Reading telemetry</span></div>'; return }
+  if(!OPS){ $("#ops-events").innerHTML='<div class="empty">Live telemetry has not loaded yet.</div>'; return }
+  if(OPS.error){ $("#ops-events").innerHTML='<div class="empty err">'+esc(OPS.error)+'</div>'; return }
+  var sum=OPS.summary||{}, providers=OPS.providers||[], events=OPS.events||[];
+  $("#ops-summary").textContent=(sum.requests||0)+" calls · "+(sum.errorRate||0)+"% errors · "+(sum.avgLatency||0)+" ms average";
+  $("#ops-since").textContent="Current Render session · "+fmtUptime(OPS.uptimeSeconds);
+  $("#ops-health").innerHTML=providers.map(function(p){
+    return '<div class="healthrow"><span class="healthdot '+(p.connected?'on':'')+'"></span><div><div class="healthname">'+esc(p.label)+'</div><div class="healthmeta">'+esc(p.model)+'</div></div><span class="tag">'+(p.connected?'Connected':'Not configured')+'</span></div>';
+  }).join("")+'<div class="healthrow"><span class="healthdot '+(OPS.archive?'on':'')+'"></span><div><div class="healthname">Supabase archive</div><div class="healthmeta">durable audit records</div></div><span class="tag">'+(OPS.archive?'Connected':'Not configured')+'</span></div>';
+  var alerts=[];
+  providers.forEach(function(p){if(!p.connected) alerts.push(p.label+" is not connected.")});
+  if(!OPS.archive) alerts.push("The Supabase archive is unavailable; reports will not persist.");
+  if(Number(sum.errorRate)>10&&Number(sum.requests)>=5) alerts.push("Service error rate is above 10% in this Render session.");
+  if(events.some(function(e){return e.status===429})) alerts.push("A rate limit was reached recently. Slow repeated requests or wait for the window to reset.");
+  if(score<70) alerts.push("The current audit has not reached the minimum governance score of 70.");
+  $("#ops-alerts").innerHTML=alerts.length?alerts.map(function(a){return '<div class="op-alert">'+esc(a)+'</div>'}).join(""):'<div class="op-alert ok">No active operational or audit-readiness alerts.</div>';
+  $("#ops-events").innerHTML=events.length?'<div style="overflow-x:auto"><table class="event-table"><thead><tr><th>Time</th><th>Operation</th><th>Status</th><th>Latency</th></tr></thead><tbody>'+events.map(function(e){
+    var time=new Date(e.at).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit"});
+    return '<tr><td>'+esc(time)+'</td><td>'+esc(e.route)+(e.provider?' · '+esc(e.provider):'')+'</td><td class="'+(e.status<400?'http-ok':'http-bad')+'">'+e.status+'</td><td>'+e.latency+' ms</td></tr>';
+  }).join("")+'</tbody></table></div>':'<div class="empty">No API activity has been recorded in this Render session yet.</div>';
+}
+function loadOperations(force){
+  if(OPS&&!force) return renderOperations();
+  opsBusy=true; renderOperations();
+  fetch("/api/operations").then(function(r){return r.json()}).then(function(d){OPS=d.error?{error:d.error.message||"Could not read telemetry."}:d})
+    .catch(function(e){OPS={error:"Could not reach the server: "+e.message}})
+    .then(function(){opsBusy=false;renderOperations()});
+}
+$("#btn-ops-refresh").addEventListener("click",function(){loadOperations(true)});
 
 /* ---------------- reports ----------------
    Chart rules that matter here: magnitude is one hue, never a rainbow. The four
