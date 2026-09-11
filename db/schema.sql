@@ -80,6 +80,25 @@ create table if not exists scores (
 
 create index if not exists scores_audit_idx on scores (audit_id);
 
+-- ---------------------------------------------------------- help feedback ----
+-- Verity uses ratings immediately inside the current browser visit. This table
+-- keeps a durable copy so product owners can review patterns and improve the
+-- help instructions over time. It does not train an AI provider's base model.
+create table if not exists help_feedback (
+  id          uuid primary key default gen_random_uuid(),
+  client_id   text not null unique,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now(),
+  rating      smallint not null check (rating in (-1, 1)),
+  question    text,
+  response    text,
+  reason      text,
+  model       text,
+  page        text
+);
+
+create index if not exists help_feedback_created_at_idx on help_feedback (created_at desc);
+
 -- =========================================================== report views ===
 -- Views rather than app-side aggregation: the numbers stay correct if you point
 -- Metabase, Looker or a notebook at this database instead of using the app.
@@ -146,3 +165,4 @@ order by 1;
 alter table audits enable row level security;
 alter table claims enable row level security;
 alter table scores enable row level security;
+alter table help_feedback enable row level security;
