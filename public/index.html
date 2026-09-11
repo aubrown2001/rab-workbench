@@ -635,6 +635,7 @@ body{font-size:16.5px;background:
 .runname{font-weight:700;background:#F7FAFE;border-color:#CED9E7}
 .stats{border-color:#D4DFEC;background:#F7FAFE}.stat-k{font-weight:700;color:#718096}.stat-v{font-weight:700;color:#13233A}
 .btn{font-weight:700;border-color:#C7D3E3;background:#FFFFFF}.btn:hover:not(:disabled){border-color:#91A7C2}.btn.pri{background:linear-gradient(135deg,#1769E8,#2B7FFF);border-color:#1769E8;box-shadow:0 9px 20px -13px rgba(23,105,232,.9)}
+.help-center-link{text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap}
 main{max-width:1540px}
 .phead{position:relative;padding-bottom:20px;border-bottom:1px solid var(--line)}
 .phead::after{content:"";position:absolute;left:0;bottom:-1px;width:92px;height:3px;border-radius:3px;background:linear-gradient(90deg,#1769E8,#38CDEB)}
@@ -745,7 +746,8 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
       </div>
       <div class="row">
         <button class="btn sm ghost" id="btn-guide" aria-pressed="true">Guide</button>
-        <button class="helpbtn" id="btn-help" aria-expanded="false" aria-controls="help" title="Ask for help with this tool"><span class="ic ic-nav ic-2" data-ic="help"></span></button>
+        <a class="btn sm ghost help-center-link" href="/help.html" target="_blank" rel="noopener">Help Center</a>
+        <button class="helpbtn" id="btn-help" aria-expanded="false" aria-controls="help" title="Ask ChatGPT about this tool"><span class="ic ic-nav ic-2" data-ic="help"></span></button>
         <button class="tsw" id="btn-theme" role="switch" aria-checked="false" aria-label="Dark mode" title="Light and dark theme"><span class="tsw-i">☀</span><span class="tsw-i">☾</span><span class="tsw-k"></span></button>
         <button class="btn sm" id="btn-new">New audit</button>
         <button class="btn sm pri" id="btn-save" data-save-audit>Save audit</button>
@@ -1103,7 +1105,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 <aside class="help" id="help" role="dialog" aria-modal="false" aria-label="Help" inert>
   <header class="help-h">
     <span class="ic ic-sm ic-2" data-ic="help"></span>
-    <div><div class="help-t">Help</div><div class="help-s">Ask about anything in this workbench</div></div>
+    <div><div class="help-t">ChatGPT Help</div><div class="help-s">Ask about anything in this workbench</div></div>
     <button class="btn sm ghost" id="help-close" aria-label="Close help">Close</button>
   </header>
   <div class="help-log" id="help-log"></div>
@@ -1247,6 +1249,7 @@ function capLine(el,ok,label,txt){
    service holding the API keys. Same shapes the rest of the app already
    expects, so nothing below this block changed. */
 var SERVER={models:[],providers:{},archive:false};
+var HELP_OPENAI_MODEL=null;
 
 function apiSample(input,opts){
   opts=opts||{};
@@ -1364,6 +1367,8 @@ function apiDb(){
     SERVER.providers=d.providers||{};
     SERVER.archive=!!d.archive;
     SERVER_REPORTS=!!d.reports;
+    var helpModel=SERVER.models.filter(function(m){return m.id==="gpt-5.6-terra"})[0]||SERVER.models.filter(function(m){return m.provider==="openai"})[0];
+    HELP_OPENAI_MODEL=helpModel?helpModel.id:null;
 
     var anyModel=SERVER.models.length>0;
     SAMPLE=anyModel?apiSample:null;
@@ -1541,7 +1546,7 @@ function renderChips(){
 function renderHelp(){
   var log=$("#help-log");
   if(!helpTurns.length){
-    log.innerHTML='<div class="help-greet"><b>How can I help you?</b>'+
+    log.innerHTML='<div class="help-greet"><b>How can ChatGPT help you?</b>'+
       'Ask about any control on this page, what a step wants from you, or why something is not doing what you expect. '+
       'I can see which panel you are on and the state of your audit.</div>';
   } else {
@@ -1554,22 +1559,23 @@ function renderHelp(){
 }
 function helpAsk(q){
   q=(q||"").trim(); if(!q||helpBusy) return;
-  if(!SAMPLE){
+  if(!SAMPLE||!HELP_OPENAI_MODEL){
     helpTurns.push({role:"user",content:q});
-    helpTurns.push({role:"assistant",content:aiErr({code:"not_granted"}),err:true});
+    helpTurns.push({role:"assistant",content:"ChatGPT Help is unavailable because the OpenAI connection is not configured on this deployment.",err:true});
     renderHelp(); return;
   }
   helpTurns.push({role:"user",content:q});
   helpTurns.push({role:"assistant",content:"Thinking…"});
   helpBusy=true; $("#help-send").disabled=true; renderHelp();
   var idx=helpTurns.length-1;
-  /* Claude sees the knowledge base and the live state as a leading turn, then the
-     conversation so far. Only the last 8 turns travel, to stay well inside limits. */
+  /* ChatGPT sees the knowledge base and live workbench state as a leading turn,
+     then the conversation so far. The explicit OpenAI model prevents this help
+     tool from following a Claude selection made in the Prompt Console. */
   var convo=helpTurns.slice(0,-1).filter(function(t){return !t.err}).slice(-8)
     .map(function(t){return {role:t.role,content:t.content}});
   var input=[{role:"user",content:HELP_KB+"\n\n"+helpState()}].concat(convo);
   helpCtl=new AbortController();
-  SAMPLE(input,{cache:false,signal:helpCtl.signal,modelTier:"default",onText:function(u){
+  SAMPLE(input,{cache:false,signal:helpCtl.signal,modelTier:HELP_OPENAI_MODEL,onText:function(u){
     helpTurns[idx].content=u.text; renderHelp();
   }}).then(function(r){
     helpTurns[idx].content=r.text; helpTurns[idx].err=false;
