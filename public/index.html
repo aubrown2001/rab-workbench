@@ -1573,14 +1573,20 @@ function helpAsk(q){
      tool from following a Claude selection made in the Prompt Console. */
   var convo=helpTurns.slice(0,-1).filter(function(t){return !t.err}).slice(-8)
     .map(function(t){return {role:t.role,content:t.content}});
-  var input=[{role:"user",content:HELP_KB+"\n\n"+helpState()}].concat(convo);
+  var input=[
+    {role:"user",content:HELP_KB+"\n\n"+helpState()},
+    {role:"assistant",content:"I understand. I am Verity, and I will answer only about RAB in plain language."}
+  ].concat(convo);
   helpCtl=new AbortController();
-  SAMPLE(input,{cache:false,signal:helpCtl.signal,modelTier:HELP_OPENAI_MODEL,onText:function(u){
-    helpTurns[idx].content=u.text; renderHelp();
-  }}).then(function(r){
-    helpTurns[idx].content=r.text; helpTurns[idx].err=false;
+  /* Help uses one complete JSON response instead of token streaming. That is
+     less flashy, but much more reliable across OpenAI model and proxy changes:
+     Verity either displays a complete answer or a useful error, never a blank. */
+  SAMPLE(input,{cache:false,signal:helpCtl.signal,modelTier:HELP_OPENAI_MODEL,temperature:0}).then(function(r){
+    var answer=String(r&&r.text||"").trim();
+    if(!answer) return Promise.reject({code:"empty_completion",message:"Verity returned an empty answer."});
+    helpTurns[idx].content=answer; helpTurns[idx].err=false;
   }).catch(function(e){
-    helpTurns[idx].content=aiErr(e)||"Cancelled."; helpTurns[idx].err=true;
+    helpTurns[idx].content=aiErr(e)||"Verity could not answer. Try again."; helpTurns[idx].err=true;
   }).then(function(){ helpBusy=false; $("#help-send").disabled=false; renderHelp(); });
 }
 $("#btn-help").addEventListener("click",function(){ helpOpen(!$("#help").classList.contains("on")); });
