@@ -8,6 +8,7 @@
  *   GET    /api/models          which models this deployment can actually run
  *   POST   /api/sample          model proxy (Anthropic + OpenAI), streaming or JSON
  *   POST   /api/check           provider-specific claim cross-check
+ *   POST   /api/help-feedback   save a Verity helpful / not-helpful rating
  *   GET    /api/audits          the archive, newest first
  *   POST   /api/audits          save one audit (audit + claims + scores, relational)
  *   DELETE /api/audits/:id      remove one
@@ -425,6 +426,33 @@ app.post("/api/check", rateLimit({ windowMs: 60_000, max: 30, key: "checks" }), 
     const code = e.status === 401 || e.status === 403 ? "auth_failed" : e.status === 429 ? "rate_limited" : "upstream_error";
     fail(res, status, code, e.message);
   }
+});
+
+/* ---------------------------------------------------- POST /help-feedback */
+app.post("/api/help-feedback", rateLimit({ windowMs: 60_000, max: 30, key: "feedback" }), async (req, res) => {
+  const rating = Number(req.body?.rating);
+  if (rating !== 1 && rating !== -1) return fail(res, 400, "invalid_request", "Feedback must be helpful or not helpful.");
+  const clientId = String(req.body?.clientId || "").trim().slice(0, 100);
+  if (!/^[a-zA-Z0-9_-]{8,100}$/.test(clientId)) return fail(res, 400, "invalid_request", "A valid feedback id is required.");
+
+  /* The rating improves the current browser visit even without Supabase. When
+     the optional table exists, it also becomes durable product feedback. */
+  if (!archiveOn()) return res.status(202).json({ recorded: false, sessionOnly: true });
+  const row = {
+    client_id: clientId,
+    updated_at: new Date().toISOString(),
+    rating,
+    question: String(req.body?.question || "").slice(0, 4000),
+    response: String(req.body?.response || "").slice(0, 8000),
+    reason: String(req.body?.reason || "").slice(0, 2000) || null,
+    model: String(req.body?.model || "").slice(0, 120) || null,
+    page: String(req.body?.page || "").slice(0, 80) || null,
+  };
+  const { error } = await supa.from("help_feedback").upsert(row, { onConflict: "client_id" });
+  /* A deployment can accept in-session feedback before its optional migration
+     has been run. Do not break Verity merely because durable storage is absent. */
+  if (error) return res.status(202).json({ recorded: false, sessionOnly: true });
+  res.status(201).json({ recorded: true });
 });
 
 /* ------------------------------------------------------------- GET /audits */
