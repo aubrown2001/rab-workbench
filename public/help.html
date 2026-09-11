@@ -19,7 +19,7 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
   <aside class="side">
     <div class="brand">RAB</div><div class="sub">Help Center</div>
     <nav aria-label="Help topics">
-      <a href="#start">Start here</a><a href="#topbar">Top bar</a><a href="#factcheck">Fact-check</a><a href="#console">Prompt console</a><a href="#grounding">Grounding</a><a href="#judge">Judge & tests</a><a href="#operations">Operations</a><a href="#audits">Saved audits</a><a href="#reports">Reports</a><a href="#assistant">ChatGPT Help</a><a href="#errors">Problems & errors</a><a href="#glossary">Plain-English glossary</a>
+      <a href="#start">Start here</a><a href="#topbar">Top bar</a><a href="#factcheck">Fact-check</a><a href="#console">Prompt console</a><a href="#grounding">Grounding</a><a href="#judge">Judge & tests</a><a href="#operations">Operations</a><a href="#audits">Saved audits</a><a href="#reports">Reports</a><a href="#assistant">Verity</a><a href="#errors">Problems & errors</a><a href="#glossary">Plain-English glossary</a>
     </nav>
     <a class="back" href="/">← Back to RAB</a>
   </aside>
@@ -30,7 +30,7 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
       <p class="lead">A plain-English guide to every part of the RAB Verification Workbench. You do not need to be technical to use it.</p>
       <label class="search"><input id="search" type="search" placeholder="Search help — try “save,” “Gemini,” “proof,” or “reports”" aria-label="Search the help center"></label>
     </header>
-    <div class="no-results" id="no-results">No help topic matched that search. Try a shorter word, or use ChatGPT Help inside RAB.</div>
+    <div class="no-results" id="no-results">No help topic matched that search. Try a shorter word, or ask Verity inside RAB.</div>
 
     <section class="section" id="start"><div class="section-head"><span class="num">1</span><h2>Start here</h2></div><div class="grid">
       <article class="topic wide"><h3>If you already have an AI answer</h3><div class="steps"><div class="step"><p>Open <strong>Fact-check</strong> and paste the answer.</p></div><div class="step"><p>Press <strong>Extract claims</strong>. RAB breaks the answer into smaller statements that can be checked.</p></div><div class="step"><p>Check each claim against a real source and record the result.</p></div><div class="step"><p>Optionally use <strong>Judge & tests</strong>, then give the audit a useful name and save it.</p></div></div></article>
@@ -42,7 +42,7 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
       <article class="topic"><h3>Claims, Cleared, Judge, Verdict</h3><p>These are live totals for the current audit. They change as claims are reviewed and the judge runs.</p></article>
       <article class="topic"><h3>Guide</h3><p>Shows or hides the step-by-step path across the top of the workbench.</p></article>
       <article class="topic"><h3>Help Center</h3><p>Opens this complete manual in a separate tab so you do not lose your current work.</p></article>
-      <article class="topic"><h3>Question-mark button</h3><p>Opens ChatGPT Help. It can answer questions using the page you are on and the current audit status.</p></article>
+      <article class="topic"><h3>Question-mark button</h3><p>Opens Verity, your RAB Help Assistant. Verity can answer questions using the page you are on and the current audit status.</p></article>
       <article class="topic"><h3>Sun and moon</h3><p>Changes between light and dark mode.</p></article>
       <article class="topic"><h3>New audit</h3><p>Clears the current response, claims, and judge results. Save first if you want to keep them.</p></article>
       <article class="topic"><h3>Save audit</h3><p>Saves the audit, claims, sources, settings, and scores to the shared Supabase archive.</p></article>
@@ -134,8 +134,8 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
       <article class="topic wide"><h3>Refresh</h3><p>Recalculates the dashboard from the latest Supabase records.</p></article>
     </div></section>
 
-    <section class="section" id="assistant"><div class="section-head"><span class="num">10</span><h2>ChatGPT Help</h2></div><div class="grid">
-      <article class="topic wide"><h3>What it can do</h3><p>Press the question-mark button in RAB and ask a question naturally. ChatGPT receives this product guide plus a short description of your current panel and audit status. It is explicitly routed through the OpenAI connection and does not change when you select Claude elsewhere.</p></article>
+    <section class="section" id="assistant"><div class="section-head"><span class="num">10</span><h2>Verity</h2></div><div class="grid">
+      <article class="topic wide"><h3>What it can do</h3><p>Press the question-mark button in RAB and ask Verity a question naturally. Verity receives this product guide plus a short description of your current panel and audit status. It runs through the OpenAI connection and does not change when you select Claude elsewhere.</p></article>
       <article class="topic"><h3>Suggested questions</h3><p>Use the starter buttons, or ask things like “Why can’t I verify this claim?” and “What should I do next?”</p></article>
       <article class="topic"><h3>What it cannot do</h3><p>It explains RAB. It does not click buttons, change the audit, verify sources, or replace your judgment.</p></article>
     </div></section>
@@ -144,7 +144,7 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
       <article class="topic"><h3>Too many requests</h3><p>RAB reached a safety limit or an AI provider limit. Wait about one minute and try once more.</p></article>
       <article class="topic"><h3>Something went wrong</h3><p>Open Operations and check Provider health and Recent service activity. A red status often contains the useful clue.</p></article>
       <article class="topic"><h3>Provider not configured</h3><p>The corresponding API key is missing or invalid in Render. Add or correct it under the service’s Environment settings.</p></article>
-      <article class="topic"><h3>Help does not answer</h3><p>Confirm that ChatGPT/OpenAI is connected under Operations. ChatGPT Help intentionally does not fall back to Claude.</p></article>
+      <article class="topic"><h3>Verity does not answer</h3><p>Confirm that ChatGPT/OpenAI is connected under Operations. Verity intentionally does not fall back to Claude.</p></article>
       <article class="topic"><h3>Changes do not appear</h3><p>Wait for Render to finish deploying, then press Ctrl + Shift + R on Windows to reload without the old cached files.</p></article>
       <article class="topic"><h3>Render takes a long time</h3><p>A free Render service sleeps when unused. The first request after a quiet period may take about a minute.</p></article>
       <article class="topic"><h3>Cannot mark Verified</h3><p>Complete enough Source Check boxes to meet the selected Standard of proof.</p></article>
