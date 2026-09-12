@@ -6,7 +6,7 @@
  * credential: it only ever calls same-origin /api/* routes on this server.
  *
  *   GET    /api/models          which models this deployment can actually run
- *   POST   /api/ask             protected ChatGPT question for the Ask & Verify path
+ *   POST   /api/ask             protected model question for the Ask AI path
  *   POST   /api/sample          model proxy (Anthropic + OpenAI), streaming or JSON
  *   POST   /api/check           provider-specific claim cross-check
  *   POST   /api/help-feedback   save a Verity helpful / not-helpful rating
@@ -207,7 +207,7 @@ app.get("/api/operations", (req, res) => {
       model: CHECK_PROVIDERS[provider].model(),
     })),
     archive: archiveOn(),
-    limits: { modelRunsPerMinute: 20, askChatGPTPerMinute: 8, askChatGPTPerDay: ASK_DAILY_LIMIT, claimChecksPerMinute: 30, archiveWritesPerMinute: 60 },
+    limits: { modelRunsPerMinute: 20, askAiPerMinute: 8, askAiPerDay: ASK_DAILY_LIMIT, claimChecksPerMinute: 30, archiveWritesPerMinute: 60 },
     routes,
     events: operations.events.slice(0, 20),
   });
@@ -230,55 +230,57 @@ function toMessages(input) {
 }
 
 /* --------------------------------------------------------------- POST /ask */
-/* This is intentionally OpenAI-only and separately limited. It uses the site
-   owner's API key, so it is disabled unless the whole workbench is protected
-   by RAB_USERNAME and RAB_PASSWORD. The browser never receives the key. */
+/* Ask AI is separately limited because it uses the site owner's API accounts.
+   It is disabled unless the whole workbench is protected by RAB_USERNAME and
+   RAB_PASSWORD. The browser receives model names, but never an API key. */
 app.post("/api/ask",
-  rateLimit({ windowMs: 60_000, max: 8, key: "ask", message: "Ask ChatGPT is limited to 8 questions per minute. Please wait and try again." }),
-  rateLimit({ windowMs: 24 * 60 * 60 * 1000, max: ASK_DAILY_LIMIT, key: "ask-daily", message: `This deployment has reached its daily Ask ChatGPT limit of ${ASK_DAILY_LIMIT}. Try again tomorrow.` }),
+  rateLimit({ windowMs: 60_000, max: 8, key: "ask", message: "Ask AI is limited to 8 questions per minute. Please wait and try again." }),
+  rateLimit({ windowMs: 24 * 60 * 60 * 1000, max: ASK_DAILY_LIMIT, key: "ask-daily", message: `This deployment has reached its daily Ask AI limit of ${ASK_DAILY_LIMIT}. Try again tomorrow.` }),
   async (req, res) => {
-    if (!accessProtected()) return fail(res, 503, "login_required", "Ask ChatGPT is disabled until RAB_USERNAME and RAB_PASSWORD are set in Render.");
-    if (!hasKey("openai")) return fail(res, 503, "not_configured", "ChatGPT is not connected. Add OPENAI_API_KEY in Render.");
+    if (!accessProtected()) return fail(res, 503, "login_required", "Ask AI is disabled until RAB_USERNAME and RAB_PASSWORD are set in Render.");
 
     const question = String(req.body?.question || "").trim().slice(0, 12000);
-    if (!question) return fail(res, 400, "invalid_request", "Enter a question for ChatGPT.");
-    const picked = byId(process.env.OPENAI_MODEL_DEFAULT || "gpt-5.6-terra")
-      || MODEL_CATALOG.find((m) => m.provider === "openai");
-    if (!picked || picked.provider !== "openai") return fail(res, 503, "not_configured", "No approved OpenAI model is configured.");
+    if (!question) return fail(res, 400, "invalid_request", "Enter a question for the AI model.");
+    const requested = String(req.body?.model || "").trim();
+    const picked = byId(requested);
+    if (!picked || !["openai", "anthropic"].includes(picked.provider)) {
+      return fail(res, 400, "invalid_request", "Choose an available ChatGPT or Claude model.");
+    }
+    if (!hasKey(picked.provider)) {
+      return fail(res, 503, "not_configured", `${picked.label} is not connected. Add ${PROVIDER_KEY_NAMES[picked.provider]} in Render.`);
+    }
 
     let upstream;
     try {
-      upstream = await fetch("https://api.openai.com/v1/responses", {
-        method: "POST",
-        headers: { "content-type": "application/json", authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
-        body: JSON.stringify({
-          model: picked.apiId,
-          instructions: "You are ChatGPT inside RAB Verification Workbench. Answer the user's question clearly and directly. Do not claim to have browsed or verified live sources. State meaningful uncertainty instead of guessing. The answer will be separated into claims for human verification.",
-          input: question,
-          max_output_tokens: 2500,
-          store: false,
-        }),
-      });
+      const instructions = "You are an AI assistant inside RAB Verification Workbench. Answer the user's question clearly and directly. Do not claim to have browsed or verified live sources. State meaningful uncertainty instead of guessing. The answer will be separated into claims for human verification.";
+      upstream = picked.provider === "anthropic"
+        ? await fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST",
+            headers: { "content-type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
+            body: JSON.stringify({ model: picked.apiId, system: instructions, max_tokens: 2500, messages: [{ role: "user", content: question }] }),
+          })
+        : await fetch("https://api.openai.com/v1/responses", {
+            method: "POST",
+            headers: { "content-type": "application/json", authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+            body: JSON.stringify({ model: picked.apiId, instructions, input: question, max_output_tokens: 2500, store: false }),
+          });
     } catch (e) {
-      return fail(res, 502, "upstream_error", `Could not reach OpenAI: ${e.message}`);
+      return fail(res, 502, "upstream_error", `Could not reach ${picked.label}: ${e.message}`);
     }
     if (!upstream.ok) {
       const detail = await upstream.text().catch(() => "");
       let message = "";
       try { message = JSON.parse(detail)?.error?.message || ""; } catch { message = detail.slice(0, 300); }
       const code = upstream.status === 429 ? "rate_limited" : upstream.status === 401 || upstream.status === 403 ? "auth_failed" : "upstream_error";
-      return fail(res, upstream.status === 429 ? 429 : 502, code, message || `OpenAI returned ${upstream.status}.`);
+      return fail(res, upstream.status === 429 ? 429 : 502, code, message || `${picked.label} returned ${upstream.status}.`);
     }
     const data = await upstream.json();
-    const answer = (data.output || [])
-      .filter((item) => item.type === "message")
-      .flatMap((item) => item.content || [])
-      .filter((part) => part.type === "output_text")
-      .map((part) => part.text || "")
-      .join("")
-      .trim();
-    if (!answer) return fail(res, 502, "empty_completion", "ChatGPT returned no answer.");
-    res.json({ answer, model: picked.id });
+    const answer = picked.provider === "anthropic"
+      ? (data.content || []).filter((part) => part.type === "text").map((part) => part.text || "").join("").trim()
+      : (data.output || []).filter((item) => item.type === "message").flatMap((item) => item.content || [])
+          .filter((part) => part.type === "output_text").map((part) => part.text || "").join("").trim();
+    if (!answer) return fail(res, 502, "empty_completion", `${picked.label} returned no answer.`);
+    res.json({ answer, model: picked.id, label: picked.label, provider: picked.provider });
   }
 );
 
