@@ -48,6 +48,17 @@ try {
     throw new Error("Model configuration fallback did not behave as expected.");
   }
 
+  const ask = await fetch(base + "/api/ask", {
+    method: "POST",
+    headers: { "content-type": "application/json", ...authHeader },
+    body: JSON.stringify({ question: "What is RAB?" }),
+  });
+  const askBody = await ask.json();
+  const expectedAskCode = protectedMode ? "not_configured" : "login_required";
+  if (ask.status !== 503 || askBody?.error?.code !== expectedAskCode) {
+    throw new Error("Protected Ask ChatGPT fallback did not behave as expected.");
+  }
+
   const check = await fetch(base + "/api/check", {
     method: "POST",
     headers: { "content-type": "application/json", ...authHeader },
@@ -58,7 +69,7 @@ try {
     throw new Error("Provider-specific cross-check fallback did not behave as expected.");
   }
 
-  console.log("Server, static app, capability discovery, reports fallback, model fallback, and cross-check fallback passed.");
+  console.log("Server, static app, protected ChatGPT path, capability discovery, reports fallback, model fallback, and cross-check fallback passed.");
 } finally {
   await new Promise((resolve) => server.close(resolve));
 }
