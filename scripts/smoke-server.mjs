@@ -51,12 +51,12 @@ try {
   const ask = await fetch(base + "/api/ask", {
     method: "POST",
     headers: { "content-type": "application/json", ...authHeader },
-    body: JSON.stringify({ question: "What is RAB?" }),
+    body: JSON.stringify({ question: "What is RAB?", model: "gpt-5.6-terra" }),
   });
   const askBody = await ask.json();
   const expectedAskCode = protectedMode ? "not_configured" : "login_required";
   if (ask.status !== 503 || askBody?.error?.code !== expectedAskCode) {
-    throw new Error("Protected Ask ChatGPT fallback did not behave as expected.");
+    throw new Error("Protected Ask AI fallback did not behave as expected.");
   }
 
   const check = await fetch(base + "/api/check", {
