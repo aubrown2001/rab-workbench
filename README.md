@@ -1,5 +1,7 @@
 # RAB — Rigor Above Belief
 
+Version 1.0.1 makes archive saving prominent in the Fact-check and Judge pages and robustly maps AI judge results to their rubric gauges.
+
 A workbench for verifying AI output. Express backend on Render, Supabase Postgres
 for the audit record, and server-side model connections that keep every secret
 out of the browser.
@@ -71,6 +73,7 @@ Then **Environment → Add Environment Variable** for each:
 | `SUPABASE_URL` | for the archive | from Supabase settings |
 | `SUPABASE_SECRET_KEY` | for the archive | a secret key, `sb_secret_...` |
 | `RAB_USERNAME` / `RAB_PASSWORD` | strongly recommended | protects the entire workbench and its model credits with browser sign-in |
+| `RAB_ASK_DAILY_LIMIT` | optional | daily Ask ChatGPT ceiling; defaults to 100 questions |
 | `MODEL_QUICK` / `MODEL_DEFAULT` / `MODEL_COMPLEX` | optional | choose a catalog model for each internal tier |
 | `ANTHROPIC_MODEL_*` / `OPENAI_MODEL_*` | optional | update provider API IDs without changing the app when a vendor renames a model |
 
@@ -94,6 +97,11 @@ Set `RAB_USERNAME` and `RAB_PASSWORD` before sharing the URL. When both are set,
 the entire workbench is protected by browser sign-in while `/healthz` remains
 available to Render. For a larger team, replace this simple gate with Supabase
 Auth or your company identity provider so each reviewer has an individual login.
+
+The **Ask ChatGPT** workflow uses the site owner's `OPENAI_API_KEY`, so its API
+route refuses to run unless that browser sign-in is enabled. It is limited to
+8 questions per minute and 100 per day by default. Set `RAB_ASK_DAILY_LIMIT` in
+Render if you want a different daily ceiling.
 
 Add a spend limit at your model provider regardless.
 
