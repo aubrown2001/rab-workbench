@@ -690,6 +690,9 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 .report-table{width:100%;border-collapse:collapse}.report-table th{text-align:left;padding:9px 10px;color:var(--ink-3);font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;border-bottom:1px solid var(--line)}.report-table td{padding:11px 10px;border-bottom:1px solid var(--line);font-size:.82rem}.report-table tbody tr:last-child td{border-bottom:0}.report-table .titlecell{font-weight:700;max-width:320px}.report-table .num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .verdict-pill{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:.68rem;font-weight:700;background:var(--surface-3);color:var(--ink-2)}.verdict-pill.cleared{background:#DDF8EE;color:#087A55}.verdict-pill.refuted{background:#FFE2EA;color:#B91C4B}.verdict-pill.partial,.verdict-pill.in-review,.verdict-pill.below-bar{background:#FFF0D4;color:#A15308}
 .report-callout{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.report-mini{padding:13px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line)}.report-mini b{display:block;font-family:var(--f-mono);font-size:1.35rem;color:var(--report-color,var(--accent))}.report-mini span{font-size:.72rem;color:var(--ink-3)}
+.ask-chatgpt{border:1px solid #9FC4FF;background:linear-gradient(135deg,#F5F9FF 0%,#EEF5FF 58%,#F1FBFF 100%);box-shadow:0 16px 38px -30px rgba(23,105,232,.8)}
+.ask-chatgpt .card-h{background:transparent;border-bottom-color:#CFE0FA}.ask-chatgpt textarea{background:#fff;min-height:92px}.ask-chatgpt-note{display:flex;align-items:flex-start;gap:9px;color:var(--ink-2);font-size:.82rem;line-height:1.5}.ask-chatgpt-note::before{content:"✓";display:grid;place-items:center;flex:0 0 22px;height:22px;border-radius:50%;background:var(--ok-soft);color:var(--ok);font-weight:800}
+:root[data-theme="dark"] .ask-chatgpt{background:linear-gradient(135deg,#172844,#14243B);border-color:#355784}:root[data-theme="dark"] .ask-chatgpt .card-h{border-bottom-color:#2F496C}:root[data-theme="dark"] .ask-chatgpt textarea{background:var(--surface)}
 
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --accent:#73A2FF;--accent-2:#9AB8FF;--accent-soft:#20335A;
@@ -768,13 +771,23 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
         <div class="phead">
           <div>
             <span class="ic ic-head ic-1" data-ic="ledger"></span><div class="kicker">Practice 1 · Manual verification</div>
-            <h1 class="ptitle">Break the answer into claims, then check each one</h1>
-            <p class="psub">Citations are a starting point, not proof. Split the response into atomic claims, confirm each against an independent source, and record who cleared it.</p>
+            <h1 class="ptitle" id="check-title">Break the answer into claims, then check each one</h1>
+            <p class="psub" id="check-subtitle">Citations are a starting point, not proof. Split the response into atomic claims, confirm each against an independent source, and record who cleared it.</p>
           </div>
           <div class="row">
             <button class="btn" id="btn-extract">Extract claims</button>
             <button class="btn sm ghost" id="btn-clearclaims">Clear</button>
           </div>
+        </div>
+
+        <div class="card ask-chatgpt" id="ask-chatgpt" hidden>
+          <div class="card-h"><span class="card-t">Ask ChatGPT</span><span class="tag risk-medium">Uses your protected OpenAI connection</span></div>
+          <form class="card-b" id="ask-chatgpt-form" style="display:flex;flex-direction:column;gap:12px">
+            <label class="fld"><span class="fld-k">What would you like to know?</span>
+              <textarea id="ask-chatgpt-q" rows="3" maxlength="12000" placeholder="Ask a question just as you would in ChatGPT…"></textarea></label>
+            <div class="row"><button class="btn pri" id="btn-ask-chatgpt" type="submit" data-needs-ai>Ask ChatGPT &amp; verify</button><span class="hint" id="ask-chatgpt-status"></span></div>
+            <div class="ask-chatgpt-note">ChatGPT will answer first. RAB will then automatically break the answer into claims. The claims remain unverified until you check them against trustworthy sources.</div>
+          </form>
         </div>
 
         <div class="grid-side">
@@ -1195,7 +1208,7 @@ var SEED_CAND_JSON="";
 
 var S={
   title:"Untitled audit",
-  response:SEED_RESPONSE, prompt:"", model:"unspecified", appliedTier:null,
+  response:SEED_RESPONSE, prompt:"", askQuestion:"", model:"unspecified", appliedTier:null,
   isExample:false,
   claims:seedClaims(),
   cfg:{temp:0.1,cot:"evidence",ground:true,cite:true,uncert:true,refuse:true,scope:true,structured:false,tier:"default",topK:5,minMatch:0,gran:"balanced",proof:2,strict:"standard",pass:3.5},
@@ -1494,7 +1507,7 @@ var HELP_KB=[
 "",
 "WHAT IT IS. RAB stands for Rigor Above Belief: a claim is settled by evidence, not by how confident the answer sounded. It breaks an AI answer into individual claims, has a person check each one against an independent source, and keeps the record.",
 "",
-"THE GUIDED RUN. A step bar at the top offers two paths. 'Review an answer' (5 steps) is for an answer that already exists: paste it, break it into claims, clear each claim, optionally grade it, save. 'Build an answer' (7 steps) is for one you are producing: load evidence, set constraints in the console, generate a grounded answer, then the same claim work. Both end at the claim ledger because grounding narrows what a model may say but never proves what it said. The Guide button hides the step bar.",
+"THE GUIDED RUN. A step bar at the top offers three paths. 'Review an answer' (5 steps) is for an answer that already exists: paste it, break it into claims, clear each claim, optionally grade it, save. 'Build from evidence' (7 steps) is for one you are producing from trusted material: load evidence, set constraints in the console, generate a grounded answer, then the same claim work. 'Ask ChatGPT' (5 steps) lets a signed-in user ask a normal question using the protected OpenAI connection; RAB puts the answer into Fact-check and automatically extracts its claims. Every path ends at the claim ledger because generating or grounding an answer never proves what it said. The Guide button hides the step bar.",
 "",
 "FACT-CHECK PANEL. Paste the answer, press Extract claims, and an available model splits it into checkable claims with a type, a risk rating and suggested search queries linked to Google Search and Scholar. Each claim starts Unverified. You set the status: Verified, Unsupported or Refuted. Three Source Check ticks record the work: claim isolated, citation provided, independent source matched. ChatGPT and Gemini can run automatic AI cross-checks when their API keys are connected. Without a Claude API key, the Claude button copies the question and opens the free Claude website; paste Claude's answer back into the claim to save it. AI opinions never change a claim's status. Two dials: claim granularity (coarse 8 claims / balanced 15 / fine 25) and STANDARD OF PROOF, which sets how many of the three ticks are required before a claim may be marked Verified — below that bar the Verified button is disabled and clicking it explains why. Raising the bar shows a banner offering to reopen claims cleared under a lower standard.",
 "",
@@ -1685,7 +1698,7 @@ var PATHS={
      hint:"Save it, so the verdicts and who set them outlive this session.",
      done:function(){return S.saved===true}}
   ]},
-  build:{label:"Build an answer",steps:[
+  build:{label:"Build from evidence",steps:[
     {id:"evidence",n:"Load evidence",panel:"rag",
      hint:"Add the policies, documents and validated data the answer is allowed to draw on.",
      done:function(){return S.sources.some(function(s){return (s.text||"").trim().length>40})}},
@@ -1707,9 +1720,34 @@ var PATHS={
     {id:"save",n:"Save the record",panel:"records",
      hint:"Save it, so the verdicts and who set them outlive this session.",
      done:function(){return S.saved===true}}
+  ]},
+  ask:{label:"Ask ChatGPT",steps:[
+    {id:"ask",n:"Ask ChatGPT",panel:"check",
+     hint:"Type a question and press <b>Ask ChatGPT & verify</b>. RAB will bring the answer into the review automatically.",
+     done:function(){return !!(S.askQuestion&&S.response)}},
+    {id:"claims",n:"Break into claims",panel:"check",
+     hint:"RAB automatically starts this step after ChatGPT answers. Review the extracted claims before checking them.",
+     done:function(){return S.claims.length>0}},
+    {id:"clear",n:"Verify each claim",panel:"check",
+     hint:"Open trustworthy sources for each claim, record what you found, and set the verdict.",
+     done:function(){return S.claims.length>0&&!S.claims.some(function(c){return c.status==="unverified"})}},
+    {id:"judge",n:"Grade it",panel:"judge",optional:true,
+     hint:"Optional. Use the judge to score answer quality separately from the claim-by-claim fact check.",
+     done:function(){return !!S.scores}},
+    {id:"save",n:"Save the record",panel:"records",
+     hint:"Save the question, ChatGPT answer, evidence decisions, and scores to the archive.",
+     done:function(){return S.saved===true}}
   ]}
 };
 function steps(){ return PATHS[S.wiz.path].steps }
+function syncPathUi(){
+  var isAsk=S.wiz.path==="ask", card=$("#ask-chatgpt");
+  if(card) card.hidden=!isAsk;
+  $("#check-title").textContent=isAsk?"Ask ChatGPT, then verify the answer":"Break the answer into claims, then check each one";
+  $("#check-subtitle").textContent=isAsk
+    ?"Start with a normal question. RAB captures ChatGPT’s answer, extracts its factual claims, and guides you through checking each one."
+    :"Citations are a starting point, not proof. Split the response into atomic claims, confirm each against an independent source, and record who cleared it.";
+}
 /* Until the user navigates, the current step is the first unfinished one. Once
    they click, they are driving: the pin is honoured even on a finished step, so
    revisiting a completed step does not bounce them forward. The one exception is
@@ -1728,6 +1766,7 @@ function curStep(){
 }
 function renderSteps(){
   var bar=$("#steps");
+  syncPathUi();
   bar.hidden=!S.wiz.on;
   $("#btn-guide").setAttribute("aria-pressed",String(S.wiz.on));
   if(!S.wiz.on) return;
@@ -1756,7 +1795,11 @@ function goStep(i){
 }
 $("#steps").addEventListener("click",function(e){
   var p=e.target.closest("[data-path]");
-  if(p){ S.wiz.path=p.dataset.path; S.wiz.at=0; pinWasDone=steps()[0].done(); renderSteps(); show(steps()[curStep()].panel); return; }
+  if(p){
+    S.wiz.path=p.dataset.path; S.wiz.at=0; pinWasDone=steps()[0].done(); renderSteps(); show(steps()[curStep()].panel);
+    if(S.wiz.path==="ask") setTimeout(function(){$("#ask-chatgpt-q").focus()},0);
+    return;
+  }
   var s=e.target.closest("[data-step]"); if(s) return goStep(Number(s.dataset.step));
   if(e.target.closest("#step-back")) return goStep(curStep()-1);
   if(e.target.closest("#step-next")) return goStep(curStep()+1);
@@ -2028,6 +2071,28 @@ function saveManualClaude(c,wrap){
     reason:response.slice(0,4000),what_to_check:"Review this answer against an authoritative independent source.",manual:true};
   S.saved=false; renderLedger(); toast("Claude's response was added to this claim.");
 }
+
+$("#ask-chatgpt-form").addEventListener("submit",function(e){
+  e.preventDefault();
+  var q=$("#ask-chatgpt-q").value.trim(), btn=$("#btn-ask-chatgpt"), st=$("#ask-chatgpt-status");
+  if(!q){ st.innerHTML='<span class="err">Type a question first.</span>'; $("#ask-chatgpt-q").focus(); return; }
+  if(!SERVER.providers.openai){ st.innerHTML='<span class="err">ChatGPT is not connected. Add the OpenAI key in Render.</span>'; return; }
+  btn.disabled=true; btn.textContent="ChatGPT is answering…"; st.innerHTML='<span class="busy">Generating a protected answer</span>';
+  fetch("/api/ask",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({question:q})})
+    .then(function(r){return r.json().then(function(d){if(d.error)return Promise.reject(d.error);return d})})
+    .then(function(d){
+      S.askQuestion=q; S.prompt=q; S.response=String(d.answer||"").trim(); S.model=d.model||HELP_OPENAI_MODEL||"chatgpt-app";
+      S.claims=[]; S.scores=null; S.saved=false; S.isExample=false; S.appliedTier=null;
+      $("#in-prompt").value=q; $("#in-response").value=S.response; renderModelSelect(); $("#in-model").value=S.model;
+      $("#ex-badge").innerHTML='<span class="exbadge">ChatGPT answer · unverified</span>';
+      st.textContent="Answer received. RAB is extracting its claims below…";
+      renderSteps();
+      $("#btn-extract").click();
+      setTimeout(function(){$("#in-response").scrollIntoView({behavior:"smooth",block:"center"})},120);
+    })
+    .catch(function(err){ st.innerHTML='<span class="err">'+esc(aiErr(err))+'</span>'; })
+    .then(function(){btn.disabled=false;btn.textContent="Ask ChatGPT & verify"});
+});
 
 $("#btn-extract").addEventListener("click",function(){
   var text=$("#in-response").value.trim();
@@ -2772,7 +2837,7 @@ function snapshot(){
     verdict:verdict().t, judge:judgeAvg(), modelLabel:currentModel().label,
     appliedTier:S.appliedTier||null,
     claimCount:S.claims.length, cleared:S.claims.filter(function(c){return c.status==="verified"}).length,
-    payload:JSON.stringify({response:S.response,prompt:S.prompt,model:S.model,appliedTier:S.appliedTier,claims:S.claims,cfg:S.cfg,sources:S.sources,question:S.question,answer:S.answer,scores:S.scores,judgeRef:S.judgeRef,baseline:S.baseline,candidate:S.candidate,fmt:S.fmt})};
+    payload:JSON.stringify({response:S.response,prompt:S.prompt,askQuestion:S.askQuestion,model:S.model,appliedTier:S.appliedTier,claims:S.claims,cfg:S.cfg,sources:S.sources,question:S.question,answer:S.answer,scores:S.scores,judgeRef:S.judgeRef,baseline:S.baseline,candidate:S.candidate,fmt:S.fmt})};
 }
 function untitled(){
   var t=(S.title||"").trim();
@@ -2814,15 +2879,15 @@ function doSave(b){
 }
 $("#btn-new").addEventListener("click",function(){
   ask("Start a new audit?","This clears the response, the claim ledger and the judge's scores. Anything you have not saved is lost. The evidence set and prompt settings are kept.","Start new",function(){
-    S.title="Untitled audit"; S.response=""; S.prompt=""; S.claims=[]; S.scores=null; S.answer=""; S.retrieved=[]; S.isExample=false; S.judgeRef=""; S.appliedTier=null; S.saved=false; S.wiz.at=0; pinWasDone=false;
-    $("#runname").value=S.title; $("#in-response").value=""; $("#in-prompt").value=""; renderModelNote(); renderRunButton();
+    S.title="Untitled audit"; S.response=""; S.prompt=""; S.askQuestion=""; S.claims=[]; S.scores=null; S.answer=""; S.retrieved=[]; S.isExample=false; S.judgeRef=""; S.appliedTier=null; S.saved=false; S.wiz.at=0; pinWasDone=false;
+    $("#runname").value=S.title; $("#in-response").value=""; $("#in-prompt").value=""; $("#ask-chatgpt-q").value=""; $("#ask-chatgpt-status").textContent=""; renderModelNote(); renderRunButton();
     $("#judge-ref").value=""; $("#ex-badge").innerHTML=""; $("#extract-status").textContent="";
     $("#judge-status").textContent=""; $("#rag-status").textContent="";
     $("#st2").textContent="Idle"; $("#st3").textContent="Idle"; $("#st4").textContent="Idle";
     for(var i=1;i<4;i++) $("#pipe").children[i].classList.remove("done");
     renderLedger(); renderRubric(); renderPassages(); renderAnswer(); show("check");
     $("#runname").focus(); $("#runname").select();
-    toast("New audit started — name it and paste the response to verify.");
+    toast(S.wiz.path==="ask"?"New audit started — ask ChatGPT a question to begin.":"New audit started — name it and paste the response to verify.");
   });
 });
 function recRow(r){
@@ -2878,7 +2943,7 @@ $("#records").addEventListener("click",function(e){
     return;
   }
   var p; try{ p=JSON.parse(r.payload||"{}") }catch(err){ toast("This record could not be read — its saved data is corrupt.",true); return; }
-  S.title=r.title||"Untitled"; S.response=p.response||""; S.prompt=p.prompt||"";
+  S.title=r.title||"Untitled"; S.response=p.response||""; S.prompt=p.prompt||""; S.askQuestion=p.askQuestion||"";
   S.model=p.model||"unspecified"; S.appliedTier=p.appliedTier||null;
   S.claims=(p.claims||[]).map(function(c){ c.checks=c.checks||{claim:false,citation:false,independent:false}; c.aiChecks=c.aiChecks||{}; return c });
   S.cfg=Object.assign(S.cfg,p.cfg||{}); S.sources=p.sources||S.sources; S.question=p.question||"";
@@ -2901,6 +2966,7 @@ $("#runname").addEventListener("input",function(){S.title=this.value});
 function hydrate(){
   $("#runname").value=S.title;
   $("#in-response").value=S.response; $("#in-prompt").value=S.prompt;
+  $("#ask-chatgpt-q").value=S.askQuestion||"";
   renderModelSelect(); renderModelNote(); renderRunButton();
   $("#rag-q").value=S.question; $("#judge-ref").value=S.judgeRef;
   $("#baseline").value=S.baseline; $("#candidate").value=S.candidate; $("#fmt").value=S.fmt;
