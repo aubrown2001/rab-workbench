@@ -6,6 +6,7 @@
  * credential: it only ever calls same-origin /api/* routes on this server.
  *
  *   GET    /api/models          which models this deployment can actually run
+ *   POST   /api/ask             protected ChatGPT question for the Ask & Verify path
  *   POST   /api/sample          model proxy (Anthropic + OpenAI), streaming or JSON
  *   POST   /api/check           provider-specific claim cross-check
  *   POST   /api/help-feedback   save a Verity helpful / not-helpful rating
@@ -98,7 +99,7 @@ app.use((req, res, next) => {
    request loops and casual API-credit abuse. Use a shared Redis-backed limiter
    if the service is ever scaled horizontally. */
 const rateBuckets = new Map();
-function rateLimit({ windowMs, max, key = "general" }) {
+function rateLimit({ windowMs, max, key = "general", message = "Too many requests. Please wait a moment and try again." }) {
   return (req, res, next) => {
     const now = Date.now();
     const id = `${key}:${req.ip}`;
@@ -112,7 +113,7 @@ function rateLimit({ windowMs, max, key = "general" }) {
     res.set("x-ratelimit-remaining", String(Math.max(0, max - bucket.count)));
     if (bucket.count > max) {
       res.set("retry-after", String(Math.ceil((bucket.resetAt - now) / 1000)));
-      return res.status(429).json({ error: { code: "rate_limited", message: "Too many requests. Please wait a moment and try again." } });
+      return res.status(429).json({ error: { code: "rate_limited", message } });
     }
     next();
   };
@@ -206,7 +207,7 @@ app.get("/api/operations", (req, res) => {
       model: CHECK_PROVIDERS[provider].model(),
     })),
     archive: archiveOn(),
-    limits: { modelRunsPerMinute: 20, claimChecksPerMinute: 30, archiveWritesPerMinute: 60 },
+    limits: { modelRunsPerMinute: 20, askChatGPTPerMinute: 8, askChatGPTPerDay: ASK_DAILY_LIMIT, claimChecksPerMinute: 30, archiveWritesPerMinute: 60 },
     routes,
     events: operations.events.slice(0, 20),
   });
@@ -215,6 +216,7 @@ app.get("/api/operations", (req, res) => {
 /* ------------------------------------------------------------- POST /sample */
 const MAX_INPUT_BYTES = 64 * 1024;
 const MAX_OUTPUT_TOKENS = 4096;
+const ASK_DAILY_LIMIT = Math.max(1, Math.min(1000, Number(process.env.RAB_ASK_DAILY_LIMIT) || 100));
 
 function toMessages(input) {
   if (typeof input === "string") return input.trim() ? [{ role: "user", content: input }] : null;
@@ -226,6 +228,59 @@ function toMessages(input) {
   if (input[0].role !== "user" || input[input.length - 1].role !== "user") return null;
   return input;
 }
+
+/* --------------------------------------------------------------- POST /ask */
+/* This is intentionally OpenAI-only and separately limited. It uses the site
+   owner's API key, so it is disabled unless the whole workbench is protected
+   by RAB_USERNAME and RAB_PASSWORD. The browser never receives the key. */
+app.post("/api/ask",
+  rateLimit({ windowMs: 60_000, max: 8, key: "ask", message: "Ask ChatGPT is limited to 8 questions per minute. Please wait and try again." }),
+  rateLimit({ windowMs: 24 * 60 * 60 * 1000, max: ASK_DAILY_LIMIT, key: "ask-daily", message: `This deployment has reached its daily Ask ChatGPT limit of ${ASK_DAILY_LIMIT}. Try again tomorrow.` }),
+  async (req, res) => {
+    if (!accessProtected()) return fail(res, 503, "login_required", "Ask ChatGPT is disabled until RAB_USERNAME and RAB_PASSWORD are set in Render.");
+    if (!hasKey("openai")) return fail(res, 503, "not_configured", "ChatGPT is not connected. Add OPENAI_API_KEY in Render.");
+
+    const question = String(req.body?.question || "").trim().slice(0, 12000);
+    if (!question) return fail(res, 400, "invalid_request", "Enter a question for ChatGPT.");
+    const picked = byId(process.env.OPENAI_MODEL_DEFAULT || "gpt-5.6-terra")
+      || MODEL_CATALOG.find((m) => m.provider === "openai");
+    if (!picked || picked.provider !== "openai") return fail(res, 503, "not_configured", "No approved OpenAI model is configured.");
+
+    let upstream;
+    try {
+      upstream = await fetch("https://api.openai.com/v1/responses", {
+        method: "POST",
+        headers: { "content-type": "application/json", authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+        body: JSON.stringify({
+          model: picked.apiId,
+          instructions: "You are ChatGPT inside RAB Verification Workbench. Answer the user's question clearly and directly. Do not claim to have browsed or verified live sources. State meaningful uncertainty instead of guessing. The answer will be separated into claims for human verification.",
+          input: question,
+          max_output_tokens: 2500,
+          store: false,
+        }),
+      });
+    } catch (e) {
+      return fail(res, 502, "upstream_error", `Could not reach OpenAI: ${e.message}`);
+    }
+    if (!upstream.ok) {
+      const detail = await upstream.text().catch(() => "");
+      let message = "";
+      try { message = JSON.parse(detail)?.error?.message || ""; } catch { message = detail.slice(0, 300); }
+      const code = upstream.status === 429 ? "rate_limited" : upstream.status === 401 || upstream.status === 403 ? "auth_failed" : "upstream_error";
+      return fail(res, upstream.status === 429 ? 429 : 502, code, message || `OpenAI returned ${upstream.status}.`);
+    }
+    const data = await upstream.json();
+    const answer = (data.output || [])
+      .filter((item) => item.type === "message")
+      .flatMap((item) => item.content || [])
+      .filter((part) => part.type === "output_text")
+      .map((part) => part.text || "")
+      .join("")
+      .trim();
+    if (!answer) return fail(res, 502, "empty_completion", "ChatGPT returned no answer.");
+    res.json({ answer, model: picked.id });
+  }
+);
 
 app.post("/api/sample", rateLimit({ windowMs: 60_000, max: 20, key: "models" }), async (req, res) => {
   const messages = toMessages(req.body && req.body.input);
