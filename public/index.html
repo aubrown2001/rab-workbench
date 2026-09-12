@@ -477,8 +477,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .modal-card{background:var(--surface);border:1px solid var(--line);border-radius:11px;box-shadow:var(--shadow-2);max-width:420px;width:100%;padding:20px;display:flex;flex-direction:column;gap:11px}
 .modal-card h3{font-family:var(--f-display);font-size:27.0px;font-weight:500;margin:0}
 .modal-card p{margin:0;font-size:19.2px;color:var(--ink-2);line-height:1.5}
-#modal-input{width:100%;background:var(--surface-2);border:1px solid var(--line-2);border-radius:7px;padding:10px 12px;font-size:19px}
-#modal-input:focus{border-color:var(--accent);background:var(--surface);outline:none}
+#modal-input,#modal-select{width:100%;background:var(--surface-2);border:1px solid var(--line-2);border-radius:7px;padding:10px 12px;font-size:19px;color:var(--ink)}
+#modal-input:focus,#modal-select:focus{border-color:var(--accent);background:var(--surface);outline:none}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:110;background:var(--ink);color:var(--ground);border-radius:7px;padding:9px 16px;font-size:18.5px;box-shadow:var(--shadow-2);max-width:min(520px,90vw)}
 .toast.bad{background:var(--bad);color:#fff}
 .row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
@@ -781,12 +781,12 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
         </div>
 
         <div class="card ask-chatgpt" id="ask-chatgpt" hidden>
-          <div class="card-h"><span class="card-t">Ask ChatGPT</span><span class="tag risk-medium">Uses your protected OpenAI connection</span></div>
+          <div class="card-h"><span class="card-t">Ask AI</span><span class="tag risk-medium">Uses your protected AI connections</span></div>
           <form class="card-b" id="ask-chatgpt-form" style="display:flex;flex-direction:column;gap:12px">
             <label class="fld"><span class="fld-k">What would you like to know?</span>
-              <textarea id="ask-chatgpt-q" rows="3" maxlength="12000" placeholder="Ask a question just as you would in ChatGPT…"></textarea></label>
-            <div class="row"><button class="btn pri" id="btn-ask-chatgpt" type="submit" data-needs-ai>Ask ChatGPT &amp; verify</button><span class="hint" id="ask-chatgpt-status"></span></div>
-            <div class="ask-chatgpt-note">ChatGPT will answer first. RAB will then automatically break the answer into claims. The claims remain unverified until you check them against trustworthy sources.</div>
+              <textarea id="ask-chatgpt-q" rows="3" maxlength="12000" placeholder="Type the question you want an AI model to answer…"></textarea></label>
+            <div class="row"><button class="btn pri" id="btn-ask-chatgpt" type="submit" data-needs-ai>Choose your AI model</button><span class="hint" id="ask-chatgpt-status"></span></div>
+            <div class="ask-chatgpt-note">Choose a connected OpenAI or Claude model. RAB will record your choice, generate the answer, and automatically break it into claims. The claims remain unverified until you check them against trustworthy sources.</div>
           </form>
         </div>
 
@@ -799,7 +799,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
               <div class="grid2" style="gap:12px">
                 <label class="fld"><span class="fld-k">Originating prompt (optional)</span>
                   <textarea id="in-prompt" rows="2" placeholder="What was asked"></textarea></label>
-                <label class="fld"><span class="fld-k">Which model produced this answer <span style="text-transform:none;letter-spacing:0;color:var(--ink-3);font-family:var(--f-sans)">— a label for the record; it does not change what does the checking</span></span>
+                <label class="fld"><span class="fld-k">Answer source / model <span style="text-transform:none;letter-spacing:0;color:var(--ink-3);font-family:var(--f-sans)">— recorded automatically in Ask AI; choose it here for a pasted answer</span></span>
                   <select id="in-model"></select></label>
               </div>
               <div class="dials">
@@ -1114,6 +1114,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
     <h3 id="modal-t">Confirm</h3>
     <p id="modal-b"></p>
     <input type="text" id="modal-input" hidden>
+    <select id="modal-select" hidden aria-label="Choose an AI model"></select>
     <div class="row" style="justify-content:flex-end;margin-top:4px">
       <button class="btn" id="modal-cancel">Cancel</button>
       <button class="btn pri" id="modal-ok">Confirm</button>
@@ -1149,29 +1150,45 @@ var uid=function(){return Math.random().toString(36).slice(2,10)};
 
 /* in-page dialogs — the artifact frame blocks window.confirm/alert */
 var askCb=null, toastT=null;
-/* opts.field = {placeholder, value} turns this into a one-question prompt;
-   the callback then receives the trimmed text. */
+/* opts.field creates a text prompt; opts.select creates a grouped dropdown. */
 function ask(title,body,okLabel,cb,opts){
   askCb=cb; opts=opts||{};
   $("#modal-t").textContent=title; $("#modal-b").textContent=body;
   $("#modal-ok").textContent=okLabel||"Confirm";
-  var inp=$("#modal-input");
+  var inp=$("#modal-input"), sel=$("#modal-select");
+  inp.hidden=true; inp.value=""; sel.hidden=true; sel.innerHTML="";
   if(opts.field){
     inp.hidden=false; inp.placeholder=opts.field.placeholder||""; inp.value=opts.field.value||"";
-  } else { inp.hidden=true; inp.value=""; }
+  } else if(opts.select){
+    var groups=[], grouped={};
+    (opts.select.options||[]).forEach(function(o){
+      var g=o.group||"Models";
+      if(!grouped[g]){grouped[g]=[];groups.push(g)}
+      grouped[g].push(o);
+    });
+    sel.innerHTML=groups.map(function(g){
+      return '<optgroup label="'+esc(g)+'">'+grouped[g].map(function(o){
+        return '<option value="'+esc(o.value)+'">'+esc(o.label)+'</option>';
+      }).join("")+'</optgroup>';
+    }).join("");
+    sel.hidden=false;
+    if(opts.select.value) sel.value=opts.select.value;
+  }
   $("#modal").hidden=false;
-  (opts.field?inp:$("#modal-ok")).focus();
+  (opts.field?inp:opts.select?sel:$("#modal-ok")).focus();
   if(opts.field) inp.select();
 }
 function closeAsk(){ $("#modal").hidden=true; askCb=null; }
 document.addEventListener("DOMContentLoaded",function(){});
 function submitAsk(){
-  var inp=$("#modal-input"), val=inp.hidden?null:inp.value.trim();
+  var inp=$("#modal-input"), sel=$("#modal-select"), val=!inp.hidden?inp.value.trim():!sel.hidden?sel.value:null;
   if(!inp.hidden&&!val){ inp.focus(); return; }
+  if(!sel.hidden&&!val){ sel.focus(); return; }
   var c=askCb; closeAsk(); if(c) c(val);
 }
 $("#modal-ok").addEventListener("click",submitAsk);
 $("#modal-input").addEventListener("keydown",function(e){ if(e.key==="Enter"){e.preventDefault();submitAsk()} });
+$("#modal-select").addEventListener("keydown",function(e){ if(e.key==="Enter"){e.preventDefault();submitAsk()} });
 $("#modal-cancel").addEventListener("click",closeAsk);
 $("#modal").addEventListener("click",function(e){ if(e.target===this) closeAsk(); });
 document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&!$("#modal").hidden) closeAsk(); });
@@ -1507,7 +1524,7 @@ var HELP_KB=[
 "",
 "WHAT IT IS. RAB stands for Rigor Above Belief: a claim is settled by evidence, not by how confident the answer sounded. It breaks an AI answer into individual claims, has a person check each one against an independent source, and keeps the record.",
 "",
-"THE GUIDED RUN. A step bar at the top offers three paths. 'Review an answer' (5 steps) is for an answer that already exists: paste it, break it into claims, clear each claim, optionally grade it, save. 'Build from evidence' (7 steps) is for one you are producing from trusted material: load evidence, set constraints in the console, generate a grounded answer, then the same claim work. 'Ask ChatGPT' (5 steps) lets a signed-in user ask a normal question using the protected OpenAI connection; RAB puts the answer into Fact-check and automatically extracts its claims. Every path ends at the claim ledger because generating or grounding an answer never proves what it said. The Guide button hides the step bar.",
+"THE GUIDED RUN. A step bar at the top offers three paths. 'Review an answer' (5 steps) is for an answer that already exists: paste it, break it into claims, clear each claim, optionally grade it, save. 'Build from evidence' (7 steps) is for one you are producing from trusted material: load evidence, set constraints in the console, generate a grounded answer, then the same claim work. 'Ask AI' (5 steps) lets a signed-in user ask a normal question, choose a connected OpenAI or Claude model, and record that model automatically; RAB then puts the answer into Fact-check and extracts its claims. Every path ends at the claim ledger because generating or grounding an answer never proves what it said. The Guide button hides the step bar.",
 "",
 "FACT-CHECK PANEL. Paste the answer, press Extract claims, and an available model splits it into checkable claims with a type, a risk rating and suggested search queries linked to Google Search and Scholar. Each claim starts Unverified. You set the status: Verified, Unsupported or Refuted. Three Source Check ticks record the work: claim isolated, citation provided, independent source matched. ChatGPT and Gemini can run automatic AI cross-checks when their API keys are connected. Without a Claude API key, the Claude button copies the question and opens the free Claude website; paste Claude's answer back into the claim to save it. AI opinions never change a claim's status. Two dials: claim granularity (coarse 8 claims / balanced 15 / fine 25) and STANDARD OF PROOF, which sets how many of the three ticks are required before a claim may be marked Verified — below that bar the Verified button is disabled and clicking it explains why. Raising the bar shows a banner offering to reopen claims cleared under a lower standard.",
 "",
@@ -1721,12 +1738,12 @@ var PATHS={
      hint:"Save it, so the verdicts and who set them outlive this session.",
      done:function(){return S.saved===true}}
   ]},
-  ask:{label:"Ask ChatGPT",steps:[
-    {id:"ask",n:"Ask ChatGPT",panel:"check",
-     hint:"Type a question and press <b>Ask ChatGPT & verify</b>. RAB will bring the answer into the review automatically.",
+  ask:{label:"Ask AI",steps:[
+    {id:"ask",n:"Ask AI",panel:"check",
+     hint:"Type a question and press <b>Choose your AI model</b>. Pick a connected OpenAI or Claude model; RAB records it and brings the answer into review.",
      done:function(){return !!(S.askQuestion&&S.response)}},
     {id:"claims",n:"Break into claims",panel:"check",
-     hint:"RAB automatically starts this step after ChatGPT answers. Review the extracted claims before checking them.",
+     hint:"RAB automatically starts this step after your chosen model answers. Review the extracted claims before checking them.",
      done:function(){return S.claims.length>0}},
     {id:"clear",n:"Verify each claim",panel:"check",
      hint:"Open trustworthy sources for each claim, record what you found, and set the verdict.",
@@ -1735,7 +1752,7 @@ var PATHS={
      hint:"Optional. Use the judge to score answer quality separately from the claim-by-claim fact check.",
      done:function(){return !!S.scores}},
     {id:"save",n:"Save the record",panel:"records",
-     hint:"Save the question, ChatGPT answer, evidence decisions, and scores to the archive.",
+     hint:"Save the question, AI answer, selected model, evidence decisions, and scores to the archive.",
      done:function(){return S.saved===true}}
   ]}
 };
@@ -1743,9 +1760,9 @@ function steps(){ return PATHS[S.wiz.path].steps }
 function syncPathUi(){
   var isAsk=S.wiz.path==="ask", card=$("#ask-chatgpt");
   if(card) card.hidden=!isAsk;
-  $("#check-title").textContent=isAsk?"Ask ChatGPT, then verify the answer":"Break the answer into claims, then check each one";
+  $("#check-title").textContent=isAsk?"Ask AI, then verify the answer":"Break the answer into claims, then check each one";
   $("#check-subtitle").textContent=isAsk
-    ?"Start with a normal question. RAB captures ChatGPT’s answer, extracts its factual claims, and guides you through checking each one."
+    ?"Start with a normal question, choose an OpenAI or Claude model, and RAB will capture its answer, record the model, and guide you through checking every claim."
     :"Citations are a starting point, not proof. Split the response into atomic claims, confirm each against an independent source, and record who cleared it.";
 }
 /* Until the user navigates, the current step is the first unfinished one. Once
@@ -2072,26 +2089,39 @@ function saveManualClaude(c,wrap){
   S.saved=false; renderLedger(); toast("Claude's response was added to this claim.");
 }
 
-$("#ask-chatgpt-form").addEventListener("submit",function(e){
-  e.preventDefault();
-  var q=$("#ask-chatgpt-q").value.trim(), btn=$("#btn-ask-chatgpt"), st=$("#ask-chatgpt-status");
-  if(!q){ st.innerHTML='<span class="err">Type a question first.</span>'; $("#ask-chatgpt-q").focus(); return; }
-  if(!SERVER.providers.openai){ st.innerHTML='<span class="err">ChatGPT is not connected. Add the OpenAI key in Render.</span>'; return; }
-  btn.disabled=true; btn.textContent="ChatGPT is answering…"; st.innerHTML='<span class="busy">Generating a protected answer</span>';
-  fetch("/api/ask",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({question:q})})
+function askAnswerModels(){
+  return SERVER.models.filter(function(m){return m.available!==false&&(m.provider==="openai"||m.provider==="anthropic")});
+}
+function runAskAi(q,modelId){
+  var btn=$("#btn-ask-chatgpt"), st=$("#ask-chatgpt-status"), models=askAnswerModels();
+  var chosen=models.filter(function(m){return m.id===modelId})[0];
+  if(!chosen){st.innerHTML='<span class="err">That model is not available. Choose another model.</span>';return;}
+  btn.disabled=true; btn.textContent="AI is answering…"; st.innerHTML='<span class="busy">'+esc(chosen.label)+' is answering</span>';
+  fetch("/api/ask",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({question:q,model:modelId})})
     .then(function(r){return r.json().then(function(d){if(d.error)return Promise.reject(d.error);return d})})
     .then(function(d){
-      S.askQuestion=q; S.prompt=q; S.response=String(d.answer||"").trim(); S.model=d.model||HELP_OPENAI_MODEL||"chatgpt-app";
+      S.askQuestion=q; S.prompt=q; S.response=String(d.answer||"").trim(); S.model=d.model||modelId;
       S.claims=[]; S.scores=null; S.saved=false; S.isExample=false; S.appliedTier=null;
       $("#in-prompt").value=q; $("#in-response").value=S.response; renderModelSelect(); $("#in-model").value=S.model;
-      $("#ex-badge").innerHTML='<span class="exbadge">ChatGPT answer · unverified</span>';
+      $("#ex-badge").innerHTML='<span class="exbadge">'+esc(d.label||chosen.label)+' answer · unverified</span>';
       st.textContent="Answer received. RAB is extracting its claims below…";
       renderSteps();
       $("#btn-extract").click();
       setTimeout(function(){$("#in-response").scrollIntoView({behavior:"smooth",block:"center"})},120);
     })
     .catch(function(err){ st.innerHTML='<span class="err">'+esc(aiErr(err))+'</span>'; })
-    .then(function(){btn.disabled=false;btn.textContent="Ask ChatGPT & verify"});
+    .then(function(){btn.disabled=false;btn.textContent="Choose your AI model"});
+}
+$("#ask-chatgpt-form").addEventListener("submit",function(e){
+  e.preventDefault();
+  var q=$("#ask-chatgpt-q").value.trim(), st=$("#ask-chatgpt-status"), models=askAnswerModels();
+  if(!q){ st.innerHTML='<span class="err">Type a question first.</span>'; $("#ask-chatgpt-q").focus(); return; }
+  if(!models.length){ st.innerHTML='<span class="err">No OpenAI or Claude model is connected. Add an API key in Render.</span>'; return; }
+  var preferred=models.filter(function(m){return m.id===S.model})[0]||models.filter(function(m){return m.id==="gpt-5.6-terra"})[0]||models[0];
+  ask("Choose your AI model","Select the model that should answer this question. RAB will record your choice and begin verification automatically.","Generate & verify",function(modelId){runAskAi(q,modelId)},{select:{
+    value:preferred.id,
+    options:models.map(function(m){return {value:m.id,label:m.label+(m.note?" — "+m.note:""),group:m.provider==="openai"?"OpenAI · ChatGPT":"Anthropic · Claude"}})
+  }});
 });
 
 $("#btn-extract").addEventListener("click",function(){
@@ -2887,7 +2917,7 @@ $("#btn-new").addEventListener("click",function(){
     for(var i=1;i<4;i++) $("#pipe").children[i].classList.remove("done");
     renderLedger(); renderRubric(); renderPassages(); renderAnswer(); show("check");
     $("#runname").focus(); $("#runname").select();
-    toast(S.wiz.path==="ask"?"New audit started — ask ChatGPT a question to begin.":"New audit started — name it and paste the response to verify.");
+    toast(S.wiz.path==="ask"?"New audit started — ask an AI model a question to begin.":"New audit started — name it and paste the response to verify.");
   });
 });
 function recRow(r){
