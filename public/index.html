@@ -681,6 +681,12 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 #reports-body .rtile::after{background:rgba(255,255,255,.12);width:92px;height:92px}
 #reports-body .rtile .k,#reports-body .rtile .d,#reports-body .rtile .v,#reports-body .rtile .v.ok,#reports-body .rtile .v.warn,#reports-body .rtile .v.bad{color:#FFFFFF}
 #reports-body .rtile .k{opacity:.82;font-weight:700}#reports-body .rtile .d{opacity:.9}
+.model-pie-tile{background:linear-gradient(145deg,#223568,#121D43)!important;min-width:0}
+.model-pie-body{display:grid;grid-template-columns:94px minmax(0,1fr);gap:12px;align-items:center;margin-top:10px;position:relative;z-index:1}
+.model-pie{width:92px;height:92px;border-radius:50%;box-shadow:0 9px 20px -10px rgba(4,12,32,.8),inset 0 0 0 2px rgba(255,255,255,.22)}
+.model-pie-legend{display:grid;gap:5px;min-width:0}
+.model-pie-row{display:grid;grid-template-columns:9px minmax(0,1fr) auto;gap:6px;align-items:center;color:#FFFFFF;font-size:.68rem;line-height:1.15;min-width:0}
+.model-pie-row i{width:8px;height:8px;border-radius:50%}.model-pie-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.model-pie-row b{font-family:var(--f-mono);font-size:.62rem}
 .report-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}
 .report-card{border-top:4px solid var(--report-color,var(--r-blue))}.report-card .card-t{color:var(--report-color,var(--r-blue))}
 .donut-wrap{display:grid;grid-template-columns:180px minmax(0,1fr);gap:24px;align-items:center}
@@ -1567,7 +1573,7 @@ var HELP_KB=[
 "",
 "OPERATIONS. This is RAB·BIT's control plane. Policy profiles apply a consistent bundle of review settings: Standard, High-stakes, or Rapid screening. The RAB·BIT verification score is a transparent 100-point readiness checklist, not an AI opinion. Provider health shows whether Claude, ChatGPT, Gemini, and Supabase are configured. Telemetry shows route, HTTP status, latency, and provider for the current Render process only; it never stores prompts, answers, claims, IP addresses, or keys. Active alerts call out disconnected services, high error rates, recent rate limits, and an audit score below 70.",
 "",
-"SAVED AUDITS AND REPORTS. Saving keeps the response, every claim and verdict, the dial settings and the judge scores, as separate database rows rather than a blob — which is what makes the Reports panel possible. Reports shows headline quality measures, claim outcomes, the evidence-completion funnel, source and judge coverage, failure rate by risk and claim type, rubric averages, model comparisons, weekly volume, verdict and proof-standard usage, recent audits, and reviewer discipline. It refuses an untitled audit and asks for a name. The archive is shared with everyone who can open this page.",
+"SAVED AUDITS AND REPORTS. Saving keeps the response, every claim and verdict, the dial settings and the judge scores, as separate database rows rather than a blob — which is what makes the Reports panel possible. Reports shows headline quality measures, a model-share pie chart, claim outcomes, the evidence-completion funnel, source and judge coverage, failure rate by risk and claim type, rubric averages, weekly volume, verdict and proof-standard usage, recent audits, and reviewer discipline. It refuses an untitled audit and asks for a name. The archive is shared with everyone who can open this page.",
 "",
 "VERITY FEEDBACK. Helpful and Not helpful buttons appear below each Verity answer. A rating guides later Verity answers during the current browser visit. When the optional Supabase help_feedback table is installed, RAB·BIT also stores the question, answer, rating and optional reason so the product guidance can be improved over time. This feedback does not retrain OpenAI's base model automatically.",
 "",
@@ -2755,6 +2761,22 @@ function bar(label,swatch,value,widthPct,sub){
 function tile(k,v,d,cls){
   return '<div class="rtile"><div class="k">'+esc(k)+'</div><div class="v '+(cls||"")+'">'+esc(v)+'</div><div class="d">'+d+'</div></div>';
 }
+function modelPieWidget(models){
+  var rows=models.slice().sort(function(a,b){return Number(b.claims||0)-Number(a.claims||0)}).map(function(r,i){
+    return {label:r.model_label||"Unspecified",claims:Number(r.claims||0),color:REPORT_COLORS[i%REPORT_COLORS.length]};
+  });
+  if(rows.length>5){
+    var rest=rows.slice(4),other=rest.reduce(function(n,r){return n+r.claims},0);
+    rows=rows.slice(0,4).concat([{label:"Other models",claims:other,color:REPORT_COLORS[4]}]);
+  }
+  var total=rows.reduce(function(n,r){return n+r.claims},0),cursor=0,stops=[];
+  rows.forEach(function(r){var start=cursor,end=cursor+pct(r.claims,total||1);cursor=end;stops.push(r.color+" "+start+"% "+end+"%");});
+  var pie=stops.length?"conic-gradient("+stops.join(",")+")":"var(--surface-3)";
+  return '<div class="rtile model-pie-tile"><div class="k">By the model that produced the answer</div><div class="model-pie-body">'+
+    '<div class="model-pie" style="background:'+pie+'" role="img" aria-label="Share of '+total+' claims by answer-producing model"></div><div class="model-pie-legend">'+
+    rows.map(function(r){return '<div class="model-pie-row" title="'+esc(r.label)+': '+r.claims+' claims"><i style="background:'+r.color+'"></i><span>'+esc(r.label)+'</span><b>'+pct(r.claims,total||1)+'%</b></div>'}).join("")+
+    '</div></div></div>';
+}
 function claimsLineChart(rows){
   rows=Array.isArray(rows)&&rows.length?rows:Array.from({length:30},function(_,i){var d=new Date();d.setDate(d.getDate()-(29-i));return{date:d.toISOString().slice(0,10),checked:0}});
   var w=720,h=220,l=42,r=16,t=18,b=38,iw=w-l-r,ih=h-t-b;
@@ -2787,6 +2809,7 @@ function renderReports(){
   var notCleared=(st.unsupported||0)+(st.refuted||0);
   if(!t.audits){ el.innerHTML='<div class="empty">No audits saved yet. Finish a review and press <b>Save audit</b> — the numbers here build up from real work.</div>'; return; }
 
+  var models=(REPORTS.models||[]).filter(function(r){return r.claims>0});
   var out="";
   /* Executive scorecards. */
   out+='<div class="rgrid">'+
@@ -2794,6 +2817,7 @@ function renderReports(){
     tile("Source coverage",Number(q.sourceCoverage||0).toFixed(1)+"%","Decided claims with a source recorded.")+
     tile("Judge coverage",Number(q.judgeCoverage||0).toFixed(1)+"%","Saved audits that were scored by the judge.")+
     tile("Average judge score",t.avgJudge!=null?Number(t.avgJudge).toFixed(1)+"/5":"—","Across audits that were graded.",t.avgJudge>=4?"ok":t.avgJudge>=3?"warn":t.avgJudge!=null?"bad":"")+
+    (models.length?modelPieWidget(models):"")+
   '</div>';
 
   out+='<div class="report-grid2"><div class="card report-card" style="--report-color:#2F80FF"><div class="card-h"><span class="card-t">Claims checked · last 30 days</span><span class="hint">Daily human review volume</span></div><div class="card-b">'+claimsLineChart(REPORTS.claimsDaily)+'</div></div>'+
@@ -2828,20 +2852,6 @@ function renderReports(){
       '<div class="card-b"><p class="hint" style="margin:0 0 14px">Share of checked claims that came back unsupported or refuted. High bars are where this tool earns its keep — and where the model under review is least trustworthy.</p><div class="chart">';
     types.forEach(function(r,i){
       out+=bar(r.claim_type,REPORT_STATUS_COLORS.refuted,Number(r.not_cleared_pct).toFixed(1)+"%",100*Number(r.not_cleared_pct)/maxT,"n="+r.claims);
-    });
-    out+='</div></div></div>';
-  }
-
-  /* Model comparison — the number that takes months to earn. */
-  var models=(REPORTS.models||[]).filter(function(r){return r.claims>0});
-  if(models.length){
-    var maxM=Math.max.apply(null,models.map(function(r){return Number(r.not_cleared_pct||0)}))||1;
-    out+='<div class="card report-card" style="margin-top:18px;--report-color:#2F80FF"><div class="card-h"><span class="card-t">By the model that produced the answer</span></div>'+
-      '<div class="card-b"><p class="hint" style="margin:0 0 14px">Share of that model\'s claims that did not survive checking. This is the comparison worth keeping: it takes months of real audits to mean anything, and nothing else measures it.</p><div class="chart">';
-    models.forEach(function(r,i){
-      var v=r.not_cleared_pct==null?"—":Number(r.not_cleared_pct).toFixed(1)+"%";
-      out+=bar(r.model_label,REPORT_STATUS_COLORS.refuted,v,100*Number(r.not_cleared_pct||0)/maxM,
-        r.claims+" claims"+(r.avg_judge!=null?" · judge "+Number(r.avg_judge).toFixed(1):""));
     });
     out+='</div></div></div>';
   }
