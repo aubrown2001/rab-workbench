@@ -1033,26 +1033,6 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
           </div>
         </div>
 
-        <div class="card">
-          <div class="card-h">
-            <span class="card-t">Programmatic checks · structured output</span>
-            <div class="row">
-              <select id="fmt" aria-label="Format" style="width:auto"><option value="json">JSON</option><option value="csv">CSV</option></select>
-              <button class="btn sm" id="btn-diff">Compare to baseline</button>
-            </div>
-          </div>
-          <div class="card-b" style="display:flex;flex-direction:column;gap:14px">
-            <div class="hint">Ask for JSON or CSV instead of prose and the answer can be checked by a script against known-good data — no model, no rubric, no opinion.</div>
-            <div class="grid2" style="gap:14px">
-              <label class="fld"><span class="fld-k">Baseline (known good)</span><textarea id="baseline" class="mono" rows="9" placeholder='{
-  "target_pct": 65,
-  "effective_from": "2025-12-31"
-}'></textarea></label>
-              <label class="fld"><span class="fld-k">Model output</span><textarea id="candidate" class="mono" rows="9" placeholder="Paste the model&#39;s structured output here"></textarea></label>
-            </div>
-            <div id="diffout"></div>
-          </div>
-        </div>
         <div class="save-strip">
           <div><b>Finished grading?</b><span>Save the current audit and its judge scores to the shared archive.</span></div>
           <button class="btn pri" data-save-audit>Save audit to archive</button>
@@ -1268,9 +1248,6 @@ var DEFAULT_RUBRIC=[
   {id:"completeness",name:"Completeness",desc:"Answers the whole question, including the caveats, exceptions and limits a reader would need to act on it."},
   {id:"tone",name:"Calibration",desc:"Stated confidence matches the strength of the evidence. Uncertainty is named plainly rather than hedged everywhere or hidden."}
 ];
-var SEED_BASELINE_JSON="";
-var SEED_CAND_JSON="";
-
 var S={
   title:"Untitled audit",
   response:SEED_RESPONSE, prompt:"", askQuestion:"", model:"unspecified", appliedTier:null,
@@ -1282,7 +1259,6 @@ var S={
   retrieved:[], answer:"",
   rubric:DEFAULT_RUBRIC.map(function(r){return Object.assign({},r)}),
   scores:null, judgeRef:"",
-  baseline:SEED_BASELINE_JSON, candidate:SEED_CAND_JSON, fmt:"json",
   saved:false, wiz:{on:false,path:"review",at:0}
 };
 
@@ -1490,7 +1466,7 @@ function apiDb(){
 function aiErr(e){
   var m={
     not_granted:"This page was not given permission to use Claude. Reload and choose Allow when the browser asks — a decline sticks for the rest of the visit.",
-    sampling_disabled:"Claude is not available on this account, so the AI steps cannot run. The manual checklist, retrieval and the baseline diff still work.",
+    sampling_disabled:"Claude is not available on this account, so the AI steps cannot run. The manual checklist and retrieval tools still work.",
     rate_limited:"Too many requests. Wait a minute, then try again.",
     session_expired:"Your Claude session expired. Sign in again, then reload this page.",
     invalid_json:"The reply came back in a shape this page could not read. Try again.",
@@ -1587,7 +1563,7 @@ var HELP_KB=[
 "",
 "GROUNDING PANEL. Add trusted sources, then Retrieve passages runs a real relevance search over them and shows match percentages. Two dials: how many passages are retrieved, and a minimum match below which passages are dropped. Generate cited answer sends ONLY those passages to the model, which must cite [S1.1] markers and flag UNCERTAIN. The four numbered stages are a status display, not buttons. The page cannot fetch URLs — paste the source text itself.",
 "",
-"JUDGE AND TESTS. A second model scores the answer against a rubric you control. Every criterion name and description is editable in place; you can add, remove or reset them, and editing clears the current scores. Strictness recalibrates what a 5 means. The pass mark sets the score below which an audit is flagged 'Below bar' in the header, and draws the red zone on each gauge. Below that, a programmatic check compares JSON or CSV output against a baseline field by field — no model involved.",
+"JUDGE AND TESTS. A second model scores the answer against a rubric you control. Every criterion name and description is editable in place; you can add, remove or reset them, and editing clears the current scores. Strictness recalibrates what a 5 means. The pass mark sets the score below which an audit is flagged 'Below bar' in the header, and draws the red zone on each gauge.",
 "",
 "OPERATIONS. This is RAB·BIT's control plane. Policy profiles apply a consistent bundle of review settings: Standard, High-stakes, or Rapid screening. The RAB·BIT verification score is a transparent 100-point readiness checklist, not an AI opinion. Provider health shows whether Claude, ChatGPT, Gemini, and Supabase are configured. Telemetry shows route, HTTP status, latency, and provider for the current Render process only; it never stores prompts, answers, claims, IP addresses, or keys. Active alerts call out disconnected services, high error rates, recent rate limits, and an audit score below 70.",
 "",
@@ -2270,7 +2246,7 @@ var SWITCHES=[
   ["uncert","Flag uncertainty explicitly","Say which parts are inferred or unsupported instead of smoothing them into the prose."],
   ["refuse","Refuse rather than guess","If the sources do not answer it, say so. An empty answer is cheaper than a wrong one."],
   ["scope","Say what it could not answer","Make the model list the parts of your question the sources did not cover, instead of quietly leaving them out."],
-  ["structured","Return structured data (JSON)","Machine-comparable output — the basis for the programmatic checks in Practice 3."]
+  ["structured","Return structured data (JSON)","Machine-readable output that other systems can process and validate consistently."]
 ];
 function renderSwitches(){
   $("#switches").innerHTML=SWITCHES.map(function(s){
@@ -2668,69 +2644,6 @@ $("#btn-judge").addEventListener("click",function(){
   .then(function(){b.disabled=false});
 });
 
-/* --- structured comparison --- */
-function flat(o,pre,out){
-  out=out||{}; pre=pre||"";
-  if(o&&typeof o==="object"&&!Array.isArray(o)){ Object.keys(o).forEach(function(k){flat(o[k],pre?pre+"."+k:k,out)}); }
-  else if(Array.isArray(o)){ o.forEach(function(v,i){flat(v,pre+"["+i+"]",out)}); }
-  else out[pre]=o;
-  return out;
-}
-function parseCSV(t){
-  return String(t).trim().split(/\r?\n/).map(function(l){
-    var r=[],cur="",q=false;
-    for(var i=0;i<l.length;i++){var c=l[i];
-      if(q){ if(c==='"'&&l[i+1]==='"'){cur+='"';i++} else if(c==='"'){q=false} else cur+=c }
-      else { if(c==='"')q=true; else if(c===","){r.push(cur);cur=""} else cur+=c }
-    }
-    r.push(cur); return r.map(function(x){return x.trim()});
-  });
-}
-function renderDiff(rows,summary){
-  var pass=rows.filter(function(r){return r.status==="pass"}).length;
-  $("#diffout").innerHTML=
-    '<div class="row spread" style="margin-bottom:9px"><span class="card-t">Result</span>'+
-    '<span class="verdict '+(pass===rows.length?"ok":pass>=rows.length*0.6?"warn":"bad")+'">'+pass+' of '+rows.length+' checks passed</span></div>'+
-    (summary?'<div class="hint" style="margin-bottom:9px">'+esc(summary)+'</div>':"")+
-    '<div class="tblwrap"><table class="difftable"><thead><tr><th>Field</th><th>Baseline</th><th>Model output</th><th>Check</th></tr></thead><tbody>'+
-    rows.map(function(r){
-      var cls=r.status==="pass"?"rowpass":r.status==="fail"?"rowfail":"rowmiss";
-      var label=r.status==="pass"?"match":r.status==="fail"?"differs":r.status==="missing"?"missing":"extra";
-      return '<tr class="'+cls+'"><td class="k">'+esc(r.path)+'</td><td>'+esc(r.exp)+'</td><td>'+esc(r.act)+'</td><td>'+label+'</td></tr>';
-    }).join("")+'</tbody></table></div>';
-}
-$("#btn-diff").addEventListener("click",function(){
-  var fmt=$("#fmt").value, a=$("#baseline").value, b=$("#candidate").value;
-  S.baseline=a; S.candidate=b; S.fmt=fmt;
-  var rows=[];
-  try{
-    if(fmt==="json"){
-      var A=flat(JSON.parse(a)), B=flat(JSON.parse(b));
-      Object.keys(A).forEach(function(k){
-        var has=Object.prototype.hasOwnProperty.call(B,k);
-        rows.push({path:k,exp:JSON.stringify(A[k]),act:has?JSON.stringify(B[k]):"—",status:!has?"missing":(A[k]===B[k]?"pass":"fail")});
-      });
-      Object.keys(B).forEach(function(k){ if(!Object.prototype.hasOwnProperty.call(A,k)) rows.push({path:k,exp:"—",act:JSON.stringify(B[k]),status:"extra"}); });
-    } else {
-      var RA=parseCSV(a), RB=parseCSV(b), head=RA[0]||[];
-      var n=Math.max(RA.length,RB.length);
-      for(var i=0;i<n;i++){
-        var ra=RA[i], rb=RB[i];
-        if(!ra){ rows.push({path:"row "+(i+1),exp:"—",act:(rb||[]).join(", "),status:"extra"}); continue; }
-        if(!rb){ rows.push({path:"row "+(i+1),exp:ra.join(", "),act:"—",status:"missing"}); continue; }
-        for(var j=0;j<Math.max(ra.length,rb.length);j++){
-          var key="row "+(i+1)+" · "+((i===0?"header":head[j])||("col "+(j+1)));
-          rows.push({path:key,exp:ra[j]===undefined?"—":ra[j],act:rb[j]===undefined?"—":rb[j],status:ra[j]===undefined?"extra":rb[j]===undefined?"missing":(ra[j]===rb[j]?"pass":"fail")});
-        }
-      }
-    }
-  }catch(err){
-    $("#diffout").innerHTML='<div class="err">Could not parse the '+esc(fmt.toUpperCase())+': '+esc(err.message)+'. A model that cannot return valid '+esc(fmt.toUpperCase())+' has already failed this check.</div>';
-    return;
-  }
-  renderDiff(rows,"Compared field by field. No model was involved in this check — it is a script, and it is the only part of the pipeline that cannot be talked into agreeing with you.");
-});
-
 /* ---------------- operations & governance ----------------
    RAB borrows the control-plane ideas that make mature API platforms useful:
    define standards once, score work against them, and expose operational
@@ -3000,7 +2913,7 @@ function snapshot(){
     verdict:verdict().t, judge:judgeAvg(), modelLabel:currentModel().label,
     appliedTier:S.appliedTier||null,
     claimCount:S.claims.length, cleared:S.claims.filter(function(c){return c.status==="verified"}).length,
-    payload:JSON.stringify({response:S.response,prompt:S.prompt,askQuestion:S.askQuestion,model:S.model,appliedTier:S.appliedTier,claims:S.claims,cfg:S.cfg,sources:S.sources,question:S.question,answer:S.answer,scores:S.scores,judgeRef:S.judgeRef,baseline:S.baseline,candidate:S.candidate,fmt:S.fmt})};
+    payload:JSON.stringify({response:S.response,prompt:S.prompt,askQuestion:S.askQuestion,model:S.model,appliedTier:S.appliedTier,claims:S.claims,cfg:S.cfg,sources:S.sources,question:S.question,answer:S.answer,scores:S.scores,judgeRef:S.judgeRef})};
 }
 function untitled(){
   var t=(S.title||"").trim();
@@ -3111,7 +3024,7 @@ $("#records").addEventListener("click",function(e){
   S.claims=(p.claims||[]).map(function(c){ c.checks=c.checks||{claim:false,citation:false,independent:false}; c.aiChecks=c.aiChecks||{}; return c });
   S.cfg=Object.assign(S.cfg,p.cfg||{}); S.sources=p.sources||S.sources; S.question=p.question||"";
   S.answer=p.answer||""; S.scores=p.scores||null; S.judgeRef=p.judgeRef||"";
-  S.baseline=p.baseline||S.baseline; S.candidate=p.candidate||S.candidate; S.fmt=p.fmt||"json"; S.isExample=false; S.saved=true; S.wiz.at=null;
+  S.isExample=false; S.saved=true; S.wiz.at=null;
   hydrate(); show("check");
 });
 $("#btn-refresh").addEventListener("click",function(){
@@ -3132,7 +3045,6 @@ function hydrate(){
   $("#ask-chatgpt-q").value=S.askQuestion||"";
   renderModelSelect(); renderModelNote(); renderRunButton();
   $("#rag-q").value=S.question; $("#judge-ref").value=S.judgeRef;
-  $("#baseline").value=S.baseline; $("#candidate").value=S.candidate; $("#fmt").value=S.fmt;
   $("#ex-badge").innerHTML=S.isExample?'<span class="exbadge">Example</span>':"";
   renderSwitches(); renderConsole(); renderDials(); renderSources(); renderPassages(); renderAnswer();
   renderLedger(); renderRubric(); renderHelp();
