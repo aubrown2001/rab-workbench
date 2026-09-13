@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RAB·BIT Verification Workbench</title>
-<link rel="icon" type="image/png" href="/rabbit-mark.png">
+<link rel="icon" type="image/png" href="/rabbit-mark-cute.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600;700&display=swap">
@@ -79,7 +79,7 @@ a{color:var(--accent)}
 .brand{display:flex;flex:none}
 .brand-btn{display:flex;align-items:center;gap:9px;width:auto;background:none;border:1px solid transparent;border-radius:10px;padding:3px 6px;cursor:help;text-align:left;color:inherit;width:100%}
 .brand-btn:hover{background:var(--surface-2);border-color:var(--line)}
-.brand-rabbit{width:46px;height:46px;object-fit:contain;flex:none;filter:drop-shadow(0 5px 7px rgba(19,92,209,.2))}
+.brand-rabbit{display:block;width:46px;height:46px;object-fit:contain;object-position:center;flex:none;filter:drop-shadow(0 5px 7px rgba(19,92,209,.2))}
 .brand-lockup{display:flex;flex-direction:column;min-width:0;line-height:1}
 .brand-lockup strong{font-family:var(--f-display);font-size:1.42rem;font-weight:850;letter-spacing:-.055em;color:#101A2A;white-space:nowrap}
 .brand-lockup strong span{color:#1769E8}
@@ -620,7 +620,7 @@ body{font-size:16.5px;background:
 .rail{padding:18px 13px;background:linear-gradient(180deg,#252C38 0%,#202733 58%,#1B222D 100%);border-right:1px solid #354052;gap:18px;box-shadow:8px 0 30px -26px rgba(4,12,24,.8)}
 .rail-brand{padding:0 7px 16px;border-bottom:1px solid #3B4657}
 .rail-brand-mark{display:flex;align-items:center;gap:10px;color:#FFFFFF}
-.rail-rabbit{width:48px;height:48px;object-fit:contain;filter:drop-shadow(0 7px 10px rgba(43,127,255,.32))}
+.rail-rabbit{display:block;width:48px;height:48px;object-fit:contain;object-position:center;filter:drop-shadow(0 7px 10px rgba(43,127,255,.32))}
 .rail-brand-words{display:flex;flex-direction:column;min-width:0}
 .rail-brand-rab{font-size:1.55rem;font-weight:850;letter-spacing:-.065em;line-height:1;color:#FFFFFF;white-space:nowrap}
 .rail-brand-rab span{color:#49C8FF}
@@ -698,7 +698,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 .launch-card{width:min(1080px,100%);text-align:center;padding:32px 24px 38px;border:1px solid rgba(255,255,255,.7);border-radius:28px;background:rgba(255,255,255,.72);box-shadow:0 32px 80px -35px rgba(15,45,90,.55)}
 :root[data-theme="dark"] .launch-card{background:rgba(20,35,58,.82);border-color:#385173}
 .launch-brand{display:flex;align-items:center;justify-content:center;gap:18px;margin:0 auto 13px}
-.launch-brand img{width:122px;height:122px;object-fit:contain;filter:drop-shadow(0 14px 22px rgba(23,105,232,.2))}
+.launch-brand img{display:block;width:122px;height:122px;object-fit:contain;object-position:center;flex:none;filter:drop-shadow(0 14px 22px rgba(23,105,232,.2))}
 .launch-brand-copy{display:flex;flex-direction:column;text-align:left;line-height:1}
 .launch-brand-copy strong{font-family:var(--f-display);font-size:clamp(2.9rem,6vw,5.2rem);font-weight:900;letter-spacing:-.07em;color:#0A1B3E;white-space:nowrap}
 .launch-brand-copy strong span{background:linear-gradient(90deg,#11C9F1,#245CFF 55%,#8B35F5);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -746,7 +746,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 <div class="shell">
   <aside class="rail">
     <div class="rail-brand" aria-label="RAB·BIT Verification Workbench">
-      <div class="rail-brand-mark"><img class="rail-rabbit" src="/rabbit-mark.png" alt=""><span class="rail-brand-words"><span class="rail-brand-rab">RAB<span>·BIT</span></span><span class="rail-brand-copy">Verification Workbench</span></span></div>
+      <div class="rail-brand-mark"><img class="rail-rabbit" src="/rabbit-mark-cute.png" alt=""><span class="rail-brand-words"><span class="rail-brand-rab">RAB<span>·BIT</span></span><span class="rail-brand-copy">Verification Workbench</span></span></div>
     </div>
     <nav class="nav" id="nav">
       <div class="nav-h">Controls</div>
@@ -771,7 +771,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
     <header class="top">
       <div class="brand">
       <button class="brand-btn" id="brand" aria-describedby="brandtip" aria-label="RAB·BIT — Rigor Above Belief, Built for Integrity and Trust">
-        <img class="brand-rabbit" src="/rabbit-mark.png" alt="">
+        <img class="brand-rabbit" src="/rabbit-mark-cute.png" alt="">
         <span class="brand-lockup"><strong>RAB<span>·BIT</span></strong><small>AI Verification Workbench</small></span>
       </button>
       </div>
@@ -1115,7 +1115,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
         <div class="launch-overlay" id="launch-overlay">
           <div class="launch-card">
             <div class="launch-brand" aria-label="RAB·BIT — Rigor Above Belief, Built for Integrity and Trust">
-              <img src="/rabbit-mark.png" alt="">
+              <img src="/rabbit-mark-cute.png" alt="">
               <span class="launch-brand-copy"><strong>RAB<span>·BIT</span></strong><small>RIGOR ABOVE BELIEF · BUILT FOR INTEGRITY &amp; TRUST</small></span>
             </div>
             <h1>What would you like to do?</h1>
