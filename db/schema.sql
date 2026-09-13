@@ -112,9 +112,10 @@ select
   count(*) filter (where status = 'verified')                    as verified,
   count(*) filter (where status = 'unsupported')                 as unsupported,
   count(*) filter (where status = 'refuted')                     as refuted,
+  count(*) filter (where status = 'opinion')                     as opinion,
   count(*) filter (where status = 'unverified')                  as unverified,
   round(100.0 * count(*) filter (where status in ('refuted','unsupported'))
-        / nullif(count(*) filter (where status <> 'unverified'),0), 1) as not_cleared_pct
+        / nullif(count(*) filter (where status not in ('unverified','opinion')),0), 1) as not_cleared_pct
 from claims
 group by 1
 order by not_cleared_pct desc nulls last;
@@ -127,8 +128,9 @@ select
   count(distinct a.id)                                           as audits,
   count(c.id)                                                    as claims,
   count(c.id) filter (where c.status in ('refuted','unsupported'))as not_cleared,
+  count(c.id) filter (where c.status = 'opinion')                as opinion,
   round(100.0 * count(c.id) filter (where c.status in ('refuted','unsupported'))
-        / nullif(count(c.id) filter (where c.status <> 'unverified'),0), 1) as not_cleared_pct,
+        / nullif(count(c.id) filter (where c.status not in ('unverified','opinion')),0), 1) as not_cleared_pct,
   round(avg(a.judge_avg),2)                                      as avg_judge
 from audits a
 left join claims c on c.audit_id = a.id
