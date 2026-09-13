@@ -1458,6 +1458,13 @@ function apiDb(){
     renderRecords(); if(DB) watchRecords();
     $("#dot-reports").classList.toggle("on",SERVER_REPORTS);
     $("#dot-ops").classList.toggle("on",Object.keys(SERVER.providers).some(function(k){return SERVER.providers[k]}));
+    /* Reports is now the landing page. Its first render can happen before this
+       capability request finishes, so discard that temporary empty result and
+       load the real Supabase dashboard as soon as the connection is known. */
+    if($("#p-reports").classList.contains("on")){
+      REPORTS=null;
+      loadReports(true);
+    }
   }).catch(function(){
     capLine($("#cap-sample"),false,"Models","API unreachable");
     capLine($("#cap-db"),false,"Archive","API unreachable");
