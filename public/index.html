@@ -318,6 +318,7 @@ textarea.mono,input.mono{font-family:var(--f-mono);font-size:17.8px}
 .claim.sel-refuted{background:linear-gradient(90deg,var(--bad-soft),transparent 42%)}
 .claim.sel-verified{background:linear-gradient(90deg,var(--ok-soft),transparent 42%)}
 .claim.sel-unsupported{background:linear-gradient(90deg,var(--warn-soft),transparent 42%)}
+.claim.sel-opinion{background:linear-gradient(90deg,var(--accent-soft),transparent 42%)}
 .claim-top{display:grid;grid-template-columns:26px minmax(0,1fr);gap:11px}
 .claim-n{font-family:var(--f-mono);font-size:15.6px;color:var(--ink-3);padding-top:3px;font-variant-numeric:tabular-nums}
 .claim-txt{font-family:var(--f-display);font-size:20px;line-height:1.4;margin:0}
@@ -337,6 +338,7 @@ textarea.mono,input.mono{font-family:var(--f-mono);font-size:17.8px}
 .st[data-v="verified"][aria-pressed="true"]{background:var(--ok-soft);border-color:var(--ok-line);color:var(--ok)}
 .st[data-v="unsupported"][aria-pressed="true"]{background:var(--warn-soft);border-color:var(--warn-line);color:var(--warn)}
 .st[data-v="refuted"][aria-pressed="true"]{background:var(--bad-soft);border-color:var(--bad-line);color:var(--bad)}
+.st[data-v="opinion"][aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
 .st[data-v="unverified"][aria-pressed="true"]{background:var(--surface-3);border-color:var(--line-2);color:var(--ink)}
 
 /* source check window (slide 3) */
@@ -1526,7 +1528,7 @@ var HELP_KB=[
 "",
 "THE GUIDED RUN. A step bar at the top offers three paths. 'Review an answer' (5 steps) is for an answer that already exists: paste it, break it into claims, clear each claim, optionally grade it, save. 'Build from evidence' (7 steps) is for one you are producing from trusted material: load evidence, set constraints in the console, generate a grounded answer, then the same claim work. 'Ask AI' (5 steps) lets a signed-in user ask a normal question, choose a connected OpenAI or Claude model, and record that model automatically; RAB then puts the answer into Fact-check and extracts its claims. Every path ends at the claim ledger because generating or grounding an answer never proves what it said. The Guide button hides the step bar.",
 "",
-"FACT-CHECK PANEL. Paste the answer, press Extract claims, and an available model splits it into checkable claims with a type, a risk rating and suggested search queries linked to Google Search and Scholar. Each claim starts Unverified. You set the status: Verified, Unsupported or Refuted. Three Source Check ticks record the work: claim isolated, citation provided, independent source matched. ChatGPT and Gemini can run automatic AI cross-checks when their API keys are connected. Without a Claude API key, the Claude button copies the question and opens the free Claude website; paste Claude's answer back into the claim to save it. AI opinions never change a claim's status. Two dials: claim granularity (coarse 8 claims / balanced 15 / fine 25) and STANDARD OF PROOF, which sets how many of the three ticks are required before a claim may be marked Verified — below that bar the Verified button is disabled and clicking it explains why. Raising the bar shows a banner offering to reopen claims cleared under a lower standard.",
+"FACT-CHECK PANEL. Paste the answer, press Extract claims, and an available model splits it into checkable claims with suggested search queries linked to Google Search and Scholar. Each claim starts Unverified. You set the outcome: Verified, Unsupported, Refuted, or Opinion. Opinion means the statement is subjective and cannot be proven true or false; it counts as reviewed but never as a verified fact. Three Source Check ticks record the work: claim isolated, citation provided, independent source matched. ChatGPT and Gemini can run automatic AI cross-checks when their API keys are connected. Without a Claude API key, the Claude button copies the question and opens the free Claude website; paste Claude's answer back into the claim to save it. AI cross-checks never change a claim's status. Two dials: claim granularity (coarse 8 claims / balanced 15 / fine 25) and STANDARD OF PROOF, which sets how many of the three ticks are required before a claim may be marked Verified — below that bar the Verified button is disabled and clicking it explains why. Raising the bar shows a banner offering to reopen claims cleared under a lower standard.",
 "",
 "PROMPT CONSOLE. Temperature dial with three bands, chain-of-thought scaffolds, and switches for grounding, citations, flagging uncertainty, refusing rather than guessing, saying what could not be answered, and structured JSON output. It compiles all of that into a prompt you can copy. The run button sends the answer to the fact-check ledger. Temperature IS live in this deployment: the value is sent with every run. Internal calls (extraction, AI cross-checks, judge) always run at 0 so they do not vary.",
 "",
@@ -1552,7 +1554,7 @@ function helpState(){
     "Panel: "+(names[panel]||"unknown"),
     "Guided path: "+PATHS[S.wiz.path].label+", on step "+(curStep()+1)+" of "+steps().length+" ("+st.n+")",
     "Response pasted: "+((S.response||"").trim()?"yes, "+S.response.trim().length+" characters":"no"),
-    "Claims: "+S.claims.length+" total — "+n("verified")+" verified, "+n("unsupported")+" unsupported, "+n("refuted")+" refuted, "+n("unverified")+" still unverified",
+    "Claims: "+S.claims.length+" total — "+n("verified")+" verified, "+n("unsupported")+" unsupported, "+n("refuted")+" refuted, "+n("opinion")+" opinion, "+n("unverified")+" still unverified",
     "Standard of proof: "+S.cfg.proof+" of 3 source-check ticks required to mark a claim Verified",
     "Claim granularity: "+S.cfg.gran,
     "Evidence sources loaded: "+S.sources.filter(function(x){return (x.text||"").trim()}).length,
@@ -1858,6 +1860,7 @@ function verdict(){
   if(n("unverified")) return {t:"In review",cls:"warn"};
   if(n("unsupported")) return {t:"Partial",cls:"warn"};
   if(ja!=null&&ja<S.cfg.pass) return {t:"Below bar",cls:"bad"};
+  if(n("opinion")) return {t:"Reviewed",cls:"ok"};
   return {t:"Cleared",cls:"ok"};
 }
 function judgeAvg(){
@@ -1945,7 +1948,7 @@ document.addEventListener("click",function(e){
 });
 
 /* ---------------- PRACTICE 1 · ledger ---------------- */
-var STATUSES=[["unverified","Unverified"],["verified","Verified"],["unsupported","Unsupported"],["refuted","Refuted"]];
+var STATUSES=[["unverified","Unverified"],["verified","Verified"],["unsupported","Unsupported"],["refuted","Refuted"],["opinion","Opinion"]];
 function searchLinks(q){
   var e=encodeURIComponent(q);
   return '<span class="qchip"><span>'+esc(q)+'</span>'+
@@ -1990,9 +1993,7 @@ function renderLedger(){
     return '<div class="claim sel-'+esc(c.status)+'" data-id="'+c.id+'">'+
       '<div class="claim-top"><div class="claim-n">'+String(i+1).padStart(2,"0")+'</div><div>'+
         '<p class="claim-txt">'+esc(c.text)+'</p>'+
-        '<div class="claim-meta"><span class="tag">'+esc(c.type||"claim")+'</span>'+
-        '<span class="tag risk-'+esc(c.risk||"low")+'">'+esc(c.risk||"low")+' risk</span>'+
-        '<div class="statuses" style="margin-left:4px">'+STATUSES.map(function(s){
+        '<div class="claim-meta"><div class="statuses">'+STATUSES.map(function(s){
           var block=s[0]==="verified"&&!meetsProof(c);
           return '<button class="st" data-act="status" data-v="'+s[0]+'" aria-pressed="'+(c.status===s[0])+'"'+
             (block?' data-blocked="1" title="Needs '+S.cfg.proof+' of the 3 source checks before this claim can be cleared"':"")+'>'+s[1]+'</button>'}).join("")+'</div></div>'+
@@ -2551,9 +2552,11 @@ $("#btn-judge").addEventListener("click",function(){
     standard:"Grade evenly: 5 means a domain expert would sign it off unchanged; 3 means usable after edits; 1 means it would mislead a reader.",
     harsh:"Grade severely: 5 is reserved for work that survives hostile review with no changes at all; 3 means a specialist would send it back; 1 means it must not leave the building. Withhold 4 and 5 unless the text earns them."
   }[S.cfg.strict]||"Grade evenly: 5 means a domain expert would sign it off unchanged; 3 means usable after edits; 1 means it would mislead a reader.";
+  var opinions=S.claims.filter(function(c){return c.status==="opinion"}).map(function(c){return "- "+c.text}).join("\n");
   var p="You are an evaluation model grading another model's answer against a rubric. "+CAL+"\n\nRUBRIC\n"+crit+
     "\n\n"+(S.prompt?"QUESTION ASKED: "+S.prompt+"\n\n":"")+
     "ANSWER UNDER REVIEW:\n"+resp.slice(0,12000)+
+    (opinions?"\n\nTHE HUMAN REVIEWER CLASSIFIED THESE STATEMENTS AS OPINION:\n"+opinions.slice(0,6000)+"\nTreat a clearly framed opinion as subjective rather than a factual error. Penalize it under truthfulness or calibration only if the answer presents that opinion as an established fact.":"")+
     (ref?"\n\nREFERENCE MATERIAL THE ANSWER SHOULD AGREE WITH:\n"+ref.slice(0,12000):"\n\nNo reference material was supplied: grade internal consistency, calibration and traceability only, and say so in each justification.")+
     "\n\nReply with only a JSON array, one object per rubric criterion, in the rubric's order: {\"criterion\": the id, \"score\": integer 1-5, \"justification\": one or two sentences citing the specific wording that decided the score}.";
   SAMPLE.json(p,{modelTier:"complex"}).then(function(arr){
@@ -2651,14 +2654,16 @@ $("#btn-policy-apply").addEventListener("click",applyPolicy);
 
 function governanceChecks(){
   var claims=S.claims||[], decided=claims.filter(function(c){return c.status!=="unverified"});
-  var sourced=decided.filter(function(c){return String(c.url||"").trim()});
-  var crossed=claims.filter(function(c){return c.aiChecks&&Object.keys(c.aiChecks).length});
+  var factual=claims.filter(function(c){return c.status!=="opinion"});
+  var decidedFacts=factual.filter(function(c){return c.status!=="unverified"});
+  var sourced=decidedFacts.filter(function(c){return String(c.url||"").trim()});
+  var crossed=factual.filter(function(c){return c.aiChecks&&Object.keys(c.aiChecks).length});
   return [
     {done:!!String(S.response||S.answer||"").trim(),pts:10,label:"Answer captured for review"},
     {done:claims.length>0,pts:15,label:"Answer split into checkable claims"},
     {done:claims.length>0&&decided.length===claims.length,pts:25,label:"Every claim has a human verdict"},
-    {done:decided.length>0&&sourced.length===decided.length,pts:15,label:"Every verdict records a source"},
-    {done:claims.length>0&&crossed.length===claims.length,pts:10,label:"Every claim has an independent AI cross-check"},
+    {done:claims.length>0&&decidedFacts.length===factual.length&&sourced.length===decidedFacts.length,pts:15,label:"Every factual verdict records a source"},
+    {done:claims.length>0&&crossed.length===factual.length,pts:10,label:"Every factual claim has an independent AI cross-check"},
     {done:S.cfg.ground&&S.cfg.cite&&S.cfg.uncert,pts:10,label:"Grounding guardrails are active"},
     {done:!!(S.scores&&S.scores.length),pts:10,label:"Judge rubric has been run"},
     {done:!untitled(S.title),pts:5,label:"Audit has a searchable name"}
@@ -2717,6 +2722,7 @@ var STATUS_META=[
   ["verified","Verified","#08A878"],
   ["unsupported","Unsupported","#F59E0B"],
   ["refuted","Refuted","#E54878"],
+  ["opinion","Opinion","#1677FF"],
   ["unverified","Still unverified","#7C4DFF"]
 ];
 function pct(n,d){ return d?Math.round(1000*n/d)/10:0 }
@@ -2738,7 +2744,7 @@ function renderReports(){
   if(!REPORTS.archive){ el.innerHTML='<div class="empty">No database is configured for this deployment, so there is nothing to report on yet.</div>'; return; }
 
   var t=REPORTS.totals||{}, st=REPORTS.byStatus||{}, q=REPORTS.quality||{};
-  var checked=(st.verified||0)+(st.unsupported||0)+(st.refuted||0);
+  var checked=(st.verified||0)+(st.unsupported||0)+(st.refuted||0)+(st.opinion||0);
   var notCleared=(st.unsupported||0)+(st.refuted||0);
   if(!t.audits){ el.innerHTML='<div class="empty">No audits saved yet. Finish a review and press <b>Save audit</b> — the numbers here build up from real work.</div>'; return; }
 
