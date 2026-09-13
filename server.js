@@ -66,7 +66,15 @@ app.use((req, res, next) => {
   return res.status(401).send("RAB·BIT Workbench sign-in required.");
 });
 app.use(express.json({ limit: "2mb" }));
-app.use(express.static(path.join(__dirname, "public"), { maxAge: "1h" }));
+app.use(express.static(path.join(__dirname, "public"), {
+  maxAge: "1h",
+  setHeaders(res, filePath) {
+    // Never pin the application shell in a browser cache. A fresh HTML file
+    // can then point at newly versioned images/scripts immediately after a
+    // Render deployment, while static assets may still use a short cache.
+    if (filePath.endsWith(".html")) res.setHeader("cache-control", "no-store");
+  },
+}));
 
 /* A lightweight observability layer inspired by mature API control planes.
    It deliberately stores no prompts, claims, responses, IP addresses, or API
