@@ -618,29 +618,28 @@ app.delete("/api/audits/:id", rateLimit({ windowMs: 60_000, max: 30, key: "write
 app.get("/api/reports", async (req, res) => {
   if (!archiveOn()) return res.json({ archive: false });
   try {
-    const [types, models, discipline, weekly, totals, claims, scores] = await Promise.all([
-      supa.from("v_claim_type_quality").select("*"),
-      supa.from("v_model_quality").select("*"),
+    const [discipline, weekly, totals, claims, scores] = await Promise.all([
       supa.from("v_review_discipline").select("*").single(),
       supa.from("v_audits_weekly").select("*"),
       supa.from("audits").select("id,title,created_at,verdict,model_label,judge_avg,claim_count,cleared_count,proof_standard,granularity,strictness").order("created_at", { ascending: false }),
-      supa.from("claims").select("audit_id,status,risk,tick_claim,tick_citation,tick_independent,source_url"),
+      supa.from("claims").select("audit_id,status,claim_type,risk,tick_claim,tick_citation,tick_independent,source_url"),
       supa.from("scores").select("criterion,criterion_name,score"),
     ]);
-    const err = [types, models, discipline, weekly, totals, claims, scores].find((r) => r.error);
+    const err = [discipline, weekly, totals, claims, scores].find((r) => r.error);
     if (err) return fail(res, 500, "db_error", err.error.message);
 
     const auditRows = totals.data || [];
     const judged = auditRows.filter((r) => r.judge_avg != null);
-    const byStatus = { verified: 0, unsupported: 0, refuted: 0, unverified: 0 };
+    const byStatus = { verified: 0, unsupported: 0, refuted: 0, opinion: 0, unverified: 0 };
     (claims.data || []).forEach((c) => { if (byStatus[c.status] != null) byStatus[c.status]++; });
     const claimRows = claims.data || [];
     const decided = claimRows.filter((c) => c.status !== "unverified");
+    const factualDecisions = decided.filter((c) => c.status !== "opinion");
     const countTrue = (key) => claimRows.filter((c) => c[key]).length;
-    const sourced = decided.filter((c) => String(c.source_url || "").trim()).length;
+    const sourced = factualDecisions.filter((c) => String(c.source_url || "").trim()).length;
     const riskLevels = ["high", "medium", "low", "unspecified"].map((risk) => {
       const rows = claimRows.filter((c) => (c.risk || "unspecified") === risk);
-      const checked = rows.filter((c) => c.status !== "unverified");
+      const checked = rows.filter((c) => c.status !== "unverified" && c.status !== "opinion");
       const failed = rows.filter((c) => c.status === "unsupported" || c.status === "refuted");
       return { risk, claims: rows.length, checked: checked.length, failed: failed.length,
         failurePct: checked.length ? Math.round(1000 * failed.length / checked.length) / 10 : null };
@@ -660,6 +659,30 @@ app.get("/api/reports", async (req, res) => {
     const criteria = Array.from(criterionMap.values()).map((r) => ({
       criterion: r.criterion, scores: r.scores, average: r.scores ? Math.round(100 * r.total / r.scores) / 100 : null,
     })).sort((a, b) => (a.average ?? 9) - (b.average ?? 9));
+    const qualityRows = (keyFor) => {
+      const grouped = new Map();
+      claimRows.forEach((c) => {
+        const key = keyFor(c) || "unspecified";
+        const row = grouped.get(key) || { key, claims: 0, verified: 0, unsupported: 0, refuted: 0, opinion: 0, checked: 0 };
+        row.claims += 1;
+        if (Object.prototype.hasOwnProperty.call(row, c.status)) row[c.status] += 1;
+        if (c.status !== "unverified" && c.status !== "opinion") row.checked += 1;
+        grouped.set(key, row);
+      });
+      return Array.from(grouped.values()).map((r) => ({
+        ...r,
+        not_cleared: r.unsupported + r.refuted,
+        not_cleared_pct: r.checked ? Math.round(1000 * (r.unsupported + r.refuted) / r.checked) / 10 : null,
+      }));
+    };
+    const claimTypes = qualityRows((c) => c.claim_type).map((r) => ({ ...r, claim_type: r.key }));
+    const auditModels = new Map(auditRows.map((a) => [a.id, a.model_label || "unspecified"]));
+    const modelsByClaim = qualityRows((c) => auditModels.get(c.audit_id)).map((r) => {
+      const related = auditRows.filter((a) => (a.model_label || "unspecified") === r.key);
+      const judgedRelated = related.filter((a) => a.judge_avg != null);
+      return { ...r, model_label: r.key, audits: related.length,
+        avg_judge: judgedRelated.length ? Math.round(100 * judgedRelated.reduce((n, a) => n + Number(a.judge_avg), 0) / judgedRelated.length) / 100 : null };
+    });
 
     res.json({
       archive: true,
@@ -672,7 +695,7 @@ app.get("/api/reports", async (req, res) => {
       byStatus,
       quality: {
         decisionRate: claimRows.length ? Math.round(1000 * decided.length / claimRows.length) / 10 : 0,
-        sourceCoverage: decided.length ? Math.round(1000 * sourced / decided.length) / 10 : 0,
+        sourceCoverage: factualDecisions.length ? Math.round(1000 * sourced / factualDecisions.length) / 10 : 0,
         citationRate: claimRows.length ? Math.round(1000 * countTrue("tick_citation") / claimRows.length) / 10 : 0,
         independentRate: claimRows.length ? Math.round(1000 * countTrue("tick_independent") / claimRows.length) / 10 : 0,
         judgeCoverage: auditRows.length ? Math.round(1000 * judged.length / auditRows.length) / 10 : 0,
@@ -690,8 +713,8 @@ app.get("/api/reports", async (req, res) => {
       criteria,
       recent: auditRows.slice(0, 8).map((a) => ({ id: a.id, title: a.title, createdAt: a.created_at, verdict: a.verdict,
         model: a.model_label, judge: a.judge_avg, claims: a.claim_count, cleared: a.cleared_count })),
-      claimTypes: types.data || [],
-      models: models.data || [],
+      claimTypes,
+      models: modelsByClaim,
       discipline: discipline.data || null,
       weekly: weekly.data || [],
     });
