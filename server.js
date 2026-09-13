@@ -1,5 +1,5 @@
 /**
- * RAB — Rigor Above Belief
+ * RAB·BIT — Rigor Above Belief · Built for Integrity & Trust
  * Express backend for Render.
  *
  * Holds every secret. The browser never sees an API key or a database
@@ -62,8 +62,8 @@ app.use((req, res, next) => {
     }
   }
   if (safeEqual(user, ACCESS_USER) && safeEqual(password, ACCESS_PASSWORD)) return next();
-  res.set("www-authenticate", 'Basic realm="RAB Workbench", charset="UTF-8"');
-  return res.status(401).send("RAB Workbench sign-in required.");
+  res.set("www-authenticate", 'Basic realm="RAB·BIT Workbench", charset="UTF-8"');
+  return res.status(401).send("RAB·BIT Workbench sign-in required.");
 });
 app.use(express.json({ limit: "2mb" }));
 app.use(express.static(path.join(__dirname, "public"), { maxAge: "1h" }));
@@ -252,7 +252,7 @@ app.post("/api/ask",
 
     let upstream;
     try {
-      const instructions = "You are an AI assistant inside RAB Verification Workbench. Answer the user's question clearly and directly. Do not claim to have browsed or verified live sources. State meaningful uncertainty instead of guessing. The answer will be separated into claims for human verification.";
+      const instructions = "You are an AI assistant inside RAB·BIT Verification Workbench. Answer the user's question clearly and directly. Do not claim to have browsed or verified live sources. State meaningful uncertainty instead of guessing. The answer will be separated into claims for human verification.";
       upstream = picked.provider === "anthropic"
         ? await fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
@@ -683,6 +683,23 @@ app.get("/api/reports", async (req, res) => {
       return { ...r, model_label: r.key, audits: related.length,
         avg_judge: judgedRelated.length ? Math.round(100 * judgedRelated.reduce((n, a) => n + Number(a.judge_avg), 0) / judgedRelated.length) / 100 : null };
     });
+    const checkedByAudit = new Map();
+    claimRows.forEach((c) => {
+      if (c.status === "unverified") return;
+      checkedByAudit.set(c.audit_id, (checkedByAudit.get(c.audit_id) || 0) + 1);
+    });
+    const dayCounts = new Map();
+    auditRows.forEach((a) => {
+      const day = String(a.created_at || "").slice(0, 10);
+      if (day) dayCounts.set(day, (dayCounts.get(day) || 0) + (checkedByAudit.get(a.id) || 0));
+    });
+    const claimsDaily = Array.from({ length: 30 }, (_, i) => {
+      const d = new Date();
+      d.setUTCHours(0, 0, 0, 0);
+      d.setUTCDate(d.getUTCDate() - (29 - i));
+      const date = d.toISOString().slice(0, 10);
+      return { date, checked: dayCounts.get(date) || 0 };
+    });
 
     res.json({
       archive: true,
@@ -717,6 +734,7 @@ app.get("/api/reports", async (req, res) => {
       models: modelsByClaim,
       discipline: discipline.data || null,
       weekly: weekly.data || [],
+      claimsDaily,
     });
   } catch (e) {
     fail(res, 500, "db_error", e.message);
@@ -729,7 +747,7 @@ app.get("/healthz", (req, res) =>
 
 if (require.main === module) {
   app.listen(PORT, () => {
-    console.log(`RAB listening on ${PORT}`);
+    console.log(`RAB·BIT listening on ${PORT}`);
     if (!archiveOn()) console.warn("No SUPABASE_URL / SUPABASE_SECRET_KEY — archive and reports are disabled.");
     if (!hasKey("anthropic") && !hasKey("openai") && !hasKey("gemini")) console.warn("No model API key set — AI steps are disabled.");
     if (!accessProtected()) console.warn("No RAB_USERNAME / RAB_PASSWORD — this deployment is public.");

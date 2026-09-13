@@ -669,7 +669,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 .healthdot{width:9px;height:9px;border-radius:50%;background:var(--bad)}.healthdot.on{background:var(--ok);box-shadow:0 0 0 3px var(--ok-soft)}.healthname{font-size:.88rem;font-weight:700}.healthmeta{font-size:.68rem;color:var(--ink-3);font-family:var(--f-mono)}
 .alert-list{display:grid;gap:8px}.op-alert{padding:10px 12px;border:1px solid var(--warn-line);border-radius:9px;background:var(--warn-soft);font-size:.82rem;color:var(--ink)}.op-alert.ok{border-color:var(--ok-line);background:var(--ok-soft)}
 .event-table{width:100%;border-collapse:collapse;font-size:.78rem}.event-table th{text-align:left;padding:8px;color:var(--ink-3);font-size:.62rem;text-transform:uppercase;letter-spacing:.11em;border-bottom:1px solid var(--line)}.event-table td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}.event-table tr:last-child td{border-bottom:0}.http-ok{color:var(--ok);font-weight:700}.http-bad{color:var(--bad);font-weight:700}
-#reports-body{--r-blue:#1677FF;--r-cyan:#08B8D9;--r-green:#08A878;--r-lime:#77B900;--r-amber:#F59E0B;--r-orange:#F97316;--r-pink:#E54878;--r-violet:#7C4DFF}
+#reports-body{--r-blue:#2F80FF;--r-cyan:#22C7F2;--r-green:#19D67F;--r-teal:#00C2A8;--r-lime:#8FE234;--r-amber:#FFB020;--r-orange:#FF7A2F;--r-pink:#FF3D71;--r-violet:#8B5CF6;--r-navy:#182347}
 #reports-body .rgrid{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
 #reports-body .rtile{min-height:154px;border:0;color:#FFFFFF;box-shadow:0 16px 30px -22px rgba(10,35,75,.72)}
 #reports-body .rtile:nth-child(8n+1){background:linear-gradient(145deg,#1267DB,#258AFF)}
@@ -689,7 +689,9 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 .report-donut strong{position:relative;z-index:1;font-size:2rem}.report-donut span{position:relative;z-index:1;display:block;text-align:center;color:var(--ink-3);font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
 .report-legend{display:grid;gap:9px}.report-legend-row{display:grid;grid-template-columns:12px 1fr auto;gap:9px;align-items:center;font-size:.83rem}.report-legend-row i{width:10px;height:10px;border-radius:3px}.report-legend-row b{font-family:var(--f-mono)}
 .report-table{width:100%;border-collapse:collapse}.report-table th{text-align:left;padding:9px 10px;color:var(--ink-3);font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;border-bottom:1px solid var(--line)}.report-table td{padding:11px 10px;border-bottom:1px solid var(--line);font-size:.82rem}.report-table tbody tr:last-child td{border-bottom:0}.report-table .titlecell{font-weight:700;max-width:320px}.report-table .num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
-.verdict-pill{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:.68rem;font-weight:700;background:var(--surface-3);color:var(--ink-2)}.verdict-pill.cleared{background:#DDF8EE;color:#087A55}.verdict-pill.refuted{background:#FFE2EA;color:#B91C4B}.verdict-pill.partial,.verdict-pill.in-review,.verdict-pill.below-bar{background:#FFF0D4;color:#A15308}
+.verdict-pill{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:.68rem;font-weight:700;background:var(--surface-3);color:var(--ink-2)}.verdict-pill.cleared{background:#D8FFEB;color:#008A4D}.verdict-pill.refuted{background:#FFE0E9;color:#CF174C}.verdict-pill.partial,.verdict-pill.in-review,.verdict-pill.below-bar{background:#FFF0CE;color:#A45B00}
+.claims-line-wrap{min-height:252px}.claims-line{display:block;width:100%;height:auto;overflow:visible}.claims-line .grid{stroke:#DDE7F3;stroke-width:1}.claims-line .axis-label{fill:var(--ink-3);font:11px var(--f-mono)}.claims-line .area{fill:url(#claimsArea)}.claims-line .trend{fill:none;stroke:var(--r-blue);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 5px 6px rgba(47,128,255,.25))}.claims-line .point{fill:#FFFFFF;stroke:var(--r-blue);stroke-width:3}.claims-line-total{display:flex;align-items:baseline;gap:9px;margin-bottom:7px}.claims-line-total strong{font:750 2rem var(--f-mono);color:var(--r-blue)}.claims-line-total span{font-size:.76rem;color:var(--ink-3)}
+.claims-gauge-card{background:linear-gradient(145deg,#202C59,#141D3E);border:0;color:#FFFFFF;overflow:hidden}.claims-gauge-card .card-h{background:rgba(255,255,255,.035);border-color:rgba(255,255,255,.12)}.claims-gauge-card .card-t,.claims-gauge-card .hint{color:#FFFFFF}.claims-gauge-card .hint{opacity:.7}.claims-gauge-body{display:grid;place-items:center;min-height:270px;padding:17px}.claims-gauge{width:min(330px,100%);height:auto}.claims-gauge .g-bg{fill:none;stroke:#536083;stroke-width:23;stroke-linecap:butt}.claims-gauge .g-progress{fill:none;stroke:url(#gaugeBright);stroke-width:23;stroke-linecap:butt}.claims-gauge .claim-gauge-needle{stroke:#FFFFFF;stroke-width:6;stroke-linecap:round;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35))}.claims-gauge .g-hub{fill:#FFFFFF}.claims-gauge .g-label{fill:#AEBCE3;font:12px var(--f-mono)}.claims-gauge .g-value{fill:#FFFFFF;font:700 34px var(--f-mono)}.claims-gauge-note{margin-top:-22px;color:#C9D4F3;font-size:.78rem;text-align:center}
 .reports-panel{position:relative}
 .launch-overlay{position:fixed;left:var(--rail);right:0;top:0;bottom:0;z-index:19;display:grid;place-items:center;padding:92px 28px 42px;overflow:auto;background:rgba(241,246,255,.82);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
 :root[data-theme="dark"] .launch-overlay{background:rgba(10,20,36,.84)}
@@ -2805,15 +2807,22 @@ $("#btn-ops-refresh").addEventListener("click",function(){loadOperations(true)})
    Bright colour separates report families and outcomes. Every chart still
    carries labels and exact values, so no conclusion depends on colour alone. */
 var REPORTS=null, reportsBusy=false;
-var REPORT_COLORS=["#1677FF","#08B8D9","#08A878","#7C4DFF","#F59E0B","#E54878","#F97316","#77B900"];
+var REPORT_COLORS=["#2F80FF","#22C7F2","#19D67F","#8B5CF6","#FFB020","#FF3D71","#FF7A2F","#8FE234"];
+var REPORT_STATUS_COLORS={
+  verified:"#19D67F",cleared:"#19D67F",supported:"#19D67F",
+  unsupported:"#FFB020",partial:"#FFB020","in review":"#8B5CF6","below bar":"#FF7A2F",
+  refuted:"#FF3D71",opinion:"#22C7F2",unverified:"#8B5CF6",unspecified:"#7D8CAA"
+};
 var STATUS_META=[
-  ["verified","Verified","#08A878"],
-  ["unsupported","Unsupported","#F59E0B"],
-  ["refuted","Refuted","#E54878"],
-  ["opinion","Opinion","#1677FF"],
-  ["unverified","Still unverified","#7C4DFF"]
+  ["verified","Verified",REPORT_STATUS_COLORS.verified],
+  ["unsupported","Unsupported",REPORT_STATUS_COLORS.unsupported],
+  ["refuted","Refuted",REPORT_STATUS_COLORS.refuted],
+  ["opinion","Opinion",REPORT_STATUS_COLORS.opinion],
+  ["unverified","Still unverified",REPORT_STATUS_COLORS.unverified]
 ];
 function pct(n,d){ return d?Math.round(1000*n/d)/10:0 }
+function reportStatusColor(label,fallback){return REPORT_STATUS_COLORS[String(label||"").toLowerCase()]||fallback||REPORT_COLORS[0]}
+function reportRiskColor(risk){return {high:REPORT_STATUS_COLORS.refuted,medium:REPORT_STATUS_COLORS.unsupported,low:REPORT_STATUS_COLORS.verified,unspecified:"#7D8CAA"}[String(risk||"").toLowerCase()]||"#7D8CAA"}
 function bar(label,swatch,value,widthPct,sub){
   return '<div class="crow">'+
     '<div class="clab">'+(swatch?'<i class="sw" style="background:'+swatch+'"></i>':"")+'<span>'+esc(label)+'</span></div>'+
@@ -2823,6 +2832,26 @@ function bar(label,swatch,value,widthPct,sub){
 }
 function tile(k,v,d,cls){
   return '<div class="rtile"><div class="k">'+esc(k)+'</div><div class="v '+(cls||"")+'">'+esc(v)+'</div><div class="d">'+d+'</div></div>';
+}
+function claimsLineChart(rows){
+  rows=Array.isArray(rows)&&rows.length?rows:Array.from({length:30},function(_,i){var d=new Date();d.setDate(d.getDate()-(29-i));return{date:d.toISOString().slice(0,10),checked:0}});
+  var w=720,h=220,l=42,r=16,t=18,b=38,iw=w-l-r,ih=h-t-b;
+  var vals=rows.map(function(x){return Math.max(0,Number(x.checked)||0)}),max=Math.max.apply(null,vals.concat([1]));
+  var top=Math.max(4,Math.ceil(max/4)*4);
+  var pts=vals.map(function(v,i){return{x:l+(rows.length===1?0:iw*i/(rows.length-1)),y:t+ih-(ih*v/top),v:v,date:rows[i].date}});
+  var path=pts.map(function(p,i){return(i?"L":"M")+p.x.toFixed(1)+" "+p.y.toFixed(1)}).join(" ");
+  var area=path+" L"+(l+iw)+" "+(t+ih)+" L"+l+" "+(t+ih)+" Z";
+  var grid="",ylabels=""; for(var g=0;g<=4;g++){var gy=t+ih*g/4,val=Math.round(top*(4-g)/4);grid+='<line class="grid" x1="'+l+'" y1="'+gy+'" x2="'+(l+iw)+'" y2="'+gy+'"/>';ylabels+='<text class="axis-label" x="'+(l-9)+'" y="'+(gy+4)+'" text-anchor="end">'+val+'</text>'}
+  var labelAt={0:1,5:1,11:1,17:1,23:1,29:1};
+  var xlabels=pts.map(function(p,i){if(!labelAt[i])return"";var d=new Date(p.date+"T00:00:00Z");return '<text class="axis-label" x="'+p.x+'" y="'+(h-9)+'" text-anchor="middle">'+(d.getUTCMonth()+1)+'/'+d.getUTCDate()+'</text>'}).join("");
+  var dots=pts.map(function(p){return p.v?'<circle class="point" cx="'+p.x+'" cy="'+p.y+'" r="4"><title>'+esc(p.date)+': '+p.v+' checked</title></circle>':""}).join("");
+  var total=vals.reduce(function(n,v){return n+v},0);
+  return '<div class="claims-line-total"><strong>'+total+'</strong><span>claims checked during this 30-day window</span></div><div class="claims-line-wrap"><svg class="claims-line" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Claims checked each day for the last 30 days"><defs><linearGradient id="claimsArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2F80FF" stop-opacity=".42"/><stop offset="1" stop-color="#22C7F2" stop-opacity=".03"/></linearGradient></defs>'+grid+ylabels+'<path class="area" d="'+area+'"/><path class="trend" d="'+path+'"/>'+dots+xlabels+'</svg></div>';
+}
+function claimsGauge(value,checked,total){
+  var p=Math.max(0,Math.min(100,Number(value)||0)),angle=Math.PI-Math.PI*p/100;
+  var nx=120+78*Math.cos(angle),ny=120-78*Math.sin(angle);
+  return '<div class="claims-gauge-body"><div><svg class="claims-gauge" viewBox="0 0 240 170" role="img" aria-label="'+p.toFixed(1)+' percent of claims checked"><defs><linearGradient id="gaugeBright"><stop offset="0" stop-color="#22C7F2"/><stop offset=".62" stop-color="#2F80FF"/><stop offset="1" stop-color="#19D67F"/></linearGradient></defs><path class="g-bg" pathLength="100" d="M20 120 A100 100 0 0 1 220 120"/><path class="g-progress" pathLength="100" stroke-dasharray="'+p+' 100" d="M20 120 A100 100 0 0 1 220 120"/><line class="claim-gauge-needle" x1="120" y1="120" x2="'+nx.toFixed(1)+'" y2="'+ny.toFixed(1)+'"/><circle class="g-hub" cx="120" cy="120" r="8"/><text class="g-label" x="17" y="145">0%</text><text class="g-label" x="223" y="145" text-anchor="end">100%</text><text class="g-value" x="120" y="163" text-anchor="middle">'+Math.round(p)+'%</text></svg><div class="claims-gauge-note">'+checked+' of '+total+' extracted claims have a human verdict</div></div></div>';
 }
 function renderReports(){
   var el=$("#reports-body");
@@ -2840,12 +2869,13 @@ function renderReports(){
   /* Executive scorecards. */
   out+='<div class="rgrid">'+
     tile("Audits saved",String(t.audits),"Completed reviews in the archive.")+
-    tile("Claims checked",String(checked),"Out of "+(t.claims||0)+" extracted. A claim counts once a person gives it a verdict.")+
-    tile("Decision rate",Number(q.decisionRate||0).toFixed(1)+"%","Claims with a recorded human verdict.")+
     tile("Source coverage",Number(q.sourceCoverage||0).toFixed(1)+"%","Decided claims with a source recorded.")+
     tile("Judge coverage",Number(q.judgeCoverage||0).toFixed(1)+"%","Saved audits that were scored by the judge.")+
     tile("Average judge score",t.avgJudge!=null?Number(t.avgJudge).toFixed(1)+"/5":"—","Across audits that were graded.",t.avgJudge>=4?"ok":t.avgJudge>=3?"warn":t.avgJudge!=null?"bad":"")+
   '</div>';
+
+  out+='<div class="report-grid2"><div class="card report-card" style="--report-color:#2F80FF"><div class="card-h"><span class="card-t">Claims checked · last 30 days</span><span class="hint">Daily human review volume</span></div><div class="card-b">'+claimsLineChart(REPORTS.claimsDaily)+'</div></div>'+
+    '<div class="card report-card claims-gauge-card" style="--report-color:#19D67F"><div class="card-h"><span class="card-t">Claims checked percentage</span><span class="hint">All saved claims</span></div>'+claimsGauge(pct(checked,t.claims||0),checked,Number(t.claims||0))+'</div></div>';
 
   /* Outcome wheel and evidence funnel. */
   var cursor=0, stops=[], legend="";
@@ -2855,16 +2885,16 @@ function renderReports(){
     legend+='<div class="report-legend-row"><i style="background:'+m[2]+'"></i><span>'+esc(m[1])+'</span><b>'+n+' · '+pct(n,t.claims||1)+'%</b></div>';
   });
   var donut=stops.length?'conic-gradient('+stops.join(",")+')':'var(--surface-3)';
-  var funnel=REPORTS.funnel||{}, funnelRows=[["All claims",funnel.claims,"#1677FF"],["Claim isolated",funnel.isolated,"#08B8D9"],["Citation recorded",funnel.citations,"#7C4DFF"],["Independent source",funnel.independent,"#F59E0B"],["Verified",funnel.verified,"#08A878"]];
-  out+='<div class="report-grid2"><div class="card report-card" style="--report-color:#7C4DFF"><div class="card-h"><span class="card-t">Claim outcomes</span><span class="hint">'+notCleared+' did not survive</span></div><div class="card-b donut-wrap"><div class="report-donut" style="background:'+donut+'"><div><strong>'+t.claims+'</strong><span>Total claims</span></div></div><div class="report-legend">'+legend+'</div></div></div>'+
-    '<div class="card report-card" style="--report-color:#08B8D9"><div class="card-h"><span class="card-t">Evidence completion funnel</span><span class="hint">How claims move toward approval</span></div><div class="card-b"><div class="chart">'+funnelRows.map(function(r){return bar(r[0],r[2],String(r[1]||0),pct(r[1]||0,funnel.claims||1),pct(r[1]||0,funnel.claims||1)+"%")}).join("")+'</div></div></div></div>';
+  var funnel=REPORTS.funnel||{}, funnelRows=[["All claims",funnel.claims,"#2F80FF"],["Claim isolated",funnel.isolated,"#22C7F2"],["Citation recorded",funnel.citations,"#8B5CF6"],["Independent source",funnel.independent,"#00C2A8"],["Verified",funnel.verified,REPORT_STATUS_COLORS.verified]];
+  out+='<div class="report-grid2"><div class="card report-card" style="--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Claim outcomes</span><span class="hint">'+notCleared+' did not survive</span></div><div class="card-b donut-wrap"><div class="report-donut" style="background:'+donut+'"><div><strong>'+t.claims+'</strong><span>Total claims</span></div></div><div class="report-legend">'+legend+'</div></div></div>'+
+    '<div class="card report-card" style="--report-color:#22C7F2"><div class="card-h"><span class="card-t">Evidence completion funnel</span><span class="hint">How claims move toward approval</span></div><div class="card-b"><div class="chart">'+funnelRows.map(function(r){return bar(r[0],r[2],String(r[1]||0),pct(r[1]||0,funnel.claims||1),pct(r[1]||0,funnel.claims||1)+"%")}).join("")+'</div></div></div></div>';
 
   /* Risk exposure and rubric performance. */
   var risks=REPORTS.riskLevels||[], criteria=REPORTS.criteria||[];
   if(risks.length||criteria.length){
     out+='<div class="report-grid2">';
-    if(risks.length) out+='<div class="card report-card" style="--report-color:#F97316"><div class="card-h"><span class="card-t">Failure rate by claim risk</span></div><div class="card-b"><div class="chart">'+risks.map(function(r,i){var v=r.failurePct==null?0:Number(r.failurePct);return bar((r.risk||"unspecified")+" risk",REPORT_COLORS[(i+4)%REPORT_COLORS.length],r.failurePct==null?"—":v.toFixed(1)+"%",v,r.checked+" checked")}).join("")+'</div></div></div>';
-    if(criteria.length) out+='<div class="card report-card" style="--report-color:#08A878"><div class="card-h"><span class="card-t">Judge rubric averages</span></div><div class="card-b"><div class="chart">'+criteria.map(function(r,i){var v=Number(r.average||0);return bar(r.criterion,REPORT_COLORS[(i+2)%REPORT_COLORS.length],v.toFixed(1)+"/5",20*v,r.scores+" scores")}).join("")+'</div></div></div>';
+    if(risks.length) out+='<div class="card report-card" style="--report-color:#FF7A2F"><div class="card-h"><span class="card-t">Failure rate by claim risk</span></div><div class="card-b"><div class="chart">'+risks.map(function(r){var v=r.failurePct==null?0:Number(r.failurePct);return bar((r.risk||"unspecified")+" risk",reportRiskColor(r.risk),r.failurePct==null?"—":v.toFixed(1)+"%",v,r.checked+" checked")}).join("")+'</div></div></div>';
+    if(criteria.length) out+='<div class="card report-card" style="--report-color:#19D67F"><div class="card-h"><span class="card-t">Judge rubric averages</span></div><div class="card-b"><div class="chart">'+criteria.map(function(r){var v=Number(r.average||0);return bar(r.criterion,REPORT_STATUS_COLORS.verified,v.toFixed(1)+"/5",20*v,r.scores+" scores")}).join("")+'</div></div></div>';
     out+='</div>';
   }
 
@@ -2872,10 +2902,10 @@ function renderReports(){
   var types=(REPORTS.claimTypes||[]).filter(function(r){return r.not_cleared_pct!=null});
   if(types.length){
     var maxT=Math.max.apply(null,types.map(function(r){return Number(r.not_cleared_pct)}))||1;
-    out+='<div class="card report-card" style="margin-top:18px;--report-color:#E54878"><div class="card-h"><span class="card-t">Which kinds of claim fail checking</span></div>'+
+    out+='<div class="card report-card" style="margin-top:18px;--report-color:#FF3D71"><div class="card-h"><span class="card-t">Which kinds of claim fail checking</span></div>'+
       '<div class="card-b"><p class="hint" style="margin:0 0 14px">Share of checked claims that came back unsupported or refuted. High bars are where this tool earns its keep — and where the model under review is least trustworthy.</p><div class="chart">';
     types.forEach(function(r,i){
-      out+=bar(r.claim_type,REPORT_COLORS[(i+5)%REPORT_COLORS.length],Number(r.not_cleared_pct).toFixed(1)+"%",100*Number(r.not_cleared_pct)/maxT,"n="+r.claims);
+      out+=bar(r.claim_type,REPORT_STATUS_COLORS.refuted,Number(r.not_cleared_pct).toFixed(1)+"%",100*Number(r.not_cleared_pct)/maxT,"n="+r.claims);
     });
     out+='</div></div></div>';
   }
@@ -2884,11 +2914,11 @@ function renderReports(){
   var models=(REPORTS.models||[]).filter(function(r){return r.claims>0});
   if(models.length){
     var maxM=Math.max.apply(null,models.map(function(r){return Number(r.not_cleared_pct||0)}))||1;
-    out+='<div class="card report-card" style="margin-top:18px;--report-color:#1677FF"><div class="card-h"><span class="card-t">By the model that produced the answer</span></div>'+
+    out+='<div class="card report-card" style="margin-top:18px;--report-color:#2F80FF"><div class="card-h"><span class="card-t">By the model that produced the answer</span></div>'+
       '<div class="card-b"><p class="hint" style="margin:0 0 14px">Share of that model\'s claims that did not survive checking. This is the comparison worth keeping: it takes months of real audits to mean anything, and nothing else measures it.</p><div class="chart">';
     models.forEach(function(r,i){
       var v=r.not_cleared_pct==null?"—":Number(r.not_cleared_pct).toFixed(1)+"%";
-      out+=bar(r.model_label,REPORT_COLORS[i%REPORT_COLORS.length],v,100*Number(r.not_cleared_pct||0)/maxM,
+      out+=bar(r.model_label,REPORT_STATUS_COLORS.refuted,v,100*Number(r.not_cleared_pct||0)/maxM,
         r.claims+" claims"+(r.avg_judge!=null?" · judge "+Number(r.avg_judge).toFixed(1):""));
     });
     out+='</div></div></div>';
@@ -2902,18 +2932,18 @@ function renderReports(){
   }
   if(wk.length){
     var maxW=Math.max.apply(null,wk.map(function(w){return w.audits}))||1;
-    out+='<div class="card report-card" style="--report-color:#7C4DFF"><div class="card-h"><span class="card-t">Audits per week</span></div><div class="card-b">'+
+    out+='<div class="card report-card" style="--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Audits per week</span></div><div class="card-b">'+
       '<div class="spark">'+wk.map(function(w,i){
-        return '<div style="height:'+Math.max(4,100*w.audits/maxW)+'%;background:'+REPORT_COLORS[i%REPORT_COLORS.length]+'" title="'+esc(w.week)+': '+w.audits+' audits"></div>';
+        return '<div style="height:'+Math.max(4,100*w.audits/maxW)+'%;background:#8B5CF6" title="'+esc(w.week)+': '+w.audits+' audits"></div>';
       }).join("")+'</div><div class="sparkx">'+wk.map(function(w){
         return '<span>'+esc(String(w.week).slice(5))+'</span>';
       }).join("")+'</div></div></div>';
   }
   if(verdicts.length){
     var maxV=Math.max.apply(null,verdicts.map(function(v){return v.audits}))||1;
-    out+='<div class="card report-card" style="--report-color:#F59E0B"><div class="card-h"><span class="card-t">Saved audit verdicts</span></div><div class="card-b"><div class="chart">'+verdicts.map(function(v,i){return bar(v.verdict,REPORT_COLORS[(i+3)%REPORT_COLORS.length],String(v.audits),100*v.audits/maxV,pct(v.audits,t.audits)+"%")}).join("")+'</div>';
+    out+='<div class="card report-card" style="--report-color:#FFB020"><div class="card-h"><span class="card-t">Saved audit verdicts</span></div><div class="card-b"><div class="chart">'+verdicts.map(function(v,i){return bar(v.verdict,reportStatusColor(v.verdict,REPORT_COLORS[(i+3)%REPORT_COLORS.length]),String(v.audits),100*v.audits/maxV,pct(v.audits,t.audits)+"%")}).join("")+'</div>';
     var proofs=REPORTS.proofStandards||[];
-    if(proofs.length) out+='<div class="report-callout" style="margin-top:16px">'+proofs.map(function(p,i){return '<div class="report-mini" style="--report-color:'+REPORT_COLORS[(i+1)%REPORT_COLORS.length]+'"><b>'+p.audits+'</b><span>'+p.proof+'-tick standard</span></div>'}).join("")+'</div>';
+    if(proofs.length) out+='<div class="report-callout" style="margin-top:16px">'+proofs.map(function(p){var proofColor={1:"#FFB020",2:"#2F80FF",3:"#19D67F"}[p.proof]||"#7D8CAA";return '<div class="report-mini" style="--report-color:'+proofColor+'"><b>'+p.audits+'</b><span>'+p.proof+'-tick standard</span></div>'}).join("")+'</div>';
     out+='</div></div>';
   }
   if(wk.length||verdicts.length) out+='</div>';
