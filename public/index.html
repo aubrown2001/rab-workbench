@@ -214,6 +214,7 @@ a{color:var(--accent)}
   background:linear-gradient(135deg,var(--accent-soft),var(--surface));box-shadow:var(--shadow-1)}
 .save-strip b{display:block;font-size:.96rem}.save-strip span{display:block;margin-top:3px;color:var(--ink-2);font-size:.84rem}
 .save-strip .btn{min-width:190px}
+.save-strip-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .seg{display:flex;border:1px solid var(--line-2);border-radius:8px;overflow:hidden}
 .seg button{flex:1;background:var(--surface);border:0;border-right:1px solid var(--line-2);padding:7px 10px;
   font-size:16px;cursor:pointer;color:var(--ink-2);white-space:nowrap}
@@ -862,8 +863,11 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
           <div class="ledger" id="ledger"></div>
         </div>
         <div class="save-strip">
-          <div><b>Keep this review in the shared archive</b><span>Saves the response, claims, verdicts, sources, settings, and judge scores to Supabase.</span></div>
-          <button class="btn pri" data-save-audit>Save audit to archive</button>
+          <div><b>Ready for automated scoring?</b><span>Grade the answer next, then save the completed review. Grading is optional, so you can also save it now.</span></div>
+          <div class="save-strip-actions">
+            <button class="btn pri" id="btn-bottom-grade">Grade it →</button>
+            <button class="btn" data-save-audit>Save audit to archive</button>
+          </div>
         </div>
       </section>
 
@@ -1834,7 +1838,7 @@ function renderSteps(){
     }).join("")+'</div>'+
     '<div class="stepnav">'+
       '<button class="btn sm" id="step-back"'+(cur===0?" disabled":"")+'>Back</button>'+
-      '<button class="btn sm pri" id="step-next">'+(cur>=st.length-1?"Done":(st[cur].optional&&!st[cur].done()?"Skip":"Next"))+'</button>'+
+      '<button class="btn sm pri" id="step-next">'+(cur>=st.length-1?"Done":"Next")+'</button>'+
     '</div>'+
     '<div class="stepline">'+st.map(function(s,i){
       var cls="stp"+(i===cur?" cur":s.done()?" done":"");
@@ -2238,6 +2242,10 @@ $("#btn-addclaim").addEventListener("click",function(){
 });
 $("#btn-clearclaims").addEventListener("click",function(){ S.claims=[]; renderLedger(); });
 $("#btn-sendjudge").addEventListener("click",function(){ show("judge"); });
+$("#btn-bottom-grade").addEventListener("click",function(){
+  var judgeIndex=steps().findIndex(function(step){return step.id==="judge"});
+  if(judgeIndex>=0) goStep(judgeIndex); else show("judge");
+});
 $("#in-response").addEventListener("input",function(){S.response=this.value});
 $("#in-prompt").addEventListener("input",function(){S.prompt=this.value});
 $("#in-model").addEventListener("change",function(){
