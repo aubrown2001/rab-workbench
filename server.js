@@ -623,13 +623,53 @@ app.delete("/api/audits/:id", rateLimit({ windowMs: 60_000, max: 30, key: "write
 });
 
 /* ------------------------------------------------------------ GET /reports */
+const SUBJECT_STOP_WORDS = new Set([
+  "a", "an", "and", "are", "audit", "check", "fact", "for", "from", "in", "is", "of", "on", "review", "the", "to", "verify", "with",
+]);
+function subjectTokens(value) {
+  return Array.from(new Set(String(value || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/)
+    .filter((word) => word.length > 2 && !SUBJECT_STOP_WORDS.has(word)))).slice(0, 8);
+}
+function auditSubjectLabel(audit) {
+  const title = String(audit.title || "").trim();
+  if (title && !/^untitled(?: audit)?$/i.test(title)) return title.slice(0, 72);
+  const fallback = String(audit.question || audit.prompt || "General audits").trim().replace(/\s+/g, " ");
+  return (fallback || "General audits").slice(0, 72);
+}
+function buildAuditSubjects(audits) {
+  const groups = [];
+  audits.slice(0, 120).forEach((audit) => {
+    const label = auditSubjectLabel(audit);
+    const tokens = subjectTokens(label);
+    let best = null;
+    let bestScore = 0;
+    groups.forEach((group) => {
+      const shared = tokens.filter((token) => group.tokens.has(token)).length;
+      const score = shared / Math.max(1, Math.min(tokens.length, group.tokens.size));
+      if (score > bestScore) { best = group; bestScore = score; }
+    });
+    if (!best || bestScore < 0.5 || !tokens.length) {
+      best = { id: `subject-${groups.length + 1}`, label, tokens: new Set(tokens), audits: [] };
+      groups.push(best);
+    } else {
+      tokens.forEach((token) => best.tokens.add(token));
+    }
+    best.audits.push({
+      id: audit.id, title: audit.title || "Untitled audit", createdAt: audit.created_at,
+      verdict: audit.verdict || "In review", model: audit.model_label || "Unspecified",
+      claims: Number(audit.claim_count) || 0, cleared: Number(audit.cleared_count) || 0,
+    });
+  });
+  return groups.map(({ id, label, audits: groupedAudits }) => ({ id, label, audits: groupedAudits }));
+}
+
 app.get("/api/reports", async (req, res) => {
   if (!archiveOn()) return res.json({ archive: false });
   try {
     const [discipline, weekly, totals, claims, scores] = await Promise.all([
       supa.from("v_review_discipline").select("*").single(),
       supa.from("v_audits_weekly").select("*"),
-      supa.from("audits").select("id,title,created_at,verdict,model_label,judge_avg,claim_count,cleared_count,proof_standard,granularity,strictness").order("created_at", { ascending: false }),
+      supa.from("audits").select("id,title,prompt,question,created_at,verdict,model_label,judge_avg,claim_count,cleared_count,proof_standard,granularity,strictness").order("created_at", { ascending: false }),
       supa.from("claims").select("audit_id,status,claim_type,risk,tick_claim,tick_citation,tick_independent,source_url"),
       supa.from("scores").select("criterion,criterion_name,score"),
     ]);
@@ -740,6 +780,7 @@ app.get("/api/reports", async (req, res) => {
         model: a.model_label, judge: a.judge_avg, claims: a.claim_count, cleared: a.cleared_count })),
       claimTypes,
       models: modelsByClaim,
+      auditSubjects: buildAuditSubjects(auditRows),
       discipline: discipline.data || null,
       weekly: weekly.data || [],
       claimsDaily,

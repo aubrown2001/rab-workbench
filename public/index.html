@@ -687,6 +687,17 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 .model-pie-legend{display:grid;gap:5px;min-width:0}
 .model-pie-row{display:grid;grid-template-columns:9px minmax(0,1fr) auto;gap:6px;align-items:center;color:#FFFFFF;font-size:.68rem;line-height:1.15;min-width:0}
 .model-pie-row i{width:8px;height:8px;border-radius:50%}.model-pie-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.model-pie-row b{font-family:var(--f-mono);font-size:.62rem}
+.audit-space-card{margin-top:18px;border:0;background:#0B1533;overflow:hidden;box-shadow:0 22px 50px -30px rgba(10,31,78,.9)}
+.audit-space-card .card-h{background:linear-gradient(90deg,#142553,#261A59);border-color:rgba(255,255,255,.12)}
+.audit-space-card .card-t,.audit-space-card .hint{color:#FFFFFF}.audit-space-card .hint{opacity:.72}
+.audit-space-card .btn{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.26);color:#FFFFFF}
+.audit-space-wrap{position:relative;height:470px;background:radial-gradient(circle at 48% 45%,rgba(46,107,255,.2),transparent 34%),radial-gradient(circle at 78% 28%,rgba(212,64,255,.14),transparent 28%),linear-gradient(145deg,#0B1533,#111D43 58%,#17133A);overflow:hidden}
+.audit-space-wrap::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle,rgba(255,255,255,.5) 0 1px,transparent 1.5px);background-size:31px 31px;opacity:.16}
+#audit-space-canvas{position:relative;display:block;width:100%;height:100%;cursor:grab;touch-action:none;outline:none}#audit-space-canvas:active{cursor:grabbing}#audit-space-canvas:focus-visible{box-shadow:inset 0 0 0 3px #22C7F2}
+.audit-space-tip{position:absolute;z-index:2;display:none;max-width:260px;padding:8px 10px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(6,14,36,.94);color:#FFFFFF;font-size:.72rem;line-height:1.35;pointer-events:none;box-shadow:0 10px 24px rgba(0,0,0,.35)}
+.audit-space-help{position:absolute;left:14px;bottom:12px;color:#C9D6F3;font-size:.69rem;letter-spacing:.02em;pointer-events:none}
+.audit-space-key{position:absolute;right:14px;bottom:12px;display:flex;gap:12px;color:#C9D6F3;font-size:.66rem;pointer-events:none}.audit-space-key span{display:flex;align-items:center;gap:5px}.audit-space-key i{width:9px;height:9px;border-radius:50%}
+.audit-space-detail{min-height:48px;padding:11px 16px;border-top:1px solid rgba(255,255,255,.12);background:#111B38;color:#D9E4FA;font-size:.78rem}.audit-space-detail b{color:#FFFFFF}.audit-space-detail span{color:#9FB1D5}
 .report-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}
 .report-card{border-top:4px solid var(--report-color,var(--r-blue))}.report-card .card-t{color:var(--report-color,var(--r-blue))}
 .donut-wrap{display:grid;grid-template-columns:180px minmax(0,1fr);gap:24px;align-items:center}
@@ -722,7 +733,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 .workflow-launchbar b{margin-right:auto;font-size:.9rem;color:var(--ink)}
 .workflow-start{border:1px solid var(--accent);border-radius:999px;background:var(--surface);color:var(--accent);padding:7px 13px;font-weight:750;cursor:pointer}.workflow-start:hover{background:var(--accent);color:#fff}
 @media(max-width:900px){.launch-orbs{grid-template-columns:repeat(2,minmax(140px,210px));justify-content:center}.launch-overlay{padding:24px 16px}.launch-card{padding:24px 16px 32px}}
-@media(max-width:760px){.launch-overlay{left:0;top:54px;padding:150px 16px 28px}}
+@media(max-width:760px){.launch-overlay{left:0;top:54px;padding:150px 16px 28px}.audit-space-wrap{height:390px}.audit-space-key{display:none}}
 @media(max-width:500px){.launch-orbs{grid-template-columns:repeat(2,minmax(112px,150px));gap:17px}.launch-card p{font-size:.9rem}.launch-brand{gap:8px}.launch-brand img{width:78px;height:78px}.launch-brand-copy strong{font-size:2.35rem}.launch-brand-copy small{font-size:.38rem;letter-spacing:.07em}.launch-orb{font-size:1.05rem;box-shadow:inset 0 -10px 15px rgba(0,0,0,.2),inset 0 7px 12px rgba(255,255,255,.25),0 11px 0 var(--orb-dark),0 18px 26px -10px rgba(9,35,76,.55)}}
 .report-callout{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.report-mini{padding:13px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line)}.report-mini b{display:block;font-family:var(--f-mono);font-size:1.35rem;color:var(--report-color,var(--accent))}.report-mini span{font-size:.72rem;color:var(--ink-3)}
 .ask-chatgpt{border:1px solid #9FC4FF;background:linear-gradient(135deg,#F5F9FF 0%,#EEF5FF 58%,#F1FBFF 100%);box-shadow:0 16px 38px -30px rgba(23,105,232,.8)}
@@ -1573,7 +1584,7 @@ var HELP_KB=[
 "",
 "OPERATIONS. This is RAB·BIT's control plane. Policy profiles apply a consistent bundle of review settings: Standard, High-stakes, or Rapid screening. The RAB·BIT verification score is a transparent 100-point readiness checklist, not an AI opinion. Provider health shows whether Claude, ChatGPT, Gemini, and Supabase are configured. Telemetry shows route, HTTP status, latency, and provider for the current Render process only; it never stores prompts, answers, claims, IP addresses, or keys. Active alerts call out disconnected services, high error rates, recent rate limits, and an audit score below 70.",
 "",
-"SAVED AUDITS AND REPORTS. Saving keeps the response, every claim and verdict, the dial settings and the judge scores, as separate database rows rather than a blob — which is what makes the Reports panel possible. Reports shows headline quality measures, a model-share pie chart, claim outcomes, the evidence-completion funnel, source and judge coverage, failure rate by risk and claim type, rubric averages, weekly volume, verdict and proof-standard usage, recent audits, and reviewer discipline. It refuses an untitled audit and asks for a name. The archive is shared with everyone who can open this page.",
+"SAVED AUDITS AND REPORTS. Saving keeps the response, every claim and verdict, the dial settings and the judge scores, as separate database rows rather than a blob — which is what makes the Reports panel possible. Reports shows headline quality measures, a model-share pie chart, claim outcomes, the evidence-completion funnel, source and judge coverage, failure rate by risk and claim type, rubric averages, weekly volume, verdict and proof-standard usage, recent audits, and reviewer discipline. The Audit Subject 3D map groups audits with similar titles or questions around larger subject nodes: drag to rotate, use the mouse wheel to zoom, hover for labels, and click a node for details. It refuses an untitled audit and asks for a name. The archive is shared with everyone who can open this page.",
 "",
 "VERITY FEEDBACK. Helpful and Not helpful buttons appear below each Verity answer. A rating guides later Verity answers during the current browser visit. When the optional Supabase help_feedback table is installed, RAB·BIT also stores the question, answer, rating and optional reason so the product guidance can be improved over time. This feedback does not retrain OpenAI's base model automatically.",
 "",
@@ -2777,6 +2788,68 @@ function modelPieWidget(models){
     rows.map(function(r){return '<div class="model-pie-row" title="'+esc(r.label)+': '+r.claims+' claims"><i style="background:'+r.color+'"></i><span>'+esc(r.label)+'</span><b>'+pct(r.claims,total||1)+'%</b></div>'}).join("")+
     '</div></div></div>';
 }
+function initAuditSubjectGraph(subjects){
+  var canvas=$("#audit-space-canvas"),detail=$("#audit-space-detail"),tip=$("#audit-space-tip"),reset=$("#audit-space-reset");
+  if(!canvas||!subjects||!subjects.length) return;
+  var ctx=canvas.getContext("2d"),nodes=[],edges=[],rx=-.18,ry=.45,zoom=1,drag=false,moved=0,lastX=0,lastY=0,hover=null;
+  var subjectCount=subjects.length,space=Math.min(210,Math.max(125,78+subjectCount*7));
+  subjects.forEach(function(subject,si){
+    var ga=2.3999632297*si,sy=subjectCount===1?0:1-2*(si+.5)/subjectCount,sr=Math.sqrt(Math.max(0,1-sy*sy));
+    var parent={kind:"subject",label:subject.label,audits:subject.audits||[],color:REPORT_COLORS[si%REPORT_COLORS.length],radius:13+Math.min(9,(subject.audits||[]).length*1.2),x:space*sr*Math.cos(ga),y:space*sy,z:space*sr*Math.sin(ga)};
+    nodes.push(parent);
+    (subject.audits||[]).forEach(function(a,ai){
+      var angle=6.283185307*(ai/Math.max(1,subject.audits.length))+si*.73,layer=Math.floor(ai/8),orbit=48+layer*24;
+      var child={kind:"audit",label:a.title||"Untitled audit",data:a,color:reportStatusColor(a.verdict,"#8B5CF6"),radius:7,
+        x:parent.x+Math.cos(angle)*orbit,y:parent.y+Math.sin(angle)*orbit*.62,z:parent.z+Math.sin(angle*1.7)*34+(layer-1)*11};
+      nodes.push(child);edges.push({a:parent,b:child,color:parent.color});
+    });
+  });
+  function projected(node,w,h){
+    var cy=Math.cos(ry),sy=Math.sin(ry),cx=Math.cos(rx),sx=Math.sin(rx);
+    var x1=node.x*cy-node.z*sy,z1=node.x*sy+node.z*cy,y1=node.y;
+    var y2=y1*cx-z1*sx,z2=y1*sx+z1*cx,p=520/(690+z2);
+    return {x:w/2+x1*p*zoom,y:h/2+y2*p*zoom,z:z2,scale:p*zoom};
+  }
+  function shortLabel(value,max){value=String(value||"");return value.length>max?value.slice(0,max-1)+"…":value}
+  function draw(){
+    var rect=canvas.getBoundingClientRect(),w=Math.max(1,rect.width),h=Math.max(1,rect.height),dpr=Math.min(2,window.devicePixelRatio||1);
+    if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr)}
+    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+    nodes.forEach(function(n){n.screen=projected(n,w,h)});
+    edges.slice().sort(function(a,b){return b.a.screen.z-a.a.screen.z}).forEach(function(e){
+      ctx.beginPath();ctx.moveTo(e.a.screen.x,e.a.screen.y);ctx.lineTo(e.b.screen.x,e.b.screen.y);ctx.strokeStyle=e.color+"55";ctx.lineWidth=Math.max(1,e.b.screen.scale*1.5);ctx.stroke();
+    });
+    nodes.slice().sort(function(a,b){return b.screen.z-a.screen.z}).forEach(function(n){
+      var p=n.screen,rad=Math.max(3,n.radius*p.scale),glow=n===hover?14:7;
+      ctx.save();ctx.shadowColor=n.color;ctx.shadowBlur=glow;ctx.beginPath();ctx.arc(p.x,p.y,rad,0,Math.PI*2);ctx.fillStyle=n.color;ctx.fill();ctx.shadowBlur=0;
+      ctx.lineWidth=n.kind==="subject"?2:1;ctx.strokeStyle=n===hover?"#FFFFFF":"rgba(255,255,255,.55)";ctx.stroke();ctx.restore();
+      if(n.kind==="subject"){
+        var label=shortLabel(n.label,30),tw=Math.min(190,ctx.measureText(label).width+16),lx=Math.max(4,Math.min(w-tw-4,p.x-tw/2)),ly=p.y-rad-25;
+        ctx.fillStyle="rgba(5,13,34,.82)";ctx.beginPath();ctx.roundRect(lx,ly,tw,19,6);ctx.fill();ctx.fillStyle="#FFFFFF";ctx.font="700 11px Inter, sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(label,lx+tw/2,ly+9.5,tw-10);
+      }
+    });
+  }
+  function hit(x,y){
+    var best=null,bestD=Infinity;nodes.forEach(function(n){var dx=x-n.screen.x,dy=y-n.screen.y,d=Math.sqrt(dx*dx+dy*dy),r=Math.max(8,n.radius*n.screen.scale+4);if(d<r&&d<bestD){best=n;bestD=d}});return best;
+  }
+  function point(e){var r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+  function showDetail(n){
+    if(!n){detail.innerHTML='<span>Click a subject or audit node to inspect it.</span>';return}
+    if(n.kind==="subject") detail.innerHTML='<b>'+esc(n.label)+'</b> <span>· '+n.audits.length+(n.audits.length===1?' grouped audit':' grouped audits')+'</span>';
+    else {var a=n.data||{};detail.innerHTML='<b>'+esc(a.title||"Untitled audit")+'</b> <span>· '+esc(a.verdict||"In review")+' · '+esc(a.model||"Unspecified")+' · '+Number(a.cleared||0)+'/'+Number(a.claims||0)+' claims cleared'+(a.createdAt?' · '+esc(new Date(a.createdAt).toLocaleDateString()):'')+'</span>'}
+  }
+  canvas.addEventListener("pointerdown",function(e){drag=true;moved=0;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId)});
+  canvas.addEventListener("pointermove",function(e){
+    if(drag){var dx=e.clientX-lastX,dy=e.clientY-lastY;moved+=Math.abs(dx)+Math.abs(dy);ry+=dx*.008;rx=Math.max(-1.35,Math.min(1.35,rx+dy*.008));lastX=e.clientX;lastY=e.clientY;hover=null;tip.style.display="none";draw();return}
+    var p=point(e),n=hit(p.x,p.y);hover=n;if(n){tip.style.display="block";tip.style.left=Math.min(canvas.clientWidth-270,p.x+13)+"px";tip.style.top=Math.max(8,p.y-44)+"px";tip.innerHTML='<b>'+esc(n.label)+'</b><br>'+(n.kind==="subject"?n.audits.length+" grouped audits":esc((n.data||{}).verdict||"In review")+" · "+Number((n.data||{}).claims||0)+" claims")}else tip.style.display="none";draw();
+  });
+  canvas.addEventListener("pointerup",function(e){drag=false;if(moved<7){var p=point(e);showDetail(hit(p.x,p.y))}});
+  canvas.addEventListener("pointerleave",function(){drag=false;hover=null;tip.style.display="none";draw()});
+  canvas.addEventListener("wheel",function(e){e.preventDefault();zoom=Math.max(.55,Math.min(2.15,zoom*(e.deltaY>0?.9:1.1)));draw()},{passive:false});
+  reset.addEventListener("click",function(){rx=-.18;ry=.45;zoom=1;hover=null;tip.style.display="none";showDetail(null);draw()});
+  if(window.ResizeObserver)new ResizeObserver(draw).observe(canvas);else window.addEventListener("resize",draw);
+  showDetail(null);draw();
+}
 function claimsLineChart(rows){
   rows=Array.isArray(rows)&&rows.length?rows:Array.from({length:30},function(_,i){var d=new Date();d.setDate(d.getDate()-(29-i));return{date:d.toISOString().slice(0,10),checked:0}});
   var w=720,h=220,l=42,r=16,t=18,b=38,iw=w-l-r,ih=h-t-b;
@@ -2820,8 +2893,17 @@ function renderReports(){
     (models.length?modelPieWidget(models):"")+
   '</div>';
 
-  out+='<div class="report-grid2"><div class="card report-card" style="--report-color:#2F80FF"><div class="card-h"><span class="card-t">Claims checked · last 30 days</span><span class="hint">Daily human review volume</span></div><div class="card-b">'+claimsLineChart(REPORTS.claimsDaily)+'</div></div>'+
+  out+='<div class="report-grid2"><div class="card report-card" style="--report-color:#2F80FF"><div class="card-h"><span class="card-t">Claims checked · last 30 days</span><span class="hint">Daily human review volume</span></div><div class="card-b">'+claimsLineChart(REPORTS.claimsDaily)+'</div></div>'+ 
     '<div class="card report-card claims-gauge-card" style="--report-color:#19D67F"><div class="card-h"><span class="card-t">Claims checked percentage</span><span class="hint">All saved claims</span></div>'+claimsGauge(pct(checked,t.claims||0),checked,Number(t.claims||0))+'</div></div>';
+
+  var auditSubjects=REPORTS.auditSubjects||[];
+  if(auditSubjects.length){
+    var mappedAudits=auditSubjects.reduce(function(n,s){return n+(s.audits||[]).length},0);
+    out+='<div class="card audit-space-card"><div class="card-h"><div><span class="card-t">Audit Subject · interactive 3D map</span><span class="hint" style="margin-left:10px">'+auditSubjects.length+' subjects · '+mappedAudits+' audits</span></div><button class="btn sm" id="audit-space-reset" type="button">Reset view</button></div>'+ 
+      '<div class="audit-space-wrap"><canvas id="audit-space-canvas" tabindex="0" aria-label="Interactive three-dimensional map of audit subjects and their grouped audits"></canvas><div class="audit-space-tip" id="audit-space-tip"></div>'+ 
+      '<div class="audit-space-help">Drag to rotate · Scroll to zoom · Click a node for details</div><div class="audit-space-key"><span><i style="background:#2F80FF"></i>Subject</span><span><i style="background:#19D67F"></i>Audit outcome</span></div></div>'+ 
+      '<div class="audit-space-detail" id="audit-space-detail"></div></div>';
+  }
 
   /* Outcome wheel and evidence funnel. */
   var cursor=0, stops=[], legend="";
@@ -2902,6 +2984,7 @@ function renderReports(){
       '</div>';
   }
   el.innerHTML=out;
+  initAuditSubjectGraph(auditSubjects);
 }
 function loadReports(force){
   if(!SERVER_REPORTS){ REPORTS={archive:false}; renderReports(); return; }
