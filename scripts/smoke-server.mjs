@@ -24,7 +24,7 @@ try {
   }
 
   const checks = [
-    ["/", 200, "RAB Workbench"],
+    ["/", 200, "RAB·BIT Verification Workbench"],
     ["/healthz", 200, '"ok":true'],
     ["/api/models", 200, '"models"'],
     ["/api/reports", 200, '"archive":false'],
