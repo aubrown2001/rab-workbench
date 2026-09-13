@@ -1,4 +1,4 @@
--- RAB — Rigor Above Belief
+-- RAB·BIT — Rigor Above Belief · Built for Integrity & Trust
 -- Supabase / Postgres schema
 --
 -- The point of this schema is that an audit is NOT a blob. Claims and scores are

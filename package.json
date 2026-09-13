@@ -1,7 +1,7 @@
 {
   "name": "rab",
-  "version": "1.0.0",
-  "description": "RAB — Rigor Above Belief. A workbench for verifying AI output.",
+  "version": "1.0.1",
+  "description": "RAB·BIT — Rigor Above Belief, Built for Integrity & Trust. A workbench for verifying AI output.",
   "main": "server.js",
   "engines": { "node": ">=22" },
   "scripts": {

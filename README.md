@@ -1,4 +1,4 @@
-# RAB — Rigor Above Belief
+# RAB·BIT — Rigor Above Belief · Built for Integrity & Trust
 
 Version 1.0.1 makes archive saving prominent in the Fact-check and Judge pages and robustly maps AI judge results to their rubric gauges.
 
