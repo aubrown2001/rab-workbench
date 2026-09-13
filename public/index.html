@@ -697,7 +697,13 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 :root[data-theme="dark"] .launch-overlay{background:rgba(10,20,36,.84)}
 .launch-card{width:min(1080px,100%);text-align:center;padding:32px 24px 38px;border:1px solid rgba(255,255,255,.7);border-radius:28px;background:rgba(255,255,255,.72);box-shadow:0 32px 80px -35px rgba(15,45,90,.55)}
 :root[data-theme="dark"] .launch-card{background:rgba(20,35,58,.82);border-color:#385173}
-.launch-logo{display:block;width:min(420px,72%);height:auto;margin:0 auto 8px;filter:drop-shadow(0 14px 22px rgba(23,105,232,.14))}
+.launch-brand{display:flex;align-items:center;justify-content:center;gap:18px;margin:0 auto 13px}
+.launch-brand img{width:122px;height:122px;object-fit:contain;filter:drop-shadow(0 14px 22px rgba(23,105,232,.2))}
+.launch-brand-copy{display:flex;flex-direction:column;text-align:left;line-height:1}
+.launch-brand-copy strong{font-family:var(--f-display);font-size:clamp(2.9rem,6vw,5.2rem);font-weight:900;letter-spacing:-.07em;color:#0A1B3E;white-space:nowrap}
+.launch-brand-copy strong span{background:linear-gradient(90deg,#11C9F1,#245CFF 55%,#8B35F5);-webkit-background-clip:text;background-clip:text;color:transparent}
+.launch-brand-copy small{margin-top:8px;font-family:var(--f-mono);font-size:clamp(.48rem,.85vw,.7rem);font-weight:700;letter-spacing:.12em;color:#21345C;white-space:nowrap}
+:root[data-theme="dark"] .launch-brand-copy strong{color:#F2F7FF}:root[data-theme="dark"] .launch-brand-copy small{color:#B9C8E4}
 .launch-card h1{font-family:var(--f-display);font-size:clamp(2rem,3vw,3.25rem);margin:0;color:var(--ink);letter-spacing:-.035em}
 .launch-card p{font-size:1.05rem;color:var(--ink-2);margin:9px auto 26px;max-width:680px;line-height:1.5}
 .launch-orbs{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:24px;align-items:center}
@@ -711,7 +717,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 .workflow-start{border:1px solid var(--accent);border-radius:999px;background:var(--surface);color:var(--accent);padding:7px 13px;font-weight:750;cursor:pointer}.workflow-start:hover{background:var(--accent);color:#fff}
 @media(max-width:900px){.launch-orbs{grid-template-columns:repeat(2,minmax(140px,210px));justify-content:center}.launch-overlay{padding:24px 16px}.launch-card{padding:24px 16px 32px}}
 @media(max-width:760px){.launch-overlay{left:0;top:54px;padding:150px 16px 28px}}
-@media(max-width:500px){.launch-orbs{grid-template-columns:repeat(2,minmax(112px,150px));gap:17px}.launch-card p{font-size:.9rem}.launch-orb{font-size:1.05rem;box-shadow:inset 0 -10px 15px rgba(0,0,0,.2),inset 0 7px 12px rgba(255,255,255,.25),0 11px 0 var(--orb-dark),0 18px 26px -10px rgba(9,35,76,.55)}}
+@media(max-width:500px){.launch-orbs{grid-template-columns:repeat(2,minmax(112px,150px));gap:17px}.launch-card p{font-size:.9rem}.launch-brand{gap:8px}.launch-brand img{width:78px;height:78px}.launch-brand-copy strong{font-size:2.35rem}.launch-brand-copy small{font-size:.38rem;letter-spacing:.07em}.launch-orb{font-size:1.05rem;box-shadow:inset 0 -10px 15px rgba(0,0,0,.2),inset 0 7px 12px rgba(255,255,255,.25),0 11px 0 var(--orb-dark),0 18px 26px -10px rgba(9,35,76,.55)}}
 .report-callout{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.report-mini{padding:13px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line)}.report-mini b{display:block;font-family:var(--f-mono);font-size:1.35rem;color:var(--report-color,var(--accent))}.report-mini span{font-size:.72rem;color:var(--ink-3)}
 .ask-chatgpt{border:1px solid #9FC4FF;background:linear-gradient(135deg,#F5F9FF 0%,#EEF5FF 58%,#F1FBFF 100%);box-shadow:0 16px 38px -30px rgba(23,105,232,.8)}
 .ask-chatgpt .card-h{background:transparent;border-bottom-color:#CFE0FA}.ask-chatgpt textarea{background:#fff;min-height:92px}.ask-chatgpt-note{display:flex;align-items:flex-start;gap:9px;color:var(--ink-2);font-size:.82rem;line-height:1.5}.ask-chatgpt-note::before{content:"✓";display:grid;place-items:center;flex:0 0 22px;height:22px;border-radius:50%;background:var(--ok-soft);color:var(--ok);font-weight:800}
@@ -1108,7 +1114,10 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
       <section class="panel on reports-panel" id="p-reports">
         <div class="launch-overlay" id="launch-overlay">
           <div class="launch-card">
-            <img class="launch-logo" src="/rabbit-logo.png" alt="RAB·BIT — Rigor Above Belief, Built for Integrity and Trust">
+            <div class="launch-brand" aria-label="RAB·BIT — Rigor Above Belief, Built for Integrity and Trust">
+              <img src="/rabbit-mark.png" alt="">
+              <span class="launch-brand-copy"><strong>RAB<span>·BIT</span></strong><small>RIGOR ABOVE BELIEF · BUILT FOR INTEGRITY &amp; TRUST</small></span>
+            </div>
             <h1>What would you like to do?</h1>
             <p>Choose how you want to begin. RAB·BIT will open the right workspace and highlight your first step.</p>
             <div class="launch-orbs">
