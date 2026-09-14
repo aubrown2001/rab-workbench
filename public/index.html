@@ -1079,11 +1079,11 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
           </div>
           <div style="display:flex;flex-direction:column;gap:18px">
             <div class="card">
-              <div class="card-h"><span class="card-t">What the judge reads</span></div>
+              <div class="card-h"><span class="card-t">Judge Review Package</span></div>
               <div class="card-b" style="display:flex;flex-direction:column;gap:11px">
-                <label class="fld"><span class="fld-k">Reference / ground truth (optional)</span>
-                  <textarea id="judge-ref" rows="4" placeholder="Paste the approved answer, policy text, or retrieved evidence the response should agree with."></textarea></label>
-                <div class="hint">Without a reference the judge grades internal consistency and hedging only. With one, it grades agreement — which is the score worth tracking.</div>
+                <label class="fld"><span class="fld-k">Trusted Reference or Answer Key (Optional)</span>
+                  <textarea id="judge-ref" rows="4" placeholder="Paste a trusted source, correct answer, policy, or answer key here."></textarea></label>
+                <div class="hint">The Judge will compare the AI response against this material. Leave it blank if no official reference is available; the Judge will then evaluate consistency, clarity, uncertainty, and traceability without claiming the answer matches an official source.</div>
                 <div class="dials">
                   <div class="dial-u"><span class="dial-h"><span class="dial-l">Strictness</span></span>
                     <div class="seg" data-seg="strict">
@@ -1642,7 +1642,7 @@ var HELP_KB=[
 "",
 "GROUNDING PANEL. Add trusted sources, then Retrieve passages runs a real relevance search over them and shows match percentages. Two dials: how many passages are retrieved, and a minimum match below which passages are dropped. Generate cited answer sends ONLY those passages to the model, which must cite [S1.1] markers and flag UNCERTAIN. The four numbered stages are a status display, not buttons. The page cannot fetch URLs — paste the source text itself.",
 "",
-"JUDGE AND TESTS. A second model scores the answer against a rubric you control. Every criterion name and description is editable in place; you can add, remove or reset them, and editing clears the current scores. Strictness recalibrates what a 5 means. The pass mark sets the score below which an audit is flagged 'Below bar' in the header, and draws the red zone on each gauge.",
+"JUDGE AND TESTS. A second model scores the answer against a rubric you control. The Judge Review Package contains the settings and optional material used for that review. Trusted Reference or Answer Key is where you may paste an approved answer, policy, reliable source, or other material the AI response should agree with. It is optional: without one, the Judge can evaluate consistency, clarity, uncertainty, and traceability, but it cannot confirm agreement with an official answer. Every rubric criterion name and description is editable in place; you can add, remove or reset them, and editing clears the current scores. Strictness controls how demanding the Judge is when assigning scores. The pass mark sets the minimum average required to pass; an audit below it is flagged 'Below bar' in the header, and the gauges show the failing zone in red.",
 "",
 "OPERATIONS. This is RAB·BIT's control plane. Policy profiles apply a consistent bundle of review settings: Standard, High-stakes, or Rapid screening. The RAB·BIT verification score is a transparent 100-point readiness checklist, not an AI opinion. Provider health shows whether Claude, ChatGPT, Gemini, and Supabase are configured. Telemetry shows route, HTTP status, latency, and provider for the current Render process only; it never stores prompts, answers, claims, IP addresses, or keys. Active alerts call out disconnected services, high error rates, recent rate limits, and an audit score below 70.",
 "",
