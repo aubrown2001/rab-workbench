@@ -3252,16 +3252,17 @@ function doSave(b){
 }
 $("#btn-new").addEventListener("click",function(){
   ask("Start a new audit?","This clears the response, the claim ledger and the judge's scores. Anything you have not saved is lost. The evidence set and prompt settings are kept.","Start new",function(){
-    S.title="Untitled audit"; S.response=""; S.prompt=""; S.askQuestion=""; S.student=null; S.claims=[]; S.scores=null; S.answer=""; S.retrieved=[]; S.isExample=false; S.judgeRef=""; S.appliedTier=null; S.saved=false; S.wiz.at=0; pinWasDone=false;
+    S.title="Untitled audit"; S.response=""; S.prompt=""; S.askQuestion=""; S.student=null; S.claims=[]; S.scores=null; S.answer=""; S.retrieved=[]; S.isExample=false; S.judgeRef=""; S.appliedTier=null; S.saved=false; S.wiz.on=false; S.wiz.at=0; pinWasDone=false;
     $("#runname").value=S.title; $("#in-response").value=""; $("#in-prompt").value=""; $("#ask-chatgpt-q").value=""; $("#ask-chatgpt-status").textContent=""; renderModelNote(); renderRunButton();
     $("#judge-ref").value=""; $("#ex-badge").innerHTML=""; $("#extract-status").textContent="";
     $("#student-topic").value=""; $("#student-brainstorm-status").textContent=""; $("#student-brainstorm-output").hidden=true;
     $("#judge-status").textContent=""; $("#rag-status").textContent="";
     $("#st2").textContent="Idle"; $("#st3").textContent="Idle"; $("#st4").textContent="Idle";
     for(var i=1;i<4;i++) $("#pipe").children[i].classList.remove("done");
-    renderLedger(); renderRubric(); renderPassages(); renderAnswer(); show("check");
-    $("#runname").focus(); $("#runname").select();
-    toast(S.wiz.path==="ask"?"New audit started — ask an AI model a question to begin.":"New audit started — name it and paste the response to verify.");
+    renderLedger(); renderRubric(); renderPassages(); renderAnswer(); show("reports");
+    $("#launch-overlay").hidden=false;
+    setTimeout(function(){var first=$("#launch-overlay .launch-orb");if(first)first.focus()},0);
+    toast("New audit ready — choose how you want to begin.");
   });
 });
 function recRow(r){
