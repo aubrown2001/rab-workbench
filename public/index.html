@@ -892,7 +892,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
             <label class="fld"><span class="fld-k">What would you like to know?</span>
               <textarea id="ask-chatgpt-q" rows="3" maxlength="12000" placeholder="Type the question you want an AI model to answer…"></textarea></label>
             <div class="row"><button class="btn pri" id="btn-ask-chatgpt" type="submit" data-needs-ai>Choose your AI model</button><span class="hint" id="ask-chatgpt-status"></span></div>
-            <div class="ask-chatgpt-note" id="ask-ai-note">Choose a connected OpenAI or Claude model. RAB·BIT will record your choice, generate the answer, and automatically break it into claims. The claims remain unverified until you check them against trustworthy sources.</div>
+            <div class="ask-chatgpt-note" id="ask-ai-note">Choose a connected OpenAI or Claude model. Ask AI uses the temperature and response structure selected in AI Instructions, then automatically breaks the answer into claims. The claims remain unverified until you check them against trustworthy sources.</div>
           </form>
         </div>
 
@@ -956,16 +956,16 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
       <section class="panel" id="p-console">
         <div class="phead">
           <div>
-            <span class="ic ic-head ic-2" data-ic="dial"></span><div class="kicker">Practice 2 · AI Instructions</div>
-            <h1 class="ptitle">Constrain the model before you correct it</h1>
-            <p class="psub">Lower the temperature for consistency, make the reasoning reviewable, and limit the answer to supplied evidence. AI Instructions compiles your choices into a prompt you can paste into any model.</p>
+            <span class="ic ic-head ic-2" data-ic="dial"></span><div class="kicker">Controls · AI response settings</div>
+            <h1 class="ptitle">Control how AI answers</h1>
+            <p class="psub">Temperature and response structure apply to Ask AI and Create from Trusted Sources. Source-only protections activate only when trusted sources are used.</p>
           </div>
           <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
             <div class="row">
               <span class="fld-k">Run with</span>
               <select id="tiersel" aria-label="Model to run" style="width:auto"></select>
               <button class="btn" id="btn-copyprompt">Copy prompt</button>
-              <button class="btn pri" id="btn-runprompt">Run &amp; send to fact-check</button>
+              <button class="btn pri" id="btn-runprompt">Create answer &amp; send to fact-check</button>
             </div>
             <div class="hint" id="tier-desc" style="max-width:44ch;text-align:right"></div>
           </div>
@@ -974,7 +974,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
         <div class="grid-side">
           <div style="display:flex;flex-direction:column;gap:18px">
             <div class="card">
-              <div class="card-h"><span class="card-t">Prompt control</span></div>
+              <div class="card-h"><span class="card-t">Answer generation</span></div>
               <div class="card-b" style="display:flex;flex-direction:column;gap:14px">
                 <div class="dial">
                   <div class="dial-top"><span class="fld-k">temperature</span><span class="tempval" id="tempval">0.10</span></div>
@@ -986,29 +986,33 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
                   </div>
                 </div>
                 <div class="sep"></div>
+                <div>
+                  <div class="fld-k">Trusted-source guardrails</div>
+                  <div class="hint">These protections apply only to Create from Trusted Sources. Ask AI uses the temperature and response structure above without pretending it has approved source material.</div>
+                </div>
                 <div class="switches" id="switches"></div>
               </div>
             </div>
             <div class="card">
-              <div class="card-h"><span class="card-t">Chain of thought</span></div>
+              <div class="card-h"><span class="card-t">Response structure</span></div>
               <div class="card-b" style="display:flex;flex-direction:column;gap:10px">
-                <select id="cot" aria-label="Chain of thought scaffold">
-                  <option value="none">Off — answer directly</option>
-                  <option value="steps" selected>Step-by-step working shown before the answer</option>
-                  <option value="evidence">Evidence first, then conclusion drawn from it</option>
-                  <option value="assumptions">List assumptions and unknowns, then answer</option>
+                <select id="cot" aria-label="Response structure">
+                  <option value="none">Direct answer</option>
+                  <option value="steps" selected>Numbered explanation, then answer</option>
+                  <option value="evidence">Supporting information, then answer</option>
+                  <option value="assumptions">Assumptions and unknowns, then answer</option>
                 </select>
-                <div class="hint">Written as auditable output — the evidence, assumptions and rationale a reviewer can check — rather than a request for the model's hidden reasoning.</div>
+                <div class="hint">Controls the visible organization of the answer. It asks for reviewable support—not the model's hidden internal reasoning.</div>
               </div>
             </div>
           </div>
 
           <div class="card">
-            <div class="card-h"><span class="card-t">Compiled prompt</span><span class="card-t" id="grounding-tag"></span></div>
+            <div class="card-h"><span class="card-t">Trusted-source prompt preview</span><span class="card-t" id="grounding-tag"></span></div>
             <div class="card-b"><pre class="compiled" id="compiled"></pre></div>
           </div>
         </div>
-        <div class="note warnnote"><b>The temperature dial is live.</b> This deployment sends the value with every run, so lowering it really does make the model more deterministic. Internal calls — claim extraction, AI cross-checks, the judge — always run at 0 regardless of the dial.</div>
+        <div class="note warnnote"><b>These settings are live.</b> Temperature and response structure now apply to Ask AI and both trusted-source generation paths. Source guardrails remain limited to trusted-source creation. Internal calls—claim extraction, AI cross-checks, and the Judge—always run at temperature 0.</div>
       </section>
 
       <!-- ============ RAG ============ -->
@@ -1864,7 +1868,7 @@ var PATHS={
      hint:"Add the policies, documents and validated data the answer is allowed to draw on.",
      done:function(){return S.sources.some(function(s){return (s.text||"").trim().length>40})}},
     {id:"prompt",n:"Set constraints",panel:"console",
-     hint:"Lower the temperature, choose how reasoning is shown, and decide what the model must refuse to do.",
+     hint:"Set the temperature and response structure. Trusted-source guardrails control citations, uncertainty, refusal, and scope.",
      done:function(){return !!(S.question||"").trim()}},
     {id:"generate",n:"Generate grounded",panel:"rag",
      hint:"Retrieve the relevant passages, then generate an answer that can only cite what was retrieved.",
@@ -2352,7 +2356,7 @@ function runAskAi(q,modelId){
   var chosen=models.filter(function(m){return m.id===modelId})[0];
   if(!chosen){st.innerHTML='<span class="err">That model is not available. Choose another model.</span>';return;}
   btn.disabled=true; btn.textContent="AI is answering…"; st.innerHTML='<span class="busy">'+esc(chosen.label)+' is answering</span>';
-  fetch("/api/ask",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({question:q,model:modelId,studentMode:S.student&&S.student.activity})})
+  fetch("/api/ask",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({question:q,model:modelId,studentMode:S.student&&S.student.activity,temperature:S.cfg.temp,responseMode:S.cfg.cot})})
     .then(function(r){return r.json().then(function(d){if(d.error)return Promise.reject(d.error);return d})})
     .then(function(d){
       S.askQuestion=q; S.prompt=q; S.response=String(d.answer||"").trim(); S.model=d.model||modelId;
@@ -2620,6 +2624,33 @@ $("#btn-retrieve").addEventListener("click",function(){
   $("#pipe").children[1].classList.toggle("done",S.retrieved.length>0);
   $("#rag-status").textContent=S.retrieved.length?"Retrieved. The model may use nothing else.":"Nothing in the evidence set matches — that is an answer too.";
 });
+function trustedSourcePrompt(question,ctx){
+  var c=S.cfg,L=[];
+  L.push("Answer the question using the retrieved passages below.");
+  if(c.ground) L.push("Your training data is not a source. Use ONLY the retrieved passages.");
+  else L.push("You may use general knowledge, but anything not supported by a retrieved passage remains unverified.");
+  L.push("");
+  L.push("RESPONSE STRUCTURE");
+  if(c.cot==="steps") L.push("Give a concise numbered explanation using reviewable evidence, then a final answer. Do not expose hidden internal reasoning.");
+  else if(c.cot==="evidence") L.push("Use two sections: SUPPORTING INFORMATION and ANSWER. Put the passage support first, then the conclusion.");
+  else if(c.cot==="assumptions") L.push("Begin with ASSUMPTIONS AND UNKNOWNS, then answer and identify any conclusion that depends on an assumption.");
+  else L.push("Answer directly without a separate reasoning section.");
+  L.push("");
+  L.push("RULES");
+  var n=1;
+  if(c.cite) L.push(n+++". End every passage-supported factual sentence with its marker, such as [S1·1].");
+  if(c.uncert) L.push(n+++". If support is incomplete or a conclusion is inferred, write UNCERTAIN: and say what is missing.");
+  if(c.refuse) L.push(n+++". If the retrieved passages do not answer the question, reply NOT IN SOURCES — and stop rather than guessing.");
+  L.push(n+++". Do not combine figures from different passages into a new number.");
+  L.push(n+++". Reproduce numbers, dates and names exactly.");
+  if(c.scope) L.push(n+++". End with OUT OF SCOPE: listing any part of the question the passages did not cover.");
+  L.push("");
+  L.push("QUESTION: "+question);
+  L.push("");
+  L.push("RETRIEVED PASSAGES");
+  L.push(ctx.slice(0,25000));
+  return L.join("\n");
+}
 $("#btn-generate").addEventListener("click",function(){
   if(!SAMPLE){ $("#rag-status").innerHTML='<span class="err">Claude is unavailable in this view.</span>'; return; }
   S.question=$("#rag-q").value.trim();
@@ -2627,13 +2658,13 @@ $("#btn-generate").addEventListener("click",function(){
   if(!S.retrieved.length){ $("#rag-status").innerHTML='<span class="err">Nothing retrieved — load sources that cover the question.</span>'; return; }
   var b=this; b.disabled=true; $("#st3").textContent="Generating"; $("#rag-status").innerHTML='<span class="busy">Generating</span>';
   var ctx=S.retrieved.map(function(p){return "["+p.src+"·"+p.idx+"] "+p.text}).join("\n\n");
-  var p="Answer the question using ONLY the retrieved passages below. Your training data is not a source.\n\nRULES\n1. Every factual sentence ends with the passage marker it came from, like [S1·1].\n2. If the passages do not answer part of the question, write UNCERTAIN: followed by what is missing. Never fill the gap.\n3. Do not combine figures from different passages into a new number.\n4. Reproduce numbers, dates and names exactly.\n5. Four sentences at most, then a line beginning OUT OF SCOPE: if anything was not covered.\n\nQUESTION: "+S.question+"\n\nRETRIEVED PASSAGES\n"+ctx.slice(0,25000);
+  var p=trustedSourcePrompt(S.question,ctx);
   var out=$("#rag-answer"); out.textContent="";
-  SAMPLE(p,{modelTier:"default",onText:function(u){ out.textContent=u.text; }}).then(function(r){
+  SAMPLE(p,{modelTier:"default",temperature:S.cfg.temp,onText:function(u){ out.textContent=u.text; }}).then(function(r){
     S.answer=r.text; renderAnswer();
     $("#st3").textContent="Complete"; $("#st4").textContent="Cited";
     $("#pipe").children[2].classList.add("done"); $("#pipe").children[3].classList.add("done");
-    $("#rag-status").textContent="Generated from "+S.retrieved.length+" passages. Still needs review.";
+    $("#rag-status").textContent="Generated from "+S.retrieved.length+" passages using AI Instructions. Still needs review."
     stats();
   }).catch(function(e){
     out.innerHTML=aiErrHtml(e); $("#st3").textContent="Failed"; $("#rag-status").textContent="";
