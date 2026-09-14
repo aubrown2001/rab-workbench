@@ -590,7 +590,6 @@ app.post("/api/audits", rateLimit({ windowMs: 60_000, max: 60, key: "writes" }),
     claim_type: c.type || null, risk: c.risk || null,
     status: c.status || "unverified",
     tick_claim: !!(c.checks && c.checks.claim),
-    tick_citation: !!(c.checks && c.checks.citation),
     tick_independent: !!(c.checks && c.checks.independent),
     source_url: c.url || null, note: c.note || null,
   }));
@@ -677,7 +676,7 @@ app.get("/api/reports", async (req, res) => {
       supa.from("v_review_discipline").select("*").single(),
       supa.from("v_audits_weekly").select("*"),
       supa.from("audits").select("id,title,prompt,question,payload,created_at,verdict,model_label,judge_avg,claim_count,cleared_count,proof_standard,granularity,strictness").order("created_at", { ascending: false }),
-      supa.from("claims").select("audit_id,status,claim_type,risk,tick_claim,tick_citation,tick_independent,source_url"),
+      supa.from("claims").select("audit_id,status,claim_type,risk,tick_claim,tick_independent,source_url"),
       supa.from("scores").select("criterion,criterion_name,score"),
     ]);
     const err = [discipline, weekly, totals, claims, scores].find((r) => r.error);
@@ -722,8 +721,8 @@ app.get("/api/reports", async (req, res) => {
     }).filter((r) => r.claims);
     const verdicts = {};
     auditRows.forEach((a) => { const key = a.verdict || "Unspecified"; verdicts[key] = (verdicts[key] || 0) + 1; });
-    const proofStandards = [1, 2, 3].map((proof) => ({
-      proof, audits: auditRows.filter((a) => Number(a.proof_standard) === proof).length,
+    const proofStandards = [1, 2].map((proof) => ({
+      proof, audits: auditRows.filter((a) => proof === 1 ? Number(a.proof_standard) === 1 : Number(a.proof_standard) >= 2).length,
     }));
     const criterionMap = new Map();
     (scores.data || []).forEach((s) => {
@@ -789,14 +788,12 @@ app.get("/api/reports", async (req, res) => {
       quality: {
         decisionRate: claimRows.length ? Math.round(1000 * decided.length / claimRows.length) / 10 : 0,
         sourceCoverage: factualDecisions.length ? Math.round(1000 * sourced / factualDecisions.length) / 10 : 0,
-        citationRate: claimRows.length ? Math.round(1000 * countTrue("tick_citation") / claimRows.length) / 10 : 0,
         independentRate: claimRows.length ? Math.round(1000 * countTrue("tick_independent") / claimRows.length) / 10 : 0,
         judgeCoverage: auditRows.length ? Math.round(1000 * judged.length / auditRows.length) / 10 : 0,
       },
       funnel: {
         claims: claimRows.length,
         isolated: countTrue("tick_claim"),
-        citations: countTrue("tick_citation"),
         independent: countTrue("tick_independent"),
         verified: byStatus.verified,
       },
