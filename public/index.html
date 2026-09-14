@@ -1324,7 +1324,7 @@ var S={
   student:null,
   isExample:false,
   claims:seedClaims(),
-  cfg:{temp:0.1,cot:"evidence",ground:true,cite:true,uncert:true,refuse:true,scope:true,structured:false,tier:"default",topK:5,minMatch:0,gran:"balanced",proof:2,strict:"standard",pass:3.5},
+  cfg:{temp:0.1,cot:"evidence",ground:true,cite:true,uncert:true,refuse:true,scope:true,tier:"default",topK:5,minMatch:0,gran:"balanced",proof:2,strict:"standard",pass:3.5},
   sources:SEED_SOURCES.map(function(s){return Object.assign({},s)}),
   question:"",
   retrieved:[], answer:"",
@@ -1632,7 +1632,7 @@ var HELP_KB=[
 "",
 "FACT-CHECK PANEL. Paste the answer, press Extract claims, and an available model splits it into checkable claims with suggested search queries linked to Google Search and Scholar. Each claim starts Unverified. You set the outcome: Verified, Unsupported, Refuted, or Opinion. Opinion means the statement is subjective and cannot be proven true or false; it counts as reviewed but never as a verified fact. Three Source Check ticks record the work: claim isolated, citation provided, independent source matched. ChatGPT and Gemini can run automatic AI cross-checks when their API keys are connected. Without a Claude API key, the Claude button copies the question and opens the free Claude website; paste Claude's answer back into the claim to save it. AI cross-checks never change a claim's status. Two dials: claim granularity (coarse 8 claims / balanced 15 / fine 25) and STANDARD OF PROOF, which sets how many of the three ticks are required before a claim may be marked Verified — below that bar the Verified button is disabled and clicking it explains why. Raising the bar shows a banner offering to reopen claims cleared under a lower standard.",
 "",
-"AI INSTRUCTIONS. Use the temperature dial and plain-language switches to tell the AI how to answer: stay grounded, include citations, flag uncertainty, refuse rather than guess, identify what could not be answered, and optionally return structured JSON. RAB·BIT compiles those choices into a prompt you can copy. The run button sends the answer to the fact-check ledger. Temperature is live in this deployment: the value is sent with every run. Internal calls such as extraction, AI cross-checks, and judging always run at 0 so they do not vary.",
+"AI INSTRUCTIONS. Use the temperature dial and plain-language switches to tell the AI how to answer: stay grounded, include citations, flag uncertainty, refuse rather than guess, and identify what could not be answered. RAB·BIT compiles those choices into a prompt you can copy. The run button sends the answer to the fact-check ledger. Temperature is live in this deployment: the value is sent with every run. Internal calls such as extraction, AI cross-checks, and judging always run at 0 so they do not vary.",
 "",
 "GROUNDING PANEL. Add trusted sources, then Retrieve passages runs a real relevance search over them and shows match percentages. Two dials: how many passages are retrieved, and a minimum match below which passages are dropped. Generate cited answer sends ONLY those passages to the model, which must cite [S1.1] markers and flag UNCERTAIN. The four numbered stages are a status display, not buttons. The page cannot fetch URLs — paste the source text itself.",
 "",
@@ -2393,8 +2393,7 @@ var SWITCHES=[
   ["cite","Cite evidence inline","Every factual sentence carries a source marker, so a reviewer can trace it without asking."],
   ["uncert","Flag uncertainty explicitly","Say which parts are inferred or unsupported instead of smoothing them into the prose."],
   ["refuse","Refuse rather than guess","If the sources do not answer it, say so. An empty answer is cheaper than a wrong one."],
-  ["scope","Say what it could not answer","Make the model list the parts of your question the sources did not cover, instead of quietly leaving them out."],
-  ["structured","Return structured data (JSON)","Machine-readable output that other systems can process and validate consistently."]
+  ["scope","Say what it could not answer","Make the model list the parts of your question the sources did not cover, instead of quietly leaving them out."]
 ];
 function renderSwitches(){
   $("#switches").innerHTML=SWITCHES.map(function(s){
@@ -2433,11 +2432,6 @@ function compile(){
   if(c.scope) L.push(n+++". End with OUT OF SCOPE: listing what the evidence could not cover.");
   L.push(n+++". Do not round, extrapolate or combine figures from different sources into a new number.");
   L.push(n+++". Reproduce names, dates and numbers exactly as they appear in the sources.");
-  if(c.structured){
-    L.push("");
-    L.push("# OUTPUT FORMAT");
-    L.push('Reply with only JSON: {"answer": string, "claims": [{"text": string, "source": string, "confidence": "high"|"medium"|"low"}], "not_covered": [string]}');
-  }
   L.push("");
   L.push("# QUESTION");
   L.push(S.question||"[your question here]");
@@ -2798,9 +2792,9 @@ $("#btn-judge").addEventListener("click",function(){
    health without exposing the content or credentials moving through it. */
 var OPS=null, opsBusy=false;
 var POLICIES={
-  standard:{name:"Standard review",desc:"Balanced claim splitting, two verification checks, grounded answers, citations, explicit uncertainty, and a 3.5 judge pass mark.",cfg:{gran:"balanced",proof:2,strict:"standard",pass:3.5,ground:true,cite:true,uncert:true,refuse:true,scope:true,structured:false}},
-  high:{name:"High-stakes review",desc:"Fine-grained claims, all three verification checks, harsh judging, structured output, and a 4.2 pass mark. Use for legal, medical, financial, or executive decisions.",cfg:{gran:"fine",proof:3,strict:"harsh",pass:4.2,ground:true,cite:true,uncert:true,refuse:true,scope:true,structured:true}},
-  rapid:{name:"Rapid screening",desc:"Coarse claims and one verification check with a 3.0 judge threshold. Useful for triage only; it is not an approval standard.",cfg:{gran:"coarse",proof:1,strict:"lenient",pass:3,ground:true,cite:true,uncert:true,refuse:false,scope:true,structured:false}}
+  standard:{name:"Standard review",desc:"Balanced claim splitting, two verification checks, grounded answers, citations, explicit uncertainty, and a 3.5 judge pass mark.",cfg:{gran:"balanced",proof:2,strict:"standard",pass:3.5,ground:true,cite:true,uncert:true,refuse:true,scope:true}},
+  high:{name:"High-stakes review",desc:"Fine-grained claims, all three verification checks, harsh judging, and a 4.2 pass mark. Use for legal, medical, financial, or executive decisions.",cfg:{gran:"fine",proof:3,strict:"harsh",pass:4.2,ground:true,cite:true,uncert:true,refuse:true,scope:true}},
+  rapid:{name:"Rapid screening",desc:"Coarse claims and one verification check with a 3.0 judge threshold. Useful for triage only; it is not an approval standard.",cfg:{gran:"coarse",proof:1,strict:"lenient",pass:3,ground:true,cite:true,uncert:true,refuse:false,scope:true}}
 };
 function currentPolicy(){ return POLICIES[$("#policy-profile").value]||POLICIES.standard }
 function renderPolicy(){ $("#policy-summary").innerHTML='<b>'+esc(currentPolicy().name)+':</b> '+esc(currentPolicy().desc) }
