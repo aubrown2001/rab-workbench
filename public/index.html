@@ -799,11 +799,11 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
     </div>
     <nav class="nav" id="nav">
       <div class="nav-h">Controls</div>
-      <button data-p="check" aria-current="false"><span class="ic ic-nav ic-1" data-ic="ledger"></span><span class="nav-t">Fact-check<span class="nav-i">P1</span></span><span class="nav-dot" id="dot-check"></span></button>
-      <button data-p="console"><span class="ic ic-nav ic-2" data-ic="dial"></span><span class="nav-t">AI Instructions<span class="nav-i">P2</span></span><span class="nav-dot" id="dot-console"></span></button>
+      <button data-p="check" aria-current="false"><span class="ic ic-nav ic-1" data-ic="ledger"></span><span class="nav-t">Fact-check</span><span class="nav-dot" id="dot-check"></span></button>
+      <button data-p="console"><span class="ic ic-nav ic-2" data-ic="dial"></span><span class="nav-t">AI Instructions</span><span class="nav-dot" id="dot-console"></span></button>
       <button data-p="student"><span class="ic ic-nav ic-2" aria-hidden="true">🧠</span><span class="nav-t">Student Module</span><span class="nav-dot" id="dot-student"></span></button>
-      <button data-p="rag"><span class="ic ic-nav ic-3" data-ic="layers"></span><span class="nav-t">Grounding<span class="nav-i">P2</span></span><span class="nav-dot" id="dot-rag"></span></button>
-      <button data-p="judge"><span class="ic ic-nav ic-4" data-ic="meter"></span><span class="nav-t">Judge &amp; tests<span class="nav-i">P3</span></span><span class="nav-dot" id="dot-judge"></span></button>
+      <button data-p="rag"><span class="ic ic-nav ic-3" data-ic="layers"></span><span class="nav-t">Grounding</span><span class="nav-dot" id="dot-rag"></span></button>
+      <button data-p="judge"><span class="ic ic-nav ic-4" data-ic="meter"></span><span class="nav-t">Judge &amp; tests</span><span class="nav-dot" id="dot-judge"></span></button>
       <div class="nav-h" style="padding-top:14px">Governance</div>
       <button data-p="ops"><span class="ic ic-nav ic-2" data-ic="target"></span><span class="nav-t">Operations</span><span class="nav-dot" id="dot-ops"></span></button>
       <div class="nav-h" style="padding-top:14px">Archive</div>
@@ -1817,8 +1817,7 @@ document.addEventListener("keydown",function(e){
 /* ---------------- guided run ----------------
    Two real sequences, not one. Auditing someone else's answer starts at the
    paste box; producing an answer you can defend starts at the evidence set and
-   only reaches the ledger later. The deck's P1/P2/P3 is a teaching order, not a
-   working order — this is the working order. */
+   only reaches the ledger later. The visible panel groups are a teaching taxonomy, not a working order —\n   the guided path below is the working order. */
 var PATHS={
   review:{label:"Review an answer",steps:[
     {id:"paste",n:"Paste the answer",panel:"check",
