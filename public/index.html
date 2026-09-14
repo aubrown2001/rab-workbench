@@ -710,6 +710,11 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 .claims-line-wrap{min-height:252px}.claims-line{display:block;width:100%;height:auto;overflow:visible}.claims-line .grid{stroke:#DDE7F3;stroke-width:1}.claims-line .axis-label{fill:var(--ink-3);font:11px var(--f-mono)}.claims-line .area{fill:url(#claimsArea)}.claims-line .trend{fill:none;stroke:var(--r-blue);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 5px 6px rgba(47,128,255,.25))}.claims-line .point{fill:#FFFFFF;stroke:var(--r-blue);stroke-width:3}.claims-line-total{display:flex;align-items:baseline;gap:9px;margin-bottom:7px}.claims-line-total strong{font:750 2rem var(--f-mono);color:var(--r-blue)}.claims-line-total span{font-size:.76rem;color:var(--ink-3)}
 .claims-gauge-card{background:linear-gradient(145deg,#202C59,#141D3E);border:0;color:#FFFFFF;overflow:hidden}.claims-gauge-card .card-h{background:rgba(255,255,255,.035);border-color:rgba(255,255,255,.12)}.claims-gauge-card .card-t,.claims-gauge-card .hint{color:#FFFFFF}.claims-gauge-card .hint{opacity:.7}.claims-gauge-body{display:grid;place-items:center;min-height:270px;padding:17px}.claims-gauge{width:min(330px,100%);height:auto}.claims-gauge .g-bg{fill:none;stroke:#536083;stroke-width:23;stroke-linecap:butt}.claims-gauge .g-progress{fill:none;stroke:url(#gaugeBright);stroke-width:23;stroke-linecap:butt}.claims-gauge .claim-gauge-needle{stroke:#FFFFFF;stroke-width:6;stroke-linecap:round;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35))}.claims-gauge .g-hub{fill:#FFFFFF}.claims-gauge .g-label{fill:#AEBCE3;font:12px var(--f-mono)}.claims-gauge .g-value{fill:#FFFFFF;font:700 34px var(--f-mono)}.claims-gauge-note{margin-top:-22px;color:#C9D4F3;font-size:.78rem;text-align:center}
 .reports-panel{position:relative}
+.reports-fullscreen{overflow-y:scroll}
+.reports-fullscreen .shell{display:block;min-height:100vh}
+.reports-fullscreen .rail,.reports-fullscreen .top,.reports-fullscreen .launch-overlay,.reports-fullscreen .home-workflow-bar{display:none!important}
+.reports-fullscreen main{width:100%;max-width:none;margin:0;padding:28px clamp(18px,3vw,54px) 70px}
+.reports-fullscreen #p-reports{display:block}
 .launch-overlay{position:fixed;left:var(--rail);right:0;top:0;bottom:0;z-index:19;display:grid;place-items:center;padding:92px 28px 42px;overflow:auto;background:rgba(241,246,255,.82);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
 :root[data-theme="dark"] .launch-overlay{background:rgba(10,20,36,.84)}
 .launch-card{width:min(1080px,100%);text-align:center;padding:32px 24px 38px;border:1px solid rgba(255,255,255,.7);border-radius:28px;background:rgba(255,255,255,.72);box-shadow:0 32px 80px -35px rgba(15,45,90,.55)}
@@ -1186,7 +1191,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
             <h1 class="ptitle">What the record shows</h1>
             <p class="psub">See verification quality from executive summary to individual audit: outcomes, evidence coverage, claim risk, judge performance, model comparisons, review standards, and recent activity.</p>
           </div>
-          <div class="row"><button class="btn" id="btn-reports-refresh">Refresh</button></div>
+          <div class="row"><button class="btn" id="btn-reports-refresh" type="button">↻ Refresh page</button><button class="btn pri" id="btn-reports-fullscreen" type="button">⛶ Full screen</button></div>
         </div>
         <div id="reports-body"><div class="empty">Loading…</div></div>
       </section>
@@ -1245,6 +1250,8 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 var $=function(s){return document.querySelector(s)};
 var esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
 var uid=function(){return Math.random().toString(36).slice(2,10)};
+var REPORTS_FULLSCREEN=new URLSearchParams(location.search).get("reports")==="fullscreen";
+if(REPORTS_FULLSCREEN) document.body.classList.add("reports-fullscreen");
 
 /* in-page dialogs — the artifact frame blocks window.confirm/alert */
 var askCb=null, toastT=null;
@@ -3132,7 +3139,18 @@ function loadReports(force){
   }).then(function(){ reportsBusy=false; renderReports(); });
 }
 var SERVER_REPORTS=false;
-$("#btn-reports-refresh").addEventListener("click",function(){ loadReports(true) });
+$("#btn-reports-refresh").addEventListener("click",function(){ location.reload() });
+$("#btn-reports-fullscreen").addEventListener("click",function(){
+  if(REPORTS_FULLSCREEN){
+    window.close();
+    setTimeout(function(){location.href=location.pathname},80);
+    return;
+  }
+  var url=new URL(location.href);url.searchParams.set("reports","fullscreen");
+  var tab=window.open(url.toString(),"_blank");
+  if(tab) tab.opener=null;
+  if(!tab) toast("Your browser blocked the full-screen Reports tab. Allow pop-ups for this site and try again.",true);
+});
 
 /* ---------------- records ---------------- */
 
@@ -3285,6 +3303,7 @@ function hydrate(){
   renderLedger(); renderRubric(); renderHelp();
 }
 hydrate(); renderSteps(); show("reports");
+if(REPORTS_FULLSCREEN){$("#launch-overlay").hidden=true;$("#btn-reports-fullscreen").textContent="× Close full screen";document.title="RAB·BIT Reports";}
 S.retrieved=retrieve(); renderPassages();
 $("#st2").textContent=S.retrieved.length+" passages"; $("#pipe").children[1].classList.toggle("done",S.retrieved.length>0);
 })();
