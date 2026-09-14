@@ -850,7 +850,6 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
             <div class="student-workspace-head"><div><h2>🧠 Brainstorm with AI</h2><p>Tell the AI what you want ideas about. It will help you think—not do the whole assignment for you.</p></div><button class="btn sm" id="btn-student-back" type="button">← Activities</button></div>
             <div class="student-workspace-body">
               <div class="student-fields">
-                <label class="fld"><span class="fld-k">Grade level</span><select id="student-grade"><option value="k-2">Kindergarten–Grade 2</option><option value="3-5" selected>Grades 3–5</option></select></label>
                 <label class="fld"><span class="fld-k">What would you like to brainstorm?</span><textarea id="student-topic" maxlength="4000" placeholder="Example: I need an idea for a science project about plants."></textarea></label>
                 <div class="student-privacy"><b>Keep personal information private.</b> Do not type your name, school, address, phone number, or exact location.</div>
                 <div class="hint" id="student-brainstorm-status"></div>
@@ -1635,7 +1634,7 @@ var HELP_KB=[
 "",
 "THE HOMEPAGE AND GUIDED RUN. RAB·BIT opens on the Reports homepage with five large choices. Go to Homepage dismisses the welcome choices and leaves the reports visible. Review an answer, Create from Trusted Sources, Ask AI, and Student Module each open the correct workspace. The homepage keeps those same four workflow choices at the top. 'Review an answer' is for an answer that already exists. 'Create from Trusted Sources' produces an answer from trusted material. 'Ask AI' asks a connected OpenAI or Claude model and then starts verification. Student Module offers Brainstorm, Research Paper, and Homework Question for elementary learners. Every factual-answer path ends at the claim ledger because generating an answer never proves what it said. The Guide button hides the step bar.",
 "",
-"STUDENT MODULE. Brainstorm asks for a grade band and topic, then offers a brain-shaped button and a model picker. It returns eight age-friendly ideas rather than a finished assignment. Research Paper routes through Ask AI with a learning-coach prompt that builds a topic, outline, search terms, questions, and source checklist. Homework Question routes through Ask AI with hints and step-by-step teaching. Both automatically continue to fact-checking. Student prompts tell the model not to request personal information and not to impersonate the child. Saved work appears in Reports as activity counts, grade-band counts, and a word cloud made from saved brainstorms.",
+"STUDENT MODULE. Brainstorm asks for a topic, then offers a brain-shaped button and a model picker. It returns eight age-friendly ideas rather than a finished assignment. Research Paper routes through Ask AI with a learning-coach prompt that builds a topic, outline, search terms, questions, and source checklist. Homework Question routes through Ask AI with hints and step-by-step teaching. Both automatically continue to fact-checking. Student prompts tell the model not to request personal information and not to impersonate the child. Saved work appears in Reports as activity counts and a word cloud made from saved brainstorms.",
 "",
 "FACT-CHECK PANEL. Paste the answer, press Extract claims, and an available model splits it into checkable claims with suggested search queries linked to Google Search and Scholar. Each claim starts Unverified. You set the outcome: Verified, Unsupported, Refuted, or Opinion. Opinion means the statement is subjective and cannot be proven true or false; it counts as reviewed but never as a verified fact. Three Source Check ticks record the work: claim isolated, citation provided, independent source matched. ChatGPT and Gemini can run automatic AI cross-checks when their API keys are connected. Without a Claude API key, the Claude button copies the question and opens the free Claude website; paste Claude's answer back into the claim to save it. AI cross-checks never change a claim's status. Two dials: claim granularity (coarse 8 claims / balanced 15 / fine 25) and STANDARD OF PROOF, which sets how many of the three ticks are required before a claim may be marked Verified — below that bar the Verified button is disabled and clicking it explains why. Raising the bar shows a banner offering to reopen claims cleared under a lower standard.",
 "",
@@ -1647,7 +1646,7 @@ var HELP_KB=[
 "",
 "OPERATIONS. This is RAB·BIT's control plane. Policy profiles apply a consistent bundle of review settings: Standard, High-stakes, or Rapid screening. The RAB·BIT verification score is a transparent 100-point readiness checklist, not an AI opinion. Provider health shows whether Claude, ChatGPT, Gemini, and Supabase are configured. Telemetry shows route, HTTP status, latency, and provider for the current Render process only; it never stores prompts, answers, claims, IP addresses, or keys. Active alerts call out disconnected services, high error rates, recent rate limits, and an audit score below 70.",
 "",
-"SAVED AUDITS AND REPORTS. Saving keeps the response, every claim and verdict, student activity details, the dial settings and the judge scores. Reports shows headline quality measures, large gauges for claims checked and judge coverage, student activity and grade-band counts, a brainstorm word cloud, a model-share pie chart, claim outcomes, the evidence-completion funnel, source coverage, rubric averages, weekly volume, recent audits, and reviewer discipline. The Audit Subject 3D map groups audits with similar titles or questions around larger subject nodes. The archive is shared with everyone who can open this page.",
+"SAVED AUDITS AND REPORTS. Saving keeps the response, every claim and verdict, student activity details, the dial settings and the judge scores. Reports shows headline quality measures, large gauges for claims checked and judge coverage, student activity counts, a brainstorm word cloud, a model-share pie chart, claim outcomes, the evidence-completion funnel, source coverage, rubric averages, weekly volume, recent audits, and reviewer discipline. The Audit Subject 3D map groups audits with similar titles or questions around larger subject nodes. The archive is shared with everyone who can open this page.",
 "",
 "VERITY FEEDBACK. Helpful and Not helpful buttons appear below each Verity answer. A rating guides later Verity answers during the current browser visit. When the optional Supabase help_feedback table is installed, RAB·BIT also stores the question, answer, rating and optional reason so the product guidance can be improved over time. This feedback does not retrain OpenAI's base model automatically.",
 "",
@@ -2272,23 +2271,20 @@ function askAnswerModels(){
   return SERVER.models.filter(function(m){return m.available!==false&&(m.provider==="openai"||m.provider==="anthropic")});
 }
 function studentActivityLabel(activity){return activity==="research"?"Research Paper":activity==="homework"?"Homework Question":"Brainstorm"}
-function studentGradeLabel(grade){return grade==="k-2"?"Kindergarten–Grade 2":"Grades 3–5"}
-function chooseStudentGrade(activity){
-  ask("Choose a grade level","This helps the AI use words and steps that fit the student.","Continue",function(grade){
-    S.student={activity:activity,gradeBand:grade,topic:"",ideasText:""};
-    startWorkflow("ask",true);
-    $("#ask-chatgpt-q").value="";
-    $("#ask-chatgpt-status").textContent=studentGradeLabel(grade)+" learning coach is ready.";
-  },{select:{value:"3-5",options:[{value:"k-2",label:"Kindergarten–Grade 2"},{value:"3-5",label:"Grades 3–5"}]}});
+function startStudentAsk(activity){
+  S.student={activity:activity,topic:"",ideasText:""};
+  startWorkflow("ask",true);
+  $("#ask-chatgpt-q").value="";
+  $("#ask-chatgpt-status").textContent="Your learning coach is ready.";
 }
 $("#student-choices").addEventListener("click",function(e){
   var b=e.target.closest("[data-student-choice]");if(!b)return;
   playLaunchClick();
   if(b.dataset.studentChoice==="brainstorm"){
-    S.student={activity:"brainstorm",gradeBand:$("#student-grade").value,topic:"",ideasText:""};
+    S.student={activity:"brainstorm",topic:"",ideasText:""};
     $("#student-choices").hidden=true;$("#student-brainstorm").hidden=false;
     setTimeout(function(){$("#student-topic").focus()},0);
-  }else chooseStudentGrade(b.dataset.studentChoice);
+  }else startStudentAsk(b.dataset.studentChoice);
 });
 $("#btn-student-back").addEventListener("click",function(){
   $("#student-brainstorm").hidden=true;$("#student-choices").hidden=false;
@@ -2297,13 +2293,12 @@ function runStudentBrainstorm(topic,modelId){
   var btn=$("#btn-student-brainstorm"),st=$("#student-brainstorm-status"),models=askAnswerModels();
   var chosen=models.filter(function(m){return m.id===modelId})[0];
   if(!chosen){st.innerHTML='<span class="err">That model is not available. Choose another model.</span>';return;}
-  var grade=$("#student-grade").value;
   btn.disabled=true;st.innerHTML='<span class="busy">'+esc(chosen.label)+' is growing some ideas</span>';
-  fetch("/api/ask",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({question:topic,model:modelId,studentMode:"brainstorm",gradeBand:grade})})
+  fetch("/api/ask",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({question:topic,model:modelId,studentMode:"brainstorm"})})
     .then(function(r){return r.json().then(function(d){if(d.error)return Promise.reject(d.error);return d})})
     .then(function(d){
       var answer=String(d.answer||"").trim();
-      S.student={activity:"brainstorm",gradeBand:grade,topic:topic,ideasText:answer,model:d.model||modelId};
+      S.student={activity:"brainstorm",topic:topic,ideasText:answer,model:d.model||modelId};
       S.title="Student Brainstorm — "+topic.slice(0,65);S.prompt=topic;S.askQuestion=topic;S.response=answer;S.model=d.model||modelId;S.claims=[];S.scores=null;S.saved=false;
       $("#runname").value=S.title;$("#student-brainstorm-answer").textContent=answer;$("#student-brainstorm-output").hidden=false;
       st.textContent="Ideas ready. Save this brainstorm when you are finished.";stats();
@@ -2323,7 +2318,7 @@ function runAskAi(q,modelId){
   var chosen=models.filter(function(m){return m.id===modelId})[0];
   if(!chosen){st.innerHTML='<span class="err">That model is not available. Choose another model.</span>';return;}
   btn.disabled=true; btn.textContent="AI is answering…"; st.innerHTML='<span class="busy">'+esc(chosen.label)+' is answering</span>';
-  fetch("/api/ask",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({question:q,model:modelId,studentMode:S.student&&S.student.activity,gradeBand:S.student&&S.student.gradeBand})})
+  fetch("/api/ask",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({question:q,model:modelId,studentMode:S.student&&S.student.activity})})
     .then(function(r){return r.json().then(function(d){if(d.error)return Promise.reject(d.error);return d})})
     .then(function(d){
       S.askQuestion=q; S.prompt=q; S.response=String(d.answer||"").trim(); S.model=d.model||modelId;
@@ -3029,13 +3024,13 @@ function renderReports(){
   out+='<div class="report-grid2"><div class="card report-card claims-gauge-card" style="--report-color:#19D67F"><div class="card-h"><span class="card-t">Claims checked percentage</span><span class="hint">All saved claims</span></div>'+percentageGauge(pct(checked,t.claims||0),checked+' of '+Number(t.claims||0)+' extracted claims have a human verdict','claimsGaugeBright','of claims checked')+'</div>'+ 
     '<div class="card report-card claims-gauge-card" style="--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Judge coverage</span><span class="hint">All saved audits</span></div>'+percentageGauge(judgePct,judgedCount+' of '+Number(t.audits||0)+' saved audits received an AI judge score','judgeGaugeBright','of audits judged')+'</div></div>';
 
-  var studentActivities=REPORTS.studentActivities||[], studentGradeBands=REPORTS.studentGradeBands||[], brainstormWords=REPORTS.brainstormWords||[];
+  var studentActivities=REPORTS.studentActivities||[], brainstormWords=REPORTS.brainstormWords||[];
   var studentTotal=studentActivities.reduce(function(n,r){return n+Number(r.audits||0)},0);
   if(studentTotal){
     var studentColors={brainstorm:"#8B5CF6",research:"#15B9D6",homework:"#35C866"};
     var maxStudent=Math.max.apply(null,studentActivities.map(function(r){return Number(r.audits||0)}))||1;
     var maxWord=Math.max.apply(null,brainstormWords.map(function(r){return Number(r.count||0)}))||1;
-    out+='<div class="student-report-grid"><div class="card report-card" style="--report-color:#35C866"><div class="card-h"><span class="card-t">Student activities</span><span class="hint">'+studentTotal+' saved</span></div><div class="card-b"><div class="chart">'+studentActivities.map(function(r){return bar(r.label,studentColors[r.activity],String(r.audits),100*Number(r.audits||0)/maxStudent,pct(r.audits,studentTotal)+"%");}).join("")+'</div><div class="report-callout" style="grid-template-columns:repeat(2,1fr);margin-top:16px">'+studentGradeBands.map(function(r,i){return '<div class="report-mini" style="--report-color:'+(i?'#15B9D6':'#8B5CF6')+'"><b>'+Number(r.audits||0)+'</b><span>'+esc(r.label)+'</span></div>';}).join("")+'</div></div></div>'+
+    out+='<div class="student-report-grid"><div class="card report-card" style="--report-color:#35C866"><div class="card-h"><span class="card-t">Student activities</span><span class="hint">'+studentTotal+' saved</span></div><div class="card-b"><div class="chart">'+studentActivities.map(function(r){return bar(r.label,studentColors[r.activity],String(r.audits),100*Number(r.audits||0)/maxStudent,pct(r.audits,studentTotal)+"%");}).join("")+'</div></div></div>'+ 
       '<div class="card report-card" style="--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Brainstorm idea cloud</span><span class="hint">Words across saved brainstorms</span></div><div class="card-b"><div class="word-cloud">'+(brainstormWords.length?brainstormWords.map(function(r,i){var size=.78+1.35*Number(r.count||0)/maxWord;var colors=["#8B5CF6","#2F80FF","#EC4899","#00AEBE","#28A95C","#F07824"];return '<span title="'+r.count+' mentions" style="font-size:'+size.toFixed(2)+'rem;--word-color:'+colors[i%colors.length]+'">'+esc(r.word)+'</span>';}).join(""):'<span style="font-size:.85rem">Save a brainstorm to grow this cloud.</span>')+'</div></div></div></div>';
   }
 
@@ -3276,7 +3271,7 @@ function hydrate(){
   $("#in-response").value=S.response; $("#in-prompt").value=S.prompt;
   $("#ask-chatgpt-q").value=S.askQuestion||"";
   if(S.student&&S.student.activity==="brainstorm"){
-    $("#student-grade").value=S.student.gradeBand||"3-5";$("#student-topic").value=S.student.topic||"";
+    $("#student-topic").value=S.student.topic||"";
     $("#student-brainstorm-answer").textContent=S.student.ideasText||S.response||"";
     $("#student-choices").hidden=true;$("#student-brainstorm").hidden=false;$("#student-brainstorm-output").hidden=!(S.student.ideasText||S.response);
   }
