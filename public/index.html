@@ -3063,7 +3063,7 @@ function renderReports(){
       '<div class="card report-card" style="--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Brainstorm idea cloud</span><span class="hint">Words across saved brainstorms</span></div><div class="card-b"><div class="word-cloud">'+(brainstormWords.length?brainstormWords.map(function(r,i){var size=.78+1.35*Number(r.count||0)/maxWord;var colors=["#8B5CF6","#2F80FF","#EC4899","#00AEBE","#28A95C","#F07824"];return '<span title="'+r.count+' mentions" style="font-size:'+size.toFixed(2)+'rem;--word-color:'+colors[i%colors.length]+'">'+esc(r.word)+'</span>';}).join(""):'<span style="font-size:.85rem">Save a brainstorm to grow this cloud.</span>')+'</div></div></div></div>';
   }
 
-  /* Claim outcomes. */
+  /* Claim outcomes and weekly audit activity share one report row. */
   var cursor=0, stops=[], legend="";
   STATUS_META.forEach(function(m){
     var n=Number(st[m[0]]||0), start=cursor, end=cursor+pct(n,t.claims||1); cursor=end;
@@ -3071,23 +3071,23 @@ function renderReports(){
     legend+='<div class="report-legend-row"><i style="background:'+m[2]+'"></i><span>'+esc(m[1])+'</span><b>'+n+' · '+pct(n,t.claims||1)+'%</b></div>';
   });
   var donut=stops.length?'conic-gradient('+stops.join(",")+')':'var(--surface-3)';
-  out+='<div class="card report-card" style="--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Claim outcomes</span><span class="hint">'+notCleared+' did not survive</span></div><div class="card-b donut-wrap"><div class="report-donut" style="background:'+donut+'"><div><strong>'+t.claims+'</strong><span>Total claims</span></div></div><div class="report-legend">'+legend+'</div></div></div>';
-
-  /* Judge performance. */
-  var criteria=REPORTS.criteria||[];
-  if(criteria.length) out+='<div class="card report-card" style="margin-top:18px;--report-color:#19D67F"><div class="card-h"><span class="card-t">Judge rubric averages</span></div><div class="card-b"><div class="chart">'+criteria.map(function(r){var v=Number(r.average||0);return bar(r.criterion,REPORT_STATUS_COLORS.verified,v.toFixed(1)+"/5",20*v,r.scores+" scores")}).join("")+'</div></div></div>';
-
-  /* Audit activity over time. */
   var wk=(REPORTS.weekly||[]).slice(-12);
+  if(wk.length) out+='<div class="report-grid2">';
+  out+='<div class="card report-card" style="--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Claim outcomes</span><span class="hint">'+notCleared+' did not survive</span></div><div class="card-b donut-wrap"><div class="report-donut" style="background:'+donut+'"><div><strong>'+t.claims+'</strong><span>Total claims</span></div></div><div class="report-legend">'+legend+'</div></div></div>';
   if(wk.length){
     var maxW=Math.max.apply(null,wk.map(function(w){return w.audits}))||1;
-    out+='<div class="card report-card" style="margin-top:18px;--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Audits per week</span></div><div class="card-b">'+
+    out+='<div class="card report-card" style="--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Audits per week</span></div><div class="card-b">'+
       '<div class="spark">'+wk.map(function(w,i){
         return '<div style="height:'+Math.max(4,100*w.audits/maxW)+'%;background:#8B5CF6" title="'+esc(w.week)+': '+w.audits+' audits"></div>';
       }).join("")+'</div><div class="sparkx">'+wk.map(function(w){
         return '<span>'+esc(String(w.week).slice(5))+'</span>';
       }).join("")+'</div></div></div>';
+    out+='</div>';
   }
+
+  /* Judge performance. */
+  var criteria=REPORTS.criteria||[];
+  if(criteria.length) out+='<div class="card report-card" style="margin-top:18px;--report-color:#19D67F"><div class="card-h"><span class="card-t">Judge rubric averages</span></div><div class="card-b"><div class="chart">'+criteria.map(function(r){var v=Number(r.average||0);return bar(r.criterion,REPORT_STATUS_COLORS.verified,v.toFixed(1)+"/5",20*v,r.scores+" scores")}).join("")+'</div></div></div>';
 
   /* Recent audit table makes the dashboard actionable, not just aggregate. */
   var recent=REPORTS.recent||[];
