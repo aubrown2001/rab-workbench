@@ -715,6 +715,16 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 .reports-fullscreen .rail,.reports-fullscreen .top,.reports-fullscreen .launch-overlay,.reports-fullscreen .home-workflow-bar{display:none!important}
 .reports-fullscreen main{width:100%;max-width:none;margin:0;padding:28px clamp(18px,3vw,54px) 70px}
 .reports-fullscreen #p-reports{display:block}
+.audit-map-fullscreen{overflow-y:auto;background:#0B1533}
+.audit-map-fullscreen .shell{display:block;min-height:100vh}
+.audit-map-fullscreen .rail,.audit-map-fullscreen .top,.audit-map-fullscreen .launch-overlay,.audit-map-fullscreen .home-workflow-bar,.audit-map-fullscreen #p-reports>.phead{display:none!important}
+.audit-map-fullscreen main{width:100%;max-width:none;margin:0;padding:0}
+.audit-map-fullscreen #p-reports{display:block;padding:0}
+.audit-map-fullscreen #reports-body{min-height:100vh}
+.audit-map-fullscreen .audit-space-card{display:flex;flex-direction:column;min-height:100vh;margin:0;border-radius:0;box-shadow:none}
+.audit-map-fullscreen .audit-space-wrap{height:auto;min-height:620px;flex:1}
+.audit-map-fullscreen .audit-space-card .card-h{position:sticky;top:0;z-index:4;padding:15px clamp(16px,2vw,30px)}
+.audit-map-fullscreen .audit-space-detail{min-height:58px;padding:14px clamp(16px,2vw,30px)}
 .launch-overlay{position:fixed;left:var(--rail);right:0;top:0;bottom:0;z-index:19;display:grid;place-items:center;padding:92px 28px 42px;overflow:auto;background:rgba(241,246,255,.82);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
 :root[data-theme="dark"] .launch-overlay{background:rgba(10,20,36,.84)}
 .launch-card{width:min(1080px,100%);text-align:center;padding:32px 24px 38px;border:1px solid rgba(255,255,255,.7);border-radius:28px;background:rgba(255,255,255,.72);box-shadow:0 32px 80px -35px rgba(15,45,90,.55)}
@@ -1250,7 +1260,9 @@ var $=function(s){return document.querySelector(s)};
 var esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
 var uid=function(){return Math.random().toString(36).slice(2,10)};
 var REPORTS_FULLSCREEN=new URLSearchParams(location.search).get("reports")==="fullscreen";
+var AUDIT_MAP_FULLSCREEN=new URLSearchParams(location.search).get("auditMap")==="fullscreen";
 if(REPORTS_FULLSCREEN) document.body.classList.add("reports-fullscreen");
+if(AUDIT_MAP_FULLSCREEN) document.body.classList.add("audit-map-fullscreen");
 
 /* in-page dialogs — the artifact frame blocks window.confirm/alert */
 var askCb=null, toastT=null;
@@ -1646,7 +1658,7 @@ var HELP_KB=[
 "",
 "OPERATIONS. This is RAB·BIT's control plane. Policy profiles apply a consistent bundle of review settings: Standard, High-stakes, or Rapid screening. The RAB·BIT verification score is a transparent 100-point readiness checklist, not an AI opinion. Provider health shows whether Claude, ChatGPT, Gemini, and Supabase are configured. Telemetry shows route, HTTP status, latency, and provider for the current Render process only; it never stores prompts, answers, claims, IP addresses, or keys. Active alerts call out disconnected services, high error rates, recent rate limits, and an audit score below 70.",
 "",
-"SAVED AUDITS AND REPORTS. Saving keeps the response, every claim and verdict, student activity details, the dial settings and the judge scores. Reports shows headline quality measures, large gauges for claims checked and judge coverage, student activity counts, a brainstorm word cloud, a model-share pie chart, claim outcomes, the evidence-completion funnel, source coverage, rubric averages, weekly volume, recent audits, and reviewer discipline. The Audit Subject 3D map groups audits with similar titles or questions around larger subject nodes. The archive is shared with everyone who can open this page.",
+"SAVED AUDITS AND REPORTS. Saving keeps the response, every claim and verdict, student activity details, the dial settings and the judge scores. Reports shows headline quality measures, large gauges for claims checked and judge coverage, student activity counts, a brainstorm word cloud, a model-share pie chart, claim outcomes, the evidence-completion funnel, source coverage, rubric averages, weekly volume, recent audits, and reviewer discipline. The Audit Subject 3D map groups audits with similar titles or questions around larger subject nodes. Its Expand button opens the interactive map in a dedicated browser tab that uses the full window; drag to rotate, scroll to zoom, click a node for details, and use Close to return. The archive is shared with everyone who can open this page.",
 "",
 "VERITY FEEDBACK. Helpful and Not helpful buttons appear below each Verity answer. A rating guides later Verity answers during the current browser visit. When the optional Supabase help_feedback table is installed, RAB·BIT also stores the question, answer, rating and optional reason so the product guidance can be improved over time. This feedback does not retrain OpenAI's base model automatically.",
 "",
@@ -2914,6 +2926,13 @@ function modelPieWidget(models){
     rows.map(function(r){return '<div class="model-pie-row" title="'+esc(r.label)+': '+r.claims+' claims"><i style="background:'+r.color+'"></i><span>'+esc(r.label)+'</span><b>'+pct(r.claims,total||1)+'%</b></div>'}).join("")+
     '</div></div></div>';
 }
+function auditSubjectMapCard(subjects,expanded){
+  var mapped=subjects.reduce(function(n,s){return n+(s.audits||[]).length},0);
+  return '<div class="card audit-space-card"><div class="card-h"><div><span class="card-t">Audit Subject · interactive 3D map</span><span class="hint" style="margin-left:10px">'+subjects.length+' subjects · '+mapped+' audits</span></div><div class="row"><button class="btn sm" id="audit-space-reset" type="button">Reset view</button><button class="btn sm" id="audit-space-expand" type="button">'+(expanded?'× Close':'⛶ Expand')+'</button></div></div>'+ 
+    '<div class="audit-space-wrap"><canvas id="audit-space-canvas" tabindex="0" aria-label="Interactive three-dimensional map of audit subjects and their grouped audits"></canvas><div class="audit-space-tip" id="audit-space-tip"></div>'+ 
+    '<div class="audit-space-help">Drag to rotate · Scroll to zoom · Click a node for details</div><div class="audit-space-key"><span><i style="background:#2F80FF"></i>Subject</span><span><i style="background:#19D67F"></i>Audit outcome</span></div></div>'+ 
+    '<div class="audit-space-detail" id="audit-space-detail"></div></div>';
+}
 function initAuditSubjectGraph(subjects){
   var canvas=$("#audit-space-canvas"),detail=$("#audit-space-detail"),tip=$("#audit-space-tip"),reset=$("#audit-space-reset");
   if(!canvas||!subjects||!subjects.length) return;
@@ -3007,6 +3026,13 @@ function renderReports(){
   var checked=(st.verified||0)+(st.unsupported||0)+(st.refuted||0)+(st.opinion||0);
   var notCleared=(st.unsupported||0)+(st.refuted||0);
   if(!t.audits){ el.innerHTML='<div class="empty">No audits saved yet. Finish a review and press <b>Save audit</b> — the numbers here build up from real work.</div>'; return; }
+  var auditSubjects=REPORTS.auditSubjects||[];
+  if(AUDIT_MAP_FULLSCREEN){
+    if(!auditSubjects.length){el.innerHTML='<div class="empty">No audit subjects are available yet.</div>';return;}
+    el.innerHTML=auditSubjectMapCard(auditSubjects,true);
+    initAuditSubjectGraph(auditSubjects);
+    return;
+  }
 
   var models=(REPORTS.models||[]).filter(function(r){return r.claims>0});
   var out="";
@@ -3033,13 +3059,8 @@ function renderReports(){
       '<div class="card report-card" style="--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Brainstorm idea cloud</span><span class="hint">Words across saved brainstorms</span></div><div class="card-b"><div class="word-cloud">'+(brainstormWords.length?brainstormWords.map(function(r,i){var size=.78+1.35*Number(r.count||0)/maxWord;var colors=["#8B5CF6","#2F80FF","#EC4899","#00AEBE","#28A95C","#F07824"];return '<span title="'+r.count+' mentions" style="font-size:'+size.toFixed(2)+'rem;--word-color:'+colors[i%colors.length]+'">'+esc(r.word)+'</span>';}).join(""):'<span style="font-size:.85rem">Save a brainstorm to grow this cloud.</span>')+'</div></div></div></div>';
   }
 
-  var auditSubjects=REPORTS.auditSubjects||[];
   if(auditSubjects.length){
-    var mappedAudits=auditSubjects.reduce(function(n,s){return n+(s.audits||[]).length},0);
-    out+='<div class="card audit-space-card"><div class="card-h"><div><span class="card-t">Audit Subject · interactive 3D map</span><span class="hint" style="margin-left:10px">'+auditSubjects.length+' subjects · '+mappedAudits+' audits</span></div><button class="btn sm" id="audit-space-reset" type="button">Reset view</button></div>'+ 
-      '<div class="audit-space-wrap"><canvas id="audit-space-canvas" tabindex="0" aria-label="Interactive three-dimensional map of audit subjects and their grouped audits"></canvas><div class="audit-space-tip" id="audit-space-tip"></div>'+ 
-      '<div class="audit-space-help">Drag to rotate · Scroll to zoom · Click a node for details</div><div class="audit-space-key"><span><i style="background:#2F80FF"></i>Subject</span><span><i style="background:#19D67F"></i>Audit outcome</span></div></div>'+ 
-      '<div class="audit-space-detail" id="audit-space-detail"></div></div>';
+    out+=auditSubjectMapCard(auditSubjects,false);
   }
 
   /* Outcome wheel and evidence funnel. */
@@ -3128,6 +3149,18 @@ $("#btn-reports-fullscreen").addEventListener("click",function(){
   var tab=window.open(url.toString(),"_blank");
   if(tab) tab.opener=null;
   if(!tab) toast("Your browser blocked the full-screen Reports tab. Allow pop-ups for this site and try again.",true);
+});
+document.addEventListener("click",function(e){
+  if(!e.target.closest("#audit-space-expand")) return;
+  if(AUDIT_MAP_FULLSCREEN){
+    window.close();
+    setTimeout(function(){var back=new URL(location.href);back.searchParams.delete("auditMap");location.href=back.toString()},80);
+    return;
+  }
+  var url=new URL(location.href);url.searchParams.delete("reports");url.searchParams.set("auditMap","fullscreen");
+  var tab=window.open(url.toString(),"_blank");
+  if(tab) tab.opener=null;
+  if(!tab) toast("Your browser blocked the expanded map tab. Allow pop-ups for this site and try again.",true);
 });
 
 /* ---------------- records ---------------- */
@@ -3282,6 +3315,7 @@ function hydrate(){
 }
 hydrate(); renderSteps(); show("reports");
 if(REPORTS_FULLSCREEN){$("#launch-overlay").hidden=true;$("#btn-reports-fullscreen").textContent="× Close full screen";document.title="RAB·BIT Reports";}
+if(AUDIT_MAP_FULLSCREEN){$("#launch-overlay").hidden=true;document.title="RAB·BIT Audit Subject Map";}
 S.retrieved=retrieve(); renderPassages();
 $("#st2").textContent=S.retrieved.length+" passages"; $("#pipe").children[1].classList.toggle("done",S.retrieved.length>0);
 })();
