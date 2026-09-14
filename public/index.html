@@ -805,7 +805,8 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
       <button data-p="rag"><span class="ic ic-nav ic-3" data-ic="layers"></span><span class="nav-t">Trusted Sources</span><span class="nav-dot" id="dot-rag"></span></button>
       <button data-p="judge"><span class="ic ic-nav ic-4" data-ic="meter"></span><span class="nav-t">Judge &amp; tests</span><span class="nav-dot" id="dot-judge"></span></button>
       <div class="nav-h" style="padding-top:14px">Governance</div>
-      <button data-p="ops"><span class="ic ic-nav ic-2" data-ic="target"></span><span class="nav-t">Operations</span><span class="nav-dot" id="dot-ops"></span></button>
+      <button data-p="policy"><span class="ic ic-nav ic-2" data-ic="target"></span><span class="nav-t">Verification Policy</span><span class="nav-dot" id="dot-policy"></span></button>
+      <button data-p="ops"><span class="ic ic-nav ic-5" data-ic="meter"></span><span class="nav-t">Operations</span><span class="nav-dot" id="dot-ops"></span></button>
       <div class="nav-h" style="padding-top:14px">Archive</div>
       <button data-p="records"><span class="ic ic-nav ic-5" data-ic="archive"></span><span class="nav-t">Saved audits</span><span class="nav-dot" id="dot-records"></span></button>
       <button data-p="reports" aria-current="true"><span class="ic ic-nav ic-1" data-ic="chart"></span><span class="nav-t">Reports</span><span class="nav-dot" id="dot-reports"></span></button>
@@ -913,11 +914,6 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
                     <button data-v="coarse">Coarse</button><button data-v="balanced">Balanced</button><button data-v="fine">Fine</button>
                   </div>
                   <span class="dial-n" id="n-gran"></span></div>
-                <div class="dial-u"><span class="dial-h"><span class="dial-l">Standard of proof</span></span>
-                  <div class="seg" data-seg="proof">
-                    <button data-v="1">1 tick</button><button data-v="2">2 ticks</button>
-                  </div>
-                  <span class="dial-n" id="n-proof"></span></div>
               </div>
               <div class="hint" id="extract-status"></div>
             </div>
@@ -1094,16 +1090,6 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
                 <label class="fld"><span class="fld-k">Trusted Reference or Answer Key (Optional)</span>
                   <textarea id="judge-ref" rows="4" placeholder="Paste a trusted source, correct answer, policy, or answer key here."></textarea></label>
                 <div class="hint">The Judge will compare the AI response against this material. Leave it blank if no official reference is available; the Judge will then evaluate consistency, clarity, uncertainty, and traceability without claiming the answer matches an official source.</div>
-                <div class="dials">
-                  <div class="dial-u"><span class="dial-h"><span class="dial-l">Strictness</span></span>
-                    <div class="seg" data-seg="strict">
-                      <button data-v="lenient">Lenient</button><button data-v="standard">Standard</button><button data-v="harsh">Strict</button>
-                    </div>
-                    <span class="dial-n" id="n-strict"></span></div>
-                  <label class="dial-u"><span class="dial-h"><span class="dial-l">Pass mark</span><span class="dial-v" id="v-pass">3.5</span></span>
-                    <input type="range" id="d-pass" min="1" max="5" step="0.5" value="3.5">
-                    <span class="dial-n">An average below this flags the audit in the header, whatever the claim ledger says.</span></label>
-                </div>
               </div>
             </div>
             <div class="note"><b>The rubric is yours to own.</b> A judge scales the checking; it does not transfer the accountability. Spot-check its grades on a sample every cycle.</div>
@@ -1116,14 +1102,65 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
         </div>
       </section>
 
-      <!-- ============ OPERATIONS & GOVERNANCE ============ -->
+      <!-- ============ VERIFICATION POLICY ============ -->
+      <section class="panel" id="p-policy">
+        <div class="phead">
+          <div>
+            <span class="ic ic-head ic-2" data-ic="target"></span>
+            <div class="kicker">Governance · verification policy</div>
+            <h1 class="ptitle">Define what “verified” means</h1>
+            <p class="psub">Set organization-wide evidence and scoring requirements once, then apply them consistently to each audit.</p>
+          </div>
+        </div>
+
+        <div class="grid-side">
+          <div style="display:flex;flex-direction:column;gap:18px">
+            <div class="card">
+              <div class="card-h"><span class="card-t">Shared policy profiles</span></div>
+              <div class="card-b">
+                <div class="policy-row">
+                  <select id="policy-profile" aria-label="Verification policy profile">
+                    <option value="standard">Standard review</option>
+                    <option value="high">High-stakes review</option>
+                    <option value="rapid">Rapid screening</option>
+                  </select>
+                  <button class="btn pri" id="btn-policy-apply">Apply policy</button>
+                </div>
+                <div class="policy-summary" id="policy-summary"></div>
+              </div>
+            </div>
+            <div class="note"><b>Profiles apply to the current audit.</b> They set claim detail, evidence thresholds, judge calibration, citation and uncertainty requirements, and refusal guardrails together.</div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><span class="card-t">Verification thresholds</span><span class="hint">Current audit</span></div>
+            <div class="card-b" style="display:flex;flex-direction:column;gap:16px">
+              <div class="dial-u"><span class="dial-h"><span class="dial-l">Standard of proof</span></span>
+                <div class="seg" data-seg="proof">
+                  <button data-v="1">1 tick</button><button data-v="2">2 ticks</button>
+                </div>
+                <span class="dial-n" id="n-proof"></span></div>
+              <div class="dial-u"><span class="dial-h"><span class="dial-l">Judge strictness</span></span>
+                <div class="seg" data-seg="strict">
+                  <button data-v="lenient">Lenient</button><button data-v="standard">Standard</button><button data-v="harsh">Strict</button>
+                </div>
+                <span class="dial-n" id="n-strict"></span></div>
+              <label class="dial-u"><span class="dial-h"><span class="dial-l">Judge pass mark</span><span class="dial-v" id="v-pass">3.5</span></span>
+                <input type="range" id="d-pass" min="1" max="5" step="0.5" value="3.5">
+                <span class="dial-n">An average below this flags the audit in the header, whatever the claim ledger says.</span></label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ OPERATIONS ============ -->
       <section class="panel" id="p-ops">
         <div class="phead">
           <div>
             <span class="ic ic-head ic-2" data-ic="target"></span>
             <div class="kicker">Governance · live control plane</div>
-            <h1 class="ptitle">Set the standard, then watch the system</h1>
-            <p class="psub">Apply a reusable verification policy, see whether this audit is ready to approve, and monitor the model connections that power the workbench.</p>
+            <h1 class="ptitle">Watch readiness and service health</h1>
+            <p class="psub">See whether this audit is ready to approve and monitor the model connections that power the workbench.</p>
           </div>
           <div class="row"><button class="btn" id="btn-ops-refresh">Refresh telemetry</button></div>
         </div>
@@ -1141,20 +1178,6 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
           </div>
 
           <div style="display:flex;flex-direction:column;gap:18px">
-            <div class="card">
-              <div class="card-h"><span class="card-t">Shared policy profiles</span></div>
-              <div class="card-b">
-                <div class="policy-row">
-                  <select id="policy-profile" aria-label="Verification policy profile">
-                    <option value="standard">Standard review</option>
-                    <option value="high">High-stakes review</option>
-                    <option value="rapid">Rapid screening</option>
-                  </select>
-                  <button class="btn pri" id="btn-policy-apply">Apply policy</button>
-                </div>
-                <div class="policy-summary" id="policy-summary"></div>
-              </div>
-            </div>
             <div class="card">
               <div class="card-h"><span class="card-t">Provider health</span><span class="hint" id="ops-summary"></span></div>
               <div class="card-b"><div class="health-list" id="ops-health"></div></div>
@@ -1667,7 +1690,7 @@ var HELP_KB=[
 
 function helpState(){
   var panel=(document.querySelector(".panel.on")||{}).id||"", names={
-    "p-check":"Fact-check","p-student":"Student Module","p-console":"AI Instructions","p-rag":"Trusted Sources","p-judge":"Judge & tests","p-ops":"Operations","p-reports":"Reports","p-records":"Saved audits"};
+    "p-check":"Fact-check","p-student":"Student Module","p-console":"AI Instructions","p-rag":"Trusted Sources","p-judge":"Judge & tests","p-policy":"Verification Policy","p-ops":"Operations","p-reports":"Reports","p-records":"Saved audits"};
   var n=function(st){return S.claims.filter(function(c){return c.status===st}).length};
   var st=steps()[curStep()];
   return ["WHAT THE USER IS LOOKING AT RIGHT NOW (use it only if relevant):",
@@ -2069,6 +2092,7 @@ function stats(){
   $("#ledger-count").textContent=c.length?"· "+c.length+" claims":"";
   $("#dot-check").classList.toggle("on",c.length>0);
   $("#dot-console").classList.add("on");
+  $("#dot-policy").classList.add("on");
   $("#dot-rag").classList.toggle("on",!!S.answer);
   $("#dot-judge").classList.toggle("on",!!S.scores);
   renderSteps();
@@ -3295,7 +3319,7 @@ function hydrate(){
   renderModelSelect(); renderModelNote(); renderRunButton();
   $("#rag-q").value=S.question; $("#judge-ref").value=S.judgeRef;
   $("#ex-badge").innerHTML=S.isExample?'<span class="exbadge">Example</span>':"";
-  renderSwitches(); renderConsole(); renderDials(); renderSources(); renderPassages(); renderAnswer();
+  renderSwitches(); renderConsole(); renderDials(); renderPolicy(); renderSources(); renderPassages(); renderAnswer();
   renderLedger(); renderRubric(); renderHelp();
 }
 hydrate(); renderSteps(); show("reports");
