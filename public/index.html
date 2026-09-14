@@ -3044,6 +3044,10 @@ function renderReports(){
     (models.length?modelPieWidget(models):"")+
   '</div>';
 
+  if(auditSubjects.length){
+    out+=auditSubjectMapCard(auditSubjects,false);
+  }
+
   out+='<div class="card report-card" style="--report-color:#2F80FF"><div class="card-h"><span class="card-t">Claims checked · last 30 days</span><span class="hint">Daily human review volume</span></div><div class="card-b">'+claimsLineChart(REPORTS.claimsDaily)+'</div></div>';
   var judgePct=Number(q.judgeCoverage||0),judgedCount=Math.round(judgePct*Number(t.audits||0)/100);
   out+='<div class="report-grid2"><div class="card report-card claims-gauge-card" style="--report-color:#19D67F"><div class="card-h"><span class="card-t">Claims checked percentage</span><span class="hint">All saved claims</span></div>'+percentageGauge(pct(checked,t.claims||0),checked+' of '+Number(t.claims||0)+' extracted claims have a human verdict','claimsGaugeBright','of claims checked')+'</div>'+ 
@@ -3057,10 +3061,6 @@ function renderReports(){
     var maxWord=Math.max.apply(null,brainstormWords.map(function(r){return Number(r.count||0)}))||1;
     out+='<div class="student-report-grid"><div class="card report-card" style="--report-color:#35C866"><div class="card-h"><span class="card-t">Student activities</span><span class="hint">'+studentTotal+' saved</span></div><div class="card-b"><div class="chart">'+studentActivities.map(function(r){return bar(r.label,studentColors[r.activity],String(r.audits),100*Number(r.audits||0)/maxStudent,pct(r.audits,studentTotal)+"%");}).join("")+'</div></div></div>'+ 
       '<div class="card report-card" style="--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Brainstorm idea cloud</span><span class="hint">Words across saved brainstorms</span></div><div class="card-b"><div class="word-cloud">'+(brainstormWords.length?brainstormWords.map(function(r,i){var size=.78+1.35*Number(r.count||0)/maxWord;var colors=["#8B5CF6","#2F80FF","#EC4899","#00AEBE","#28A95C","#F07824"];return '<span title="'+r.count+' mentions" style="font-size:'+size.toFixed(2)+'rem;--word-color:'+colors[i%colors.length]+'">'+esc(r.word)+'</span>';}).join(""):'<span style="font-size:.85rem">Save a brainstorm to grow this cloud.</span>')+'</div></div></div></div>';
-  }
-
-  if(auditSubjects.length){
-    out+=auditSubjectMapCard(auditSubjects,false);
   }
 
   /* Outcome wheel and evidence funnel. */
