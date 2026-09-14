@@ -250,6 +250,9 @@ app.post("/api/ask",
     const question = String(req.body?.question || "").trim().slice(0, 12000);
     if (!question) return fail(res, 400, "invalid_request", "Enter a question for the AI model.");
     const studentMode = ["brainstorm", "research", "homework"].includes(String(req.body?.studentMode || "")) ? String(req.body.studentMode) : null;
+    const temperature = Math.max(0, Math.min(1, Number(req.body?.temperature ?? 0.1) || 0));
+    const responseMode = ["none", "steps", "evidence", "assumptions"].includes(String(req.body?.responseMode || ""))
+      ? String(req.body.responseMode) : "none";
     const requested = String(req.body?.model || "").trim();
     const picked = byId(requested);
     if (!picked || !["openai", "anthropic"].includes(picked.provider)) {
@@ -261,23 +264,34 @@ app.post("/api/ask",
 
     let upstream;
     try {
-      let instructions = "You are an AI assistant inside RAB·BIT Verification Workbench. Answer the user's question clearly and directly. Do not claim to have browsed or verified live sources. State meaningful uncertainty instead of guessing. The answer will be separated into claims for human verification.";
+      let instructions = "You are an AI assistant inside RAB·BIT Verification Workbench. Answer the user's question clearly. Do not claim to have browsed or verified live sources. State meaningful uncertainty instead of guessing. The answer will be separated into claims for human verification.";
       if (studentMode) {
         instructions += " You are now a friendly learning coach for an elementary school student. Use clear, age-appropriate language, short sentences, and explain unfamiliar words. Never ask for or encourage the student to share a name, school, address, phone number, exact location, or other identifying information. Keep all material child-safe. Help the student learn and make choices; do not impersonate the student or say the work is their own.";
         if (studentMode === "brainstorm") instructions += " Give 8 varied, numbered ideas with one short explanation each. Do not write a finished assignment. End with two simple questions that help the student choose an idea.";
         if (studentMode === "research") instructions += " Help plan a research paper. Offer a manageable topic or angle, a simple outline, useful search terms, key questions, and a checklist for finding and verifying trustworthy sources. Do not write a finished paper for submission.";
         if (studentMode === "homework") instructions += " Teach step by step. Start with a helpful hint, invite the student to try, and then explain the reasoning clearly. Do not merely give an unsupported final answer.";
+      } else {
+        if (responseMode === "steps") instructions += " Organize the response as a concise numbered explanation followed by a clear final answer. Show only reasoning and evidence a reviewer can evaluate; do not expose hidden internal reasoning.";
+        if (responseMode === "evidence") instructions += " Use two sections: SUPPORTING INFORMATION and ANSWER. Separate the facts relied on from the conclusion, and do not invent citations.";
+        if (responseMode === "assumptions") instructions += " Begin with ASSUMPTIONS AND UNKNOWNS, then answer while clearly identifying conclusions that depend on those assumptions.";
+        if (responseMode === "none") instructions += " Answer directly without a separate reasoning section.";
+      }
+      const anthropicBody = { model: picked.apiId, system: instructions, max_tokens: 2500, messages: [{ role: "user", content: question }] };
+      const openAiBody = { model: picked.apiId, instructions, input: question, max_output_tokens: 2500, store: false };
+      if (!studentMode) {
+        anthropicBody.temperature = temperature;
+        openAiBody.temperature = temperature;
       }
       upstream = picked.provider === "anthropic"
         ? await fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
             headers: { "content-type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-            body: JSON.stringify({ model: picked.apiId, system: instructions, max_tokens: 2500, messages: [{ role: "user", content: question }] }),
+            body: JSON.stringify(anthropicBody),
           })
         : await fetch("https://api.openai.com/v1/responses", {
             method: "POST",
             headers: { "content-type": "application/json", authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
-            body: JSON.stringify({ model: picked.apiId, instructions, input: question, max_output_tokens: 2500, store: false }),
+            body: JSON.stringify(openAiBody),
           });
     } catch (e) {
       return fail(res, 502, "upstream_error", `Could not reach ${picked.label}: ${e.message}`);
@@ -295,7 +309,7 @@ app.post("/api/ask",
       : (data.output || []).filter((item) => item.type === "message").flatMap((item) => item.content || [])
           .filter((part) => part.type === "output_text").map((part) => part.text || "").join("").trim();
     if (!answer) return fail(res, 502, "empty_completion", `${picked.label} returned no answer.`);
-    res.json({ answer, model: picked.id, label: picked.label, provider: picked.provider });
+    res.json({ answer, model: picked.id, label: picked.label, provider: picked.provider, temperature: studentMode ? null : temperature, responseMode: studentMode ? null : responseMode });
   }
 );
 
