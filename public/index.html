@@ -3232,10 +3232,6 @@ function renderReports(){
     out+='</div>';
   }
 
-  /* Judge performance. */
-  var criteria=REPORTS.criteria||[];
-  if(criteria.length) out+='<div class="card report-card" style="margin-top:18px;--report-color:#19D67F"><div class="card-h"><span class="card-t">Judge rubric averages</span></div><div class="card-b"><div class="chart">'+criteria.map(function(r){var v=Number(r.average||0);return bar(r.criterion,REPORT_STATUS_COLORS.verified,v.toFixed(1)+"/5",20*v,r.scores+" scores")}).join("")+'</div></div></div>';
-
   /* Recent audit table makes the dashboard actionable, not just aggregate. */
   var recent=REPORTS.recent||[];
   if(recent.length){
