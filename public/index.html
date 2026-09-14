@@ -905,7 +905,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
                   <span class="dial-n" id="n-gran"></span></div>
                 <div class="dial-u"><span class="dial-h"><span class="dial-l">Standard of proof</span></span>
                   <div class="seg" data-seg="proof">
-                    <button data-v="1">1 tick</button><button data-v="2">2 ticks</button><button data-v="3">All three</button>
+                    <button data-v="1">1 tick</button><button data-v="2">2 ticks</button>
                   </div>
                   <span class="dial-n" id="n-proof"></span></div>
               </div>
@@ -1636,7 +1636,7 @@ var HELP_KB=[
 "",
 "STUDENT MODULE. Brainstorm asks for a topic, then offers a brain-shaped button and a model picker. It returns eight age-friendly ideas rather than a finished assignment. Research Paper routes through Ask AI with a learning-coach prompt that builds a topic, outline, search terms, questions, and source checklist. Homework Question routes through Ask AI with hints and step-by-step teaching. Both automatically continue to fact-checking. Student prompts tell the model not to request personal information and not to impersonate the child. Saved work appears in Reports as activity counts and a word cloud made from saved brainstorms.",
 "",
-"FACT-CHECK PANEL. Paste the answer, press Extract claims, and an available model splits it into checkable claims with suggested search queries linked to Google Search and Scholar. Each claim starts Unverified. You set the outcome: Verified, Unsupported, Refuted, or Opinion. Opinion means the statement is subjective and cannot be proven true or false; it counts as reviewed but never as a verified fact. Three Source Check ticks record the work: claim isolated, citation provided, independent source matched. ChatGPT and Gemini can run automatic AI cross-checks when their API keys are connected. Without a Claude API key, the Claude button copies the question and opens the free Claude website; paste Claude's answer back into the claim to save it. AI cross-checks never change a claim's status. Two dials: claim granularity (coarse 8 claims / balanced 15 / fine 25) and STANDARD OF PROOF, which sets how many of the three ticks are required before a claim may be marked Verified — below that bar the Verified button is disabled and clicking it explains why. Raising the bar shows a banner offering to reopen claims cleared under a lower standard.",
+"FACT-CHECK PANEL. Paste the answer, press Extract claims, and an available model splits it into checkable claims with suggested search queries linked to Google Search and Scholar. Each claim starts Unverified. You set the outcome: Verified, Unsupported, Refuted, or Opinion. Opinion means the statement is subjective and cannot be proven true or false; it counts as reviewed but never as a verified fact. Two Source Check ticks record the work: claim isolated and independent source matched. ChatGPT and Gemini can run automatic AI cross-checks when their API keys are connected. Without a Claude API key, the Claude button copies the question and opens the free Claude website; paste Claude's answer back into the claim to save it. AI cross-checks never change a claim's status. Two dials: claim granularity (coarse 8 claims / balanced 15 / fine 25) and STANDARD OF PROOF, which requires either one or both Source Check ticks before a claim may be marked Verified. Raising the bar shows a banner offering to reopen claims cleared under the lower standard.",
 "",
 "AI INSTRUCTIONS. Use the temperature dial and plain-language switches to tell the AI how to answer: stay grounded, include citations, flag uncertainty, refuse rather than guess, and identify what could not be answered. RAB·BIT compiles those choices into a prompt you can copy. The run button sends the answer to the fact-check ledger. Temperature is live in this deployment: the value is sent with every run. Internal calls such as extraction, AI cross-checks, and judging always run at 0 so they do not vary.",
 "",
@@ -1663,7 +1663,7 @@ function helpState(){
     "Guided path: "+PATHS[S.wiz.path].label+", on step "+(curStep()+1)+" of "+steps().length+" ("+st.n+")",
     "Response pasted: "+((S.response||"").trim()?"yes, "+S.response.trim().length+" characters":"no"),
     "Claims: "+S.claims.length+" total — "+n("verified")+" verified, "+n("unsupported")+" unsupported, "+n("refuted")+" refuted, "+n("opinion")+" opinion, "+n("unverified")+" still unverified",
-    "Standard of proof: "+S.cfg.proof+" of 3 source-check ticks required to mark a claim Verified",
+    "Standard of proof: "+S.cfg.proof+" of 2 source-check ticks required to mark a claim Verified",
     "Claim granularity: "+S.cfg.gran,
     "Evidence sources loaded: "+S.sources.filter(function(x){return (x.text||"").trim()}).length,
     "Retrieval: top "+S.cfg.topK+" passages, minimum match "+S.cfg.minMatch+"%",
@@ -2077,12 +2077,11 @@ var STRICT_NOTE={
   standard:"5 means a domain expert would sign it off unchanged.",
   harsh:"5 is reserved for work that survives hostile review untouched. Expect lower scores."
 };
-function ticksOn(c){ return (c.checks.claim?1:0)+(c.checks.citation?1:0)+(c.checks.independent?1:0) }
+function ticksOn(c){ return (c.checks.claim?1:0)+(c.checks.independent?1:0) }
 function meetsProof(c){ return ticksOn(c)>=S.cfg.proof }
 var PROOF_NOTE={
-  1:"One tick is enough to mark a claim Verified. Fastest, and the weakest record.",
-  2:"A claim needs two of the three ticks before it can be Verified.",
-  3:"Nothing is Verified without all three, including an independent source. The strictest standard."
+  1:"The claim only needs to be isolated before it can be marked Verified. Fastest, but the weaker standard.",
+  2:"The claim must be isolated and matched to an independent source before it can be Verified. The stronger standard."
 };
 function setSeg(name,val){
   document.querySelectorAll('[data-seg="'+name+'"] button').forEach(function(b){
@@ -2173,7 +2172,7 @@ function renderLedger(){
         '<div class="claim-meta"><div class="statuses">'+STATUSES.map(function(s){
           var block=s[0]==="verified"&&!meetsProof(c);
           return '<button class="st" data-act="status" data-v="'+s[0]+'" aria-pressed="'+(c.status===s[0])+'"'+
-            (block?' data-blocked="1" title="Needs '+S.cfg.proof+' of the 3 source checks before this claim can be cleared"':"")+'>'+s[1]+'</button>'}).join("")+'</div></div>'+
+            (block?' data-blocked="1" title="Needs '+S.cfg.proof+' of the 2 source checks before this claim can be cleared"':"")+'>'+s[1]+'</button>'}).join("")+'</div></div>'+ 
         (c.why?'<p class="claim-why">'+esc(c.why)+'</p>':"")+
       '</div></div>'+
       '<div class="claim-body">'+
@@ -2190,7 +2189,7 @@ function renderLedger(){
           '<div class="row"><button class="btn sm ghost" data-act="del">Remove claim</button></div>'+
         '</div>'+
         '<div class="srccheck"><h4>Source check</h4>'+
-          [["claim","Claim isolated"],["citation","Citation provided"],["independent","Independent source matched"]].map(function(k){
+          [["claim","Claim isolated"],["independent","Independent source matched"]].map(function(k){
             return '<div class="srcrow"><span>'+k[1]+'</span><button class="tick" data-act="tick" data-k="'+k[0]+'" aria-pressed="'+(!!c.checks[k[0]])+'" aria-label="'+k[1]+'">✓</button></div>'
           }).join("")+
         '</div>'+
@@ -2206,7 +2205,7 @@ $("#ledger").addEventListener("click",function(e){
   var a=b.dataset.act;
   if(a==="status"){
     if(b.dataset.blocked){
-      toast("This claim needs "+S.cfg.proof+" of the 3 source checks before it can be Verified. Tick them on the right as you do the work.",true);
+      toast("This claim needs "+S.cfg.proof+" of the 2 source checks before it can be Verified. Tick them on the right as you do the work.",true);
       return;
     }
     c.status=b.dataset.v; renderLedger();
@@ -2365,7 +2364,7 @@ $("#btn-extract").addEventListener("click",function(){
     S.claims=arr.slice(0,G.n).map(function(c){
       return {id:uid(),text:String(c.text||"").trim(),type:String(c.type||"general"),risk:["high","medium","low"].indexOf(c.risk)>=0?c.risk:"medium",
         why:String(c.why||""),queries:Array.isArray(c.queries)?c.queries.map(String).slice(0,3):[],
-        status:"unverified",checks:{claim:true,citation:false,independent:false},aiChecks:{},note:"",url:""};
+        status:"unverified",checks:{claim:true,independent:false},aiChecks:{},note:"",url:""};
     }).filter(function(c){return c.text});
     S.isExample=false; $("#ex-badge").innerHTML="";
     st.innerHTML=S.claims.length+" claims extracted. Every one starts unverified — clearing them is the human step.";
@@ -2374,7 +2373,7 @@ $("#btn-extract").addEventListener("click",function(){
   .then(function(){btn.disabled=false});
 });
 $("#btn-addclaim").addEventListener("click",function(){
-  S.claims.push({id:uid(),text:"New claim — edit the text in the response and re-extract, or note it here.",type:"general",risk:"medium",why:"",queries:[],status:"unverified",checks:{claim:true,citation:false,independent:false},aiChecks:{},note:"",url:""});
+  S.claims.push({id:uid(),text:"New claim — edit the text in the response and re-extract, or note it here.",type:"general",risk:"medium",why:"",queries:[],status:"unverified",checks:{claim:true,independent:false},aiChecks:{},note:"",url:""});
   renderLedger();
 });
 $("#btn-clearclaims").addEventListener("click",function(){ S.claims=[]; renderLedger(); });
@@ -2794,8 +2793,8 @@ $("#btn-judge").addEventListener("click",function(){
    health without exposing the content or credentials moving through it. */
 var OPS=null, opsBusy=false;
 var POLICIES={
-  standard:{name:"Standard review",desc:"Balanced claim splitting, two verification checks, grounded answers, citations, explicit uncertainty, and a 3.5 judge pass mark.",cfg:{gran:"balanced",proof:2,strict:"standard",pass:3.5,ground:true,cite:true,uncert:true,refuse:true,scope:true}},
-  high:{name:"High-stakes review",desc:"Fine-grained claims, all three verification checks, harsh judging, and a 4.2 pass mark. Use for legal, medical, financial, or executive decisions.",cfg:{gran:"fine",proof:3,strict:"harsh",pass:4.2,ground:true,cite:true,uncert:true,refuse:true,scope:true}},
+  standard:{name:"Standard review",desc:"Balanced claim splitting, both verification checks, grounded answers, citations, explicit uncertainty, and a 3.5 judge pass mark.",cfg:{gran:"balanced",proof:2,strict:"standard",pass:3.5,ground:true,cite:true,uncert:true,refuse:true,scope:true}},
+  high:{name:"High-stakes review",desc:"Fine-grained claims, both verification checks, harsh judging, and a 4.2 pass mark. Use for legal, medical, financial, or executive decisions.",cfg:{gran:"fine",proof:2,strict:"harsh",pass:4.2,ground:true,cite:true,uncert:true,refuse:true,scope:true}},
   rapid:{name:"Rapid screening",desc:"Coarse claims and one verification check with a 3.0 judge threshold. Useful for triage only; it is not an approval standard.",cfg:{gran:"coarse",proof:1,strict:"lenient",pass:3,ground:true,cite:true,uncert:true,refuse:false,scope:true}}
 };
 function currentPolicy(){ return POLICIES[$("#policy-profile").value]||POLICIES.standard }
@@ -3051,7 +3050,7 @@ function renderReports(){
     legend+='<div class="report-legend-row"><i style="background:'+m[2]+'"></i><span>'+esc(m[1])+'</span><b>'+n+' · '+pct(n,t.claims||1)+'%</b></div>';
   });
   var donut=stops.length?'conic-gradient('+stops.join(",")+')':'var(--surface-3)';
-  var funnel=REPORTS.funnel||{}, funnelRows=[["All claims",funnel.claims,"#2F80FF"],["Claim isolated",funnel.isolated,"#22C7F2"],["Citation recorded",funnel.citations,"#8B5CF6"],["Independent source",funnel.independent,"#00C2A8"],["Verified",funnel.verified,REPORT_STATUS_COLORS.verified]];
+  var funnel=REPORTS.funnel||{}, funnelRows=[["All claims",funnel.claims,"#2F80FF"],["Claim isolated",funnel.isolated,"#22C7F2"],["Independent source",funnel.independent,"#00C2A8"],["Verified",funnel.verified,REPORT_STATUS_COLORS.verified]];
   out+='<div class="report-grid2"><div class="card report-card" style="--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Claim outcomes</span><span class="hint">'+notCleared+' did not survive</span></div><div class="card-b donut-wrap"><div class="report-donut" style="background:'+donut+'"><div><strong>'+t.claims+'</strong><span>Total claims</span></div></div><div class="report-legend">'+legend+'</div></div></div>'+
     '<div class="card report-card" style="--report-color:#22C7F2"><div class="card-h"><span class="card-t">Evidence completion funnel</span><span class="hint">How claims move toward approval</span></div><div class="card-b"><div class="chart">'+funnelRows.map(function(r){return bar(r[0],r[2],String(r[1]||0),pct(r[1]||0,funnel.claims||1),pct(r[1]||0,funnel.claims||1)+"%")}).join("")+'</div></div></div></div>';
 
@@ -3078,7 +3077,7 @@ function renderReports(){
     var maxV=Math.max.apply(null,verdicts.map(function(v){return v.audits}))||1;
     out+='<div class="card report-card" style="--report-color:#FFB020"><div class="card-h"><span class="card-t">Saved audit verdicts</span></div><div class="card-b"><div class="chart">'+verdicts.map(function(v,i){return bar(v.verdict,reportStatusColor(v.verdict,REPORT_COLORS[(i+3)%REPORT_COLORS.length]),String(v.audits),100*v.audits/maxV,pct(v.audits,t.audits)+"%")}).join("")+'</div>';
     var proofs=REPORTS.proofStandards||[];
-    if(proofs.length) out+='<div class="report-callout" style="margin-top:16px">'+proofs.map(function(p){var proofColor={1:"#FFB020",2:"#2F80FF",3:"#19D67F"}[p.proof]||"#7D8CAA";return '<div class="report-mini" style="--report-color:'+proofColor+'"><b>'+p.audits+'</b><span>'+p.proof+'-tick standard</span></div>'}).join("")+'</div>';
+    if(proofs.length) out+='<div class="report-callout" style="margin-top:16px">'+proofs.map(function(p){var proofColor={1:"#FFB020",2:"#19D67F"}[p.proof]||"#7D8CAA";return '<div class="report-mini" style="--report-color:'+proofColor+'"><b>'+p.audits+'</b><span>'+p.proof+'-tick standard</span></div>'}).join("")+'</div>';
     out+='</div></div>';
   }
   if(wk.length||verdicts.length) out+='</div>';
@@ -3248,8 +3247,8 @@ $("#records").addEventListener("click",function(e){
   S.title=r.title||"Untitled"; S.response=p.response||""; S.prompt=p.prompt||""; S.askQuestion=p.askQuestion||"";
   S.student=p.student||null;
   S.model=p.model||"unspecified"; S.appliedTier=p.appliedTier||null;
-  S.claims=(p.claims||[]).map(function(c){ c.checks=c.checks||{claim:false,citation:false,independent:false}; c.aiChecks=c.aiChecks||{}; return c });
-  S.cfg=Object.assign(S.cfg,p.cfg||{}); S.sources=p.sources||S.sources; S.question=p.question||"";
+  S.claims=(p.claims||[]).map(function(c){ c.checks=c.checks||{claim:false,independent:false}; c.aiChecks=c.aiChecks||{}; return c });
+  S.cfg=Object.assign(S.cfg,p.cfg||{}); S.cfg.proof=Math.min(2,Math.max(1,Number(S.cfg.proof)||2)); S.sources=p.sources||S.sources; S.question=p.question||"";
   S.answer=p.answer||""; S.scores=p.scores||null; S.judgeRef=p.judgeRef||"";
   S.isExample=false; S.saved=true; S.wiz.at=null;
   hydrate(); show(S.student&&S.student.activity==="brainstorm"?"student":"check");
