@@ -813,8 +813,8 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
     </nav>
     <div class="rail-foot">
       <div class="sep"></div>
-      <div class="cap" id="cap-sample"><span class="pip"></span><b>Models</b> checking…</div>
-      <div class="cap" id="cap-db"><span class="pip"></span><b>Archive</b> checking…</div>
+      <div class="cap" id="cap-sample"><span class="pip"></span><b>AI Models</b> checking…</div>
+      <div class="cap" id="cap-db"><span class="pip"></span><b>Supabase</b> checking…</div>
     </div>
   </aside>
 
@@ -1549,13 +1549,13 @@ function apiDb(){
 
     var anyModel=SERVER.models.length>0;
     SAMPLE=anyModel?apiSample:null;
-    capLine($("#cap-sample"),anyModel,"Models",anyModel?SERVER.models.length+" available":"no API key set");
+    capLine($("#cap-sample"),anyModel,"AI Models",anyModel?SERVER.models.length+" available":"no API key set");
     if(!anyModel) document.querySelectorAll("[data-needs-ai]").forEach(function(b){
       b.disabled=true; b.title="No model API key is configured on this deployment";
     });
 
     DB=SERVER.archive?apiDb():null;
-    capLine($("#cap-db"),SERVER.archive,"Archive",SERVER.archive?"connected":"not configured");
+    capLine($("#cap-db"),SERVER.archive,"Supabase",SERVER.archive?"connected":"not configured");
 
     if(SERVER.models.length){
       var preferred=SERVER.models.filter(function(m){return m.provider==="openai"})[0]||SERVER.models[0];
