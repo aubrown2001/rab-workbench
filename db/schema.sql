@@ -26,7 +26,7 @@ create table if not exists audits (
   answer          text,                       -- grounded answer from Create from Trusted Sources
 
   -- the standard it was held to (so a cleared audit is comparable to another)
-  proof_standard  smallint,                   -- 1..3 source-check ticks required
+  proof_standard  smallint,                   -- 1..2 source-check ticks required
   granularity     text,                       -- coarse | balanced | fine
   strictness      text,                       -- lenient | standard | harsh
   pass_mark       numeric(2,1),
@@ -58,7 +58,6 @@ create table if not exists claims (
   risk             text,                      -- high | medium | low
   status           text not null default 'unverified',
   tick_claim       boolean default false,
-  tick_citation    boolean default false,
   tick_independent boolean default false,
   source_url       text,
   note             text
