@@ -3063,7 +3063,7 @@ function renderReports(){
       '<div class="card report-card" style="--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Brainstorm idea cloud</span><span class="hint">Words across saved brainstorms</span></div><div class="card-b"><div class="word-cloud">'+(brainstormWords.length?brainstormWords.map(function(r,i){var size=.78+1.35*Number(r.count||0)/maxWord;var colors=["#8B5CF6","#2F80FF","#EC4899","#00AEBE","#28A95C","#F07824"];return '<span title="'+r.count+' mentions" style="font-size:'+size.toFixed(2)+'rem;--word-color:'+colors[i%colors.length]+'">'+esc(r.word)+'</span>';}).join(""):'<span style="font-size:.85rem">Save a brainstorm to grow this cloud.</span>')+'</div></div></div></div>';
   }
 
-  /* Outcome wheel and evidence funnel. */
+  /* Claim outcomes. */
   var cursor=0, stops=[], legend="";
   STATUS_META.forEach(function(m){
     var n=Number(st[m[0]]||0), start=cursor, end=cursor+pct(n,t.claims||1); cursor=end;
@@ -3071,37 +3071,23 @@ function renderReports(){
     legend+='<div class="report-legend-row"><i style="background:'+m[2]+'"></i><span>'+esc(m[1])+'</span><b>'+n+' · '+pct(n,t.claims||1)+'%</b></div>';
   });
   var donut=stops.length?'conic-gradient('+stops.join(",")+')':'var(--surface-3)';
-  var funnel=REPORTS.funnel||{}, funnelRows=[["All claims",funnel.claims,"#2F80FF"],["Claim isolated",funnel.isolated,"#22C7F2"],["Independent source",funnel.independent,"#00C2A8"],["Verified",funnel.verified,REPORT_STATUS_COLORS.verified]];
-  out+='<div class="report-grid2"><div class="card report-card" style="--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Claim outcomes</span><span class="hint">'+notCleared+' did not survive</span></div><div class="card-b donut-wrap"><div class="report-donut" style="background:'+donut+'"><div><strong>'+t.claims+'</strong><span>Total claims</span></div></div><div class="report-legend">'+legend+'</div></div></div>'+
-    '<div class="card report-card" style="--report-color:#22C7F2"><div class="card-h"><span class="card-t">Evidence completion funnel</span><span class="hint">How claims move toward approval</span></div><div class="card-b"><div class="chart">'+funnelRows.map(function(r){return bar(r[0],r[2],String(r[1]||0),pct(r[1]||0,funnel.claims||1),pct(r[1]||0,funnel.claims||1)+"%")}).join("")+'</div></div></div></div>';
+  out+='<div class="card report-card" style="--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Claim outcomes</span><span class="hint">'+notCleared+' did not survive</span></div><div class="card-b donut-wrap"><div class="report-donut" style="background:'+donut+'"><div><strong>'+t.claims+'</strong><span>Total claims</span></div></div><div class="report-legend">'+legend+'</div></div></div>';
 
   /* Judge performance. */
   var criteria=REPORTS.criteria||[];
   if(criteria.length) out+='<div class="card report-card" style="margin-top:18px;--report-color:#19D67F"><div class="card-h"><span class="card-t">Judge rubric averages</span></div><div class="card-b"><div class="chart">'+criteria.map(function(r){var v=Number(r.average||0);return bar(r.criterion,REPORT_STATUS_COLORS.verified,v.toFixed(1)+"/5",20*v,r.scores+" scores")}).join("")+'</div></div></div>';
 
-  /* Audit outcomes and activity over time. */
+  /* Audit activity over time. */
   var wk=(REPORTS.weekly||[]).slice(-12);
-  var verdicts=REPORTS.verdicts||[];
-  if(wk.length||verdicts.length){
-    out+='<div class="report-grid2">';
-  }
   if(wk.length){
     var maxW=Math.max.apply(null,wk.map(function(w){return w.audits}))||1;
-    out+='<div class="card report-card" style="--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Audits per week</span></div><div class="card-b">'+
+    out+='<div class="card report-card" style="margin-top:18px;--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Audits per week</span></div><div class="card-b">'+
       '<div class="spark">'+wk.map(function(w,i){
         return '<div style="height:'+Math.max(4,100*w.audits/maxW)+'%;background:#8B5CF6" title="'+esc(w.week)+': '+w.audits+' audits"></div>';
       }).join("")+'</div><div class="sparkx">'+wk.map(function(w){
         return '<span>'+esc(String(w.week).slice(5))+'</span>';
       }).join("")+'</div></div></div>';
   }
-  if(verdicts.length){
-    var maxV=Math.max.apply(null,verdicts.map(function(v){return v.audits}))||1;
-    out+='<div class="card report-card" style="--report-color:#FFB020"><div class="card-h"><span class="card-t">Saved audit verdicts</span></div><div class="card-b"><div class="chart">'+verdicts.map(function(v,i){return bar(v.verdict,reportStatusColor(v.verdict,REPORT_COLORS[(i+3)%REPORT_COLORS.length]),String(v.audits),100*v.audits/maxV,pct(v.audits,t.audits)+"%")}).join("")+'</div>';
-    var proofs=REPORTS.proofStandards||[];
-    if(proofs.length) out+='<div class="report-callout" style="margin-top:16px">'+proofs.map(function(p){var proofColor={1:"#FFB020",2:"#19D67F"}[p.proof]||"#7D8CAA";return '<div class="report-mini" style="--report-color:'+proofColor+'"><b>'+p.audits+'</b><span>'+p.proof+'-tick standard</span></div>'}).join("")+'</div>';
-    out+='</div></div>';
-  }
-  if(wk.length||verdicts.length) out+='</div>';
 
   /* Recent audit table makes the dashboard actionable, not just aggregate. */
   var recent=REPORTS.recent||[];
