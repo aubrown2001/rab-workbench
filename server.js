@@ -249,6 +249,8 @@ app.post("/api/ask",
 
     const question = String(req.body?.question || "").trim().slice(0, 12000);
     if (!question) return fail(res, 400, "invalid_request", "Enter a question for the AI model.");
+    const studentMode = ["brainstorm", "research", "homework"].includes(String(req.body?.studentMode || "")) ? String(req.body.studentMode) : null;
+    const gradeBand = String(req.body?.gradeBand || "") === "k-2" ? "kindergarten through grade 2" : "grades 3 through 5";
     const requested = String(req.body?.model || "").trim();
     const picked = byId(requested);
     if (!picked || !["openai", "anthropic"].includes(picked.provider)) {
@@ -260,7 +262,13 @@ app.post("/api/ask",
 
     let upstream;
     try {
-      const instructions = "You are an AI assistant inside RAB·BIT Verification Workbench. Answer the user's question clearly and directly. Do not claim to have browsed or verified live sources. State meaningful uncertainty instead of guessing. The answer will be separated into claims for human verification.";
+      let instructions = "You are an AI assistant inside RAB·BIT Verification Workbench. Answer the user's question clearly and directly. Do not claim to have browsed or verified live sources. State meaningful uncertainty instead of guessing. The answer will be separated into claims for human verification.";
+      if (studentMode) {
+        instructions += ` You are now a friendly learning coach for an elementary student in ${gradeBand}. Use short, age-appropriate sentences and explain unfamiliar words. Never ask for or encourage the student to share a name, school, address, phone number, exact location, or other identifying information. Keep all material child-safe. Help the student learn and make choices; do not impersonate the student or say the work is their own.`;
+        if (studentMode === "brainstorm") instructions += " Give 8 varied, numbered ideas with one short explanation each. Do not write a finished assignment. End with two simple questions that help the student choose an idea.";
+        if (studentMode === "research") instructions += " Help plan a research paper. Offer a manageable topic or angle, a simple outline, useful search terms, key questions, and a checklist for finding and verifying trustworthy sources. Do not write a finished paper for submission.";
+        if (studentMode === "homework") instructions += " Teach step by step. Start with a helpful hint, invite the student to try, and then explain the reasoning clearly. Do not merely give an unsupported final answer.";
+      }
       upstream = picked.provider === "anthropic"
         ? await fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
@@ -669,7 +677,7 @@ app.get("/api/reports", async (req, res) => {
     const [discipline, weekly, totals, claims, scores] = await Promise.all([
       supa.from("v_review_discipline").select("*").single(),
       supa.from("v_audits_weekly").select("*"),
-      supa.from("audits").select("id,title,prompt,question,created_at,verdict,model_label,judge_avg,claim_count,cleared_count,proof_standard,granularity,strictness").order("created_at", { ascending: false }),
+      supa.from("audits").select("id,title,prompt,question,payload,created_at,verdict,model_label,judge_avg,claim_count,cleared_count,proof_standard,granularity,strictness").order("created_at", { ascending: false }),
       supa.from("claims").select("audit_id,status,claim_type,risk,tick_claim,tick_citation,tick_independent,source_url"),
       supa.from("scores").select("criterion,criterion_name,score"),
     ]);
@@ -677,6 +685,31 @@ app.get("/api/reports", async (req, res) => {
     if (err) return fail(res, 500, "db_error", err.error.message);
 
     const auditRows = totals.data || [];
+    const studentRows = auditRows.map((audit) => {
+      let payload = audit.payload || {};
+      if (typeof payload === "string") { try { payload = JSON.parse(payload); } catch { payload = {}; } }
+      const student = payload?.student;
+      return student && ["brainstorm", "research", "homework"].includes(student.activity) ? { audit, student } : null;
+    }).filter(Boolean);
+    const studentLabels = { brainstorm: "Brainstorm", research: "Research Paper", homework: "Homework Question" };
+    const studentActivities = Object.keys(studentLabels).map((activity) => ({
+      activity, label: studentLabels[activity], audits: studentRows.filter((row) => row.student.activity === activity).length,
+    }));
+    const studentGradeBands = [
+      { gradeBand: "k-2", label: "K–Grade 2", audits: studentRows.filter((row) => row.student.gradeBand === "k-2").length },
+      { gradeBand: "3-5", label: "Grades 3–5", audits: studentRows.filter((row) => row.student.gradeBand !== "k-2").length },
+    ];
+    const stopWords = new Set("about after again also and are because been before being but can could did does doing each for from get have here how into its just like make more most not now our out over same should some than that the their them then there these they this through too use very was were what when where which who will with would your you idea ideas student students grade paper homework brainstorm please help need want".split(" "));
+    const wordCounts = new Map();
+    studentRows.filter((row) => row.student.activity === "brainstorm").forEach((row) => {
+      const text = `${row.student.topic || ""} ${row.student.ideasText || ""}`.toLowerCase();
+      (text.match(/[a-z][a-z'-]{2,}/g) || []).forEach((word) => {
+        word = word.replace(/^['-]+|['-]+$/g, "");
+        if (word.length < 4 || stopWords.has(word)) return;
+        wordCounts.set(word, (wordCounts.get(word) || 0) + 1);
+      });
+    });
+    const brainstormWords = Array.from(wordCounts, ([word, count]) => ({ word, count })).sort((a, b) => b.count - a.count || a.word.localeCompare(b.word)).slice(0, 45);
     const judged = auditRows.filter((r) => r.judge_avg != null);
     const byStatus = { verified: 0, unsupported: 0, refuted: 0, opinion: 0, unverified: 0 };
     (claims.data || []).forEach((c) => { if (byStatus[c.status] != null) byStatus[c.status]++; });
@@ -784,6 +817,9 @@ app.get("/api/reports", async (req, res) => {
       discipline: discipline.data || null,
       weekly: weekly.data || [],
       claimsDaily,
+      studentActivities,
+      studentGradeBands,
+      brainstormWords,
     });
   } catch (e) {
     fail(res, 500, "db_error", e.message);

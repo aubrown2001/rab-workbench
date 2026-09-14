@@ -20,7 +20,7 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
   <aside class="side">
     <div class="brand-row"><img class="brand-mark" src="/rabbit-mark-full-v2.png" alt=""><div><div class="brand">RAB<span>·BIT</span></div><div class="sub">Help Center</div></div></div>
     <nav aria-label="Help topics">
-      <a href="#start">Start here</a><a href="#topbar">Top bar</a><a href="#factcheck">Fact-check</a><a href="#console">AI Instructions</a><a href="#grounding">Grounding</a><a href="#judge">Judge & tests</a><a href="#operations">Operations</a><a href="#audits">Saved audits</a><a href="#reports">Reports</a><a href="#assistant">Verity</a><a href="#errors">Problems & errors</a><a href="#glossary">Plain-English glossary</a>
+      <a href="#start">Start here</a><a href="#topbar">Top bar</a><a href="#student">Student Module</a><a href="#factcheck">Fact-check</a><a href="#console">AI Instructions</a><a href="#grounding">Grounding</a><a href="#judge">Judge & tests</a><a href="#operations">Operations</a><a href="#audits">Saved audits</a><a href="#reports">Reports</a><a href="#assistant">Verity</a><a href="#errors">Problems & errors</a><a href="#glossary">Plain-English glossary</a>
     </nav>
     <a class="back" href="/">← Back to RAB·BIT</a>
   </aside>
@@ -34,7 +34,7 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
     <div class="no-results" id="no-results">No help topic matched that search. Try a shorter word, or ask Verity inside RAB·BIT.</div>
 
     <section class="section" id="start"><div class="section-head"><span class="num">1</span><h2>Start here</h2></div><div class="grid">
-      <article class="topic wide"><h3>The Reports homepage</h3><p>RAB·BIT opens on Reports with four large choices. <strong>Go to Homepage</strong> removes the welcome choices so you can read the dashboard. A permanent <strong>Start a workflow</strong> bar then remains at the top of Reports with Review an answer, Create from Trusted Sources, and Ask AI. You can use those choices at any time without reopening the welcome screen.</p></article>
+      <article class="topic wide"><h3>The Reports homepage</h3><p>RAB·BIT opens on Reports with five large choices. <strong>Go to Homepage</strong> removes the welcome choices so you can read the dashboard. A permanent <strong>Start a workflow</strong> bar remains at the top with Review an answer, Create from Trusted Sources, Ask AI, and Student Module.</p></article>
       <article class="topic wide"><h3>If you already have an AI answer</h3><div class="steps"><div class="step"><p>Open <strong>Fact-check</strong> and paste the answer.</p></div><div class="step"><p>Press <strong>Extract claims</strong>. RAB·BIT breaks the answer into smaller statements that can be checked.</p></div><div class="step"><p>Check each claim against a real source and record the result.</p></div><div class="step"><p>Optionally use <strong>Judge & tests</strong>, then give the audit a useful name and save it.</p></div></div></article>
       <article class="topic wide"><h3>If you choose Create from Trusted Sources</h3><div class="steps"><div class="step"><p>Add trusted information under <strong>Grounding</strong>.</p></div><div class="step"><p>Use <strong>AI Instructions</strong> to choose the rules for the answer.</p></div><div class="step"><p>Retrieve passages and generate a cited answer.</p></div><div class="step"><p>Send that answer to Fact-check, review it, judge it, and save it.</p></div></div></article>
     </div><div class="callout"><strong>Important:</strong> RAB·BIT helps organize verification. An AI cross-check is a second opinion—not proof. A human still needs to open and read trustworthy sources.</div></section>
@@ -50,7 +50,17 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
       <article class="topic"><h3>Save audit</h3><p>Saves the audit, claims, sources, settings, and scores to the shared Supabase archive.</p></article>
     </div></section>
 
-    <section class="section" id="factcheck"><div class="section-head"><span class="num">3</span><h2>Fact-check</h2></div><div class="grid">
+    <section class="section" id="student"><div class="section-head"><span class="num">3</span><h2>Student Module</h2></div><div class="grid">
+      <article class="topic wide"><h3>What it is</h3><p>A simpler, age-friendly starting place for elementary students. Choose <strong>Brainstorm</strong>, <strong>Research Paper</strong>, or <strong>Homework Question</strong>. The AI is told to coach the student, use suitable language, and avoid asking for identifying information.</p></article>
+      <article class="topic"><h3>Grade level</h3><p>Choose Kindergarten–Grade 2 or Grades 3–5. This changes the wording and amount of explanation the AI uses.</p></article>
+      <article class="topic"><h3>Brainstorm</h3><p>Type what you need ideas about, press the large brain, and choose an AI model. The AI gives several ideas and questions instead of writing a finished assignment. Press <strong>Save brainstorm</strong> so it appears in reporting.</p></article>
+      <article class="topic"><h3>Research Paper</h3><p>Opens Ask AI with a research coach. It helps with a topic, outline, search words, research questions, and a trustworthy-source checklist. The result then goes through the normal claim-verification wizard.</p></article>
+      <article class="topic"><h3>Homework Question</h3><p>Opens Ask AI with a homework coach. It gives hints and explains the reasoning step by step. The result then goes through the normal claim-verification wizard.</p></article>
+      <article class="topic"><h3>Student privacy</h3><p>Students should never enter their name, school, address, phone number, exact location, or other private details. The AI is also instructed not to ask for them.</p></article>
+      <article class="topic"><h3>Student reports</h3><p>Saved student work appears in Reports as activity totals, grade-band totals, and a colorful word cloud made from saved brainstorm topics and ideas.</p></article>
+    </div></section>
+
+    <section class="section" id="factcheck"><div class="section-head"><span class="num">4</span><h2>Fact-check</h2></div><div class="grid">
       <article class="topic"><h3>Review an answer / Create from Trusted Sources / Ask AI</h3><p>Choose whether you pasted an existing answer, are creating one from trusted evidence, or want to ask a connected AI model inside RAB·BIT.</p></article>
       <article class="topic wide"><h3>Ask AI</h3><p>Type a normal question, then press <strong>Choose your AI model</strong>. The dropdown shows the OpenAI and Claude models connected to this RAB·BIT deployment. After you choose one, RAB·BIT records the model, generates the answer, copies it into Fact-check, and extracts its claims. The answer is still unverified until you check those claims against trustworthy sources.</p></article>
       <article class="topic"><h3>AI output to verify</h3><p>Paste the complete answer you want to check here.</p></article>
@@ -74,7 +84,7 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
       <article class="topic"><h3>Save audit to archive</h3><p>Stores the completed record in Supabase so it appears under Saved audits and Reports.</p></article>
     </div></section>
 
-    <section class="section" id="console"><div class="section-head"><span class="num">4</span><h2>AI Instructions</h2></div><div class="grid">
+    <section class="section" id="console"><div class="section-head"><span class="num">5</span><h2>AI Instructions</h2></div><div class="grid">
       <article class="topic"><h3>Run with</h3><p>Selects the connected model RAB·BIT will use to generate an answer.</p></article>
       <article class="topic"><h3>Temperature</h3><p>Low values make answers more repeatable. High values encourage variety. Keep it low for facts and anything you plan to publish.</p></article>
       <article class="topic"><h3>Reasoning format</h3><p>Choose a visible, reviewable structure: direct answer, steps, evidence first, or assumptions and unknowns.</p></article>
@@ -84,7 +94,7 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
       <article class="topic wide"><h3>Run & send to fact-check</h3><p>Runs the selected connected model, places its answer in Fact-check, and starts the verification workflow.</p></article>
     </div></section>
 
-    <section class="section" id="grounding"><div class="section-head"><span class="num">5</span><h2>Grounding</h2></div><div class="grid">
+    <section class="section" id="grounding"><div class="section-head"><span class="num">6</span><h2>Grounding</h2></div><div class="grid">
       <article class="topic"><h3>Evidence set</h3><p>Add policies, approved documents, validated database text, or other trusted material. Paste the actual text—not only a URL.</p></article>
       <article class="topic"><h3>Add source</h3><p>Adds another source box. Give each source a useful title and type.</p></article>
       <article class="topic"><h3>Question</h3><p>Enter the question the model should answer using only the evidence you supplied.</p></article>
@@ -96,7 +106,7 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
       <article class="topic wide"><h3>Send to fact-check</h3><p>Copies the generated cited answer into Fact-check. Grounding reduces guessing, but the claims still need human review.</p></article>
     </div></section>
 
-    <section class="section" id="judge"><div class="section-head"><span class="num">6</span><h2>Judge & tests</h2></div><div class="grid">
+    <section class="section" id="judge"><div class="section-head"><span class="num">7</span><h2>Judge & tests</h2></div><div class="grid">
       <article class="topic"><h3>Reference / ground truth</h3><p>Paste the approved answer or evidence the response should match. Without this, the judge can mainly assess internal quality—not factual agreement.</p></article>
       <article class="topic"><h3>Rubric</h3><p>The list of qualities being scored, such as truthfulness and completeness. You can edit the names and descriptions.</p></article>
       <article class="topic"><h3>Add criterion / Remove</h3><p>Adds a new scoring requirement or removes one you do not need.</p></article>
@@ -107,7 +117,7 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
       <article class="topic"><h3>JSON / CSV baseline test</h3><p>Compares structured model output against known-good data field by field. This is a computer comparison, not an AI opinion.</p></article>
     </div></section>
 
-    <section class="section" id="operations"><div class="section-head"><span class="num">7</span><h2>Operations</h2></div><div class="grid">
+    <section class="section" id="operations"><div class="section-head"><span class="num">8</span><h2>Operations</h2></div><div class="grid">
       <article class="topic"><h3>RAB·BIT Verification Score</h3><p>A transparent 100-point readiness checklist. It rewards captured answers, extracted claims, completed verdicts, sources, cross-checks, grounding, judge results, and a searchable audit name.</p></article>
       <article class="topic"><h3>Policy profiles</h3><p><strong>Standard</strong> is the normal workflow. <strong>High-stakes</strong> applies the strongest settings. <strong>Rapid screening</strong> is for quick triage, not final approval.</p></article>
       <article class="topic"><h3>Apply policy</h3><p>Changes the real proof, granularity, grounding, strictness, and pass-mark settings for the current audit.</p></article>
@@ -117,18 +127,20 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
       <article class="topic wide"><h3>Telemetry privacy</h3><p>Operations records route, status, timing, and provider only. It does not store prompts, answers, claims, API keys, or IP addresses.</p></article>
     </div></section>
 
-    <section class="section" id="audits"><div class="section-head"><span class="num">8</span><h2>Saved audits</h2></div><div class="grid">
+    <section class="section" id="audits"><div class="section-head"><span class="num">9</span><h2>Saved audits</h2></div><div class="grid">
       <article class="topic"><h3>Shared archive</h3><p>Saved audits live in Supabase, so they remain available after the browser closes and can be seen by people who have access to this RAB·BIT site.</p></article>
       <article class="topic"><h3>Refresh</h3><p>Checks Supabase for newly saved or deleted audits.</p></article>
       <article class="topic"><h3>Open</h3><p>Loads that audit back into the workbench so you can examine or continue it.</p></article>
       <article class="topic"><h3>Delete</h3><p>Permanently removes the selected audit and its related claims and scores after confirmation.</p></article>
     </div></section>
 
-    <section class="section" id="reports"><div class="section-head"><span class="num">9</span><h2>Reports</h2></div><div class="grid">
+    <section class="section" id="reports"><div class="section-head"><span class="num">10</span><h2>Reports</h2></div><div class="grid">
       <article class="topic"><h3>Summary cards</h3><p>Show saved audits, source coverage, judge coverage, and average judge score.</p></article>
       <article class="topic"><h3>Claims checked · last 30 days</h3><p>A line graph showing how many claims received a human verdict on each day during the most recent 30 days.</p></article>
       <article class="topic"><h3>Claims checked percentage</h3><p>A speedometer-style gauge showing the percentage of all saved claims that have a human verdict. It includes Verified, Unsupported, Refuted, and Opinion; it excludes claims that are still Unverified.</p></article>
       <article class="topic"><h3>Report colors</h3><p>Outcome colors stay consistent throughout Reports: bright green means Verified or Cleared, amber means Unsupported, pink-red means Refuted, cyan means Opinion, and purple means Unverified or still In review.</p></article>
+      <article class="topic"><h3>Student activities</h3><p>Shows how many Brainstorm, Research Paper, and Homework Question activities were saved, plus totals for each elementary grade band.</p></article>
+      <article class="topic"><h3>Brainstorm idea cloud</h3><p>Turns common words from saved brainstorm topics and AI ideas into a colorful word cloud. Larger words appeared more often.</p></article>
       <article class="topic"><h3>Claim outcomes</h3><p>Shows how many claims were verified, unsupported, refuted, classified as opinion, or still unverified.</p></article>
       <article class="topic"><h3>Evidence completion funnel</h3><p>Shows where review work is dropping off between extracting a claim and verifying it.</p></article>
       <article class="topic"><h3>Failure by risk and type</h3><p>Shows whether high-risk claims or certain claim categories fail more often.</p></article>
@@ -142,14 +154,14 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
       <article class="topic wide"><h3>Refresh</h3><p>Recalculates the dashboard from the latest Supabase records.</p></article>
     </div></section>
 
-    <section class="section" id="assistant"><div class="section-head"><span class="num">10</span><h2>Verity</h2></div><div class="grid">
+    <section class="section" id="assistant"><div class="section-head"><span class="num">11</span><h2>Verity</h2></div><div class="grid">
       <article class="topic wide"><h3>What it can do</h3><p>Press the question-mark button in RAB·BIT and ask Verity a question naturally. Verity receives this product guide plus a short description of your current panel and audit status. It runs through the OpenAI connection and does not change when you select Claude elsewhere.</p></article>
       <article class="topic"><h3>Suggested questions</h3><p>Use the starter buttons, or ask things like “Why can’t I verify this claim?” and “What should I do next?”</p></article>
       <article class="topic"><h3>What it cannot do</h3><p>It explains RAB·BIT. It does not click buttons, change the audit, verify sources, or replace your judgment.</p></article>
       <article class="topic wide"><h3>Helpful and Not helpful</h3><p>Rate any completed answer. Verity uses that guidance for later answers during the current visit. If the Supabase feedback table is installed, RAB·BIT also saves the rating for product improvement. This does not automatically retrain OpenAI’s base model.</p></article>
     </div></section>
 
-    <section class="section" id="errors"><div class="section-head"><span class="num">11</span><h2>Problems and common errors</h2></div><div class="grid">
+    <section class="section" id="errors"><div class="section-head"><span class="num">12</span><h2>Problems and common errors</h2></div><div class="grid">
       <article class="topic"><h3>Too many requests</h3><p>RAB·BIT reached a safety limit or an AI provider limit. Wait about one minute and try once more.</p></article>
       <article class="topic"><h3>Ask AI daily limit</h3><p>The protected Ask AI path allows 8 questions per minute and 100 per day by default. This protects the site owner’s OpenAI and Anthropic accounts from accidental or unauthorized spending.</p></article>
       <article class="topic"><h3>Something went wrong</h3><p>Open Operations and check Provider health and Recent service activity. A red status often contains the useful clue.</p></article>
@@ -161,7 +173,7 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
       <article class="topic"><h3>Reports are empty</h3><p>Reports use saved Supabase audits. Save completed audits first, then press Refresh.</p></article>
     </div></section>
 
-    <section class="section" id="glossary"><div class="section-head"><span class="num">12</span><h2>Plain-English glossary</h2></div>
+    <section class="section" id="glossary"><div class="section-head"><span class="num">13</span><h2>Plain-English glossary</h2></div>
       <dl class="glossary">
         <dt>Audit</dt><dd>One saved review of one AI answer.</dd><dt>Claim</dt><dd>One statement classified as verified, unsupported, refuted, opinion, or not yet reviewed.</dd><dt>Citation</dt><dd>A reference supplied with the answer. It still needs to be opened and checked.</dd><dt>Independent source</dt><dd>A trustworthy source separate from the AI answer and its author.</dd><dt>Grounding</dt><dd>Limiting an AI answer to information you supplied.</dd><dt>RAG</dt><dd>Retrieval-Augmented Generation: find relevant passages first, then answer from them.</dd><dt>Rubric</dt><dd>The list of qualities used to grade an answer.</dd><dt>Judge</dt><dd>A second AI model that scores the answer against the rubric.</dd><dt>Policy profile</dt><dd>A reusable bundle of verification settings.</dd><dt>Telemetry</dt><dd>Technical information about whether an operation worked and how long it took.</dd><dt>Supabase</dt><dd>The hosted PostgreSQL database that stores RAB·BIT’s saved audits and reports.</dd><dt>Render</dt><dd>The hosting service that runs the public RAB·BIT website and server.</dd>
       </dl>

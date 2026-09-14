@@ -723,23 +723,39 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 :root[data-theme="dark"] .launch-brand-copy strong{color:#F2F7FF}:root[data-theme="dark"] .launch-brand-copy small{color:#B9C8E4}
 .launch-card h1{font-family:var(--f-display);font-size:clamp(2rem,3vw,3.25rem);margin:0;color:var(--ink);letter-spacing:-.035em}
 .launch-card p{font-size:1.05rem;color:var(--ink-2);margin:9px auto 26px;max-width:680px;line-height:1.5}
-.launch-orbs{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:24px;align-items:center}
+.launch-orbs{display:grid;grid-template-columns:repeat(5,minmax(130px,1fr));gap:20px;align-items:center}
 .launch-orb{--orb:#1677FF;--orb-dark:#0B4EB8;aspect-ratio:1;border:0;border-radius:50%;padding:18px;color:#fff;font-family:var(--f-display);font-size:clamp(1.2rem,1.65vw,1.55rem);font-weight:800;line-height:1.14;cursor:pointer;position:relative;background:radial-gradient(circle at 32% 24%,rgba(255,255,255,.8) 0 5%,rgba(255,255,255,.2) 7% 18%,transparent 31%),linear-gradient(145deg,var(--orb),var(--orb-dark));box-shadow:inset 0 -13px 20px rgba(0,0,0,.2),inset 0 9px 15px rgba(255,255,255,.25),0 17px 0 color-mix(in srgb,var(--orb-dark) 78%,#071426),0 25px 35px -10px rgba(9,35,76,.55);transform:translateY(-8px);transition:transform .16s ease,box-shadow .16s ease,filter .16s ease;text-shadow:0 2px 5px rgba(0,0,0,.28)}
 .launch-orb:hover{filter:saturate(1.15) brightness(1.07);transform:translateY(-12px);box-shadow:inset 0 -13px 20px rgba(0,0,0,.2),inset 0 9px 15px rgba(255,255,255,.25),0 21px 0 color-mix(in srgb,var(--orb-dark) 78%,#071426),0 31px 40px -10px rgba(9,35,76,.58)}
 .launch-orb:active{transform:translateY(6px);box-shadow:inset 0 -8px 15px rgba(0,0,0,.2),inset 0 7px 12px rgba(255,255,255,.2),0 4px 0 var(--orb-dark),0 10px 20px -9px rgba(9,35,76,.55)}
-.launch-orb.home{--orb:#1677FF;--orb-dark:#074BAE}.launch-orb.review{--orb:#7C4DFF;--orb-dark:#4A25B6}.launch-orb.build{--orb:#08B8D9;--orb-dark:#06738D}.launch-orb.askai{--orb:#F04F9B;--orb-dark:#A91F63}
-.home-workflow-bar{display:grid;grid-template-columns:minmax(180px,1fr) repeat(3,minmax(150px,1fr));align-items:stretch;margin:0 0 20px;border:1px solid #BFD3F2;border-radius:13px;overflow:hidden;background:#FFFFFF;box-shadow:0 12px 28px -24px rgba(14,62,130,.75)}
+.launch-orb.home{--orb:#1677FF;--orb-dark:#074BAE}.launch-orb.review{--orb:#7C4DFF;--orb-dark:#4A25B6}.launch-orb.build{--orb:#08B8D9;--orb-dark:#06738D}.launch-orb.askai{--orb:#F04F9B;--orb-dark:#A91F63}.launch-orb.student{--orb:#45D66B;--orb-dark:#168A45}
+.home-workflow-bar{display:grid;grid-template-columns:minmax(170px,1fr) repeat(4,minmax(135px,1fr));align-items:stretch;margin:0 0 20px;border:1px solid #BFD3F2;border-radius:13px;overflow:hidden;background:#FFFFFF;box-shadow:0 12px 28px -24px rgba(14,62,130,.75)}
 .home-workflow-label{display:flex;flex-direction:column;justify-content:center;padding:10px 15px;background:linear-gradient(135deg,#E8F2FF,#F1ECFF);color:#14294C}.home-workflow-label b{font-size:.88rem}.home-workflow-label span{font-size:.68rem;color:#62738D}
 .workflow-start{border:0;border-left:1px solid #CFDBEC;background:#FFFFFF;color:#23436F;padding:12px 14px;font-weight:750;cursor:pointer;transition:color .15s ease,background .15s ease,box-shadow .15s ease}.workflow-start:hover,.workflow-start:focus-visible{position:relative;color:#FFFFFF;background:linear-gradient(135deg,#1769E8,#2B7FFF);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
-.workflow-start.review:hover,.workflow-start.review:focus-visible{background:linear-gradient(135deg,#7448EE,#925FFF)}.workflow-start.build:hover,.workflow-start.build:focus-visible{background:linear-gradient(135deg,#079FBC,#16C6DD)}.workflow-start.ask:hover,.workflow-start.ask:focus-visible{background:linear-gradient(135deg,#DC3C86,#F45AA2)}
+.workflow-start.review:hover,.workflow-start.review:focus-visible{background:linear-gradient(135deg,#7448EE,#925FFF)}.workflow-start.build:hover,.workflow-start.build:focus-visible{background:linear-gradient(135deg,#079FBC,#16C6DD)}.workflow-start.ask:hover,.workflow-start.ask:focus-visible{background:linear-gradient(135deg,#DC3C86,#F45AA2)}.workflow-start.student:hover,.workflow-start.student:focus-visible{background:linear-gradient(135deg,#20A958,#55DC78)}
 :root[data-theme="dark"] .home-workflow-bar{background:#17233A;border-color:#355784}:root[data-theme="dark"] .home-workflow-label{background:linear-gradient(135deg,#172844,#251D43);color:#FFFFFF}:root[data-theme="dark"] .home-workflow-label span{color:#AFC0DD}:root[data-theme="dark"] .workflow-start{background:#17233A;border-color:#355074;color:#DCE7FA}
-@media(max-width:900px){.launch-orbs{grid-template-columns:repeat(2,minmax(140px,210px));justify-content:center}.launch-overlay{padding:24px 16px}.launch-card{padding:24px 16px 32px}}
+@media(max-width:900px){.launch-orbs{grid-template-columns:repeat(2,minmax(140px,210px));justify-content:center}.launch-overlay{padding:24px 16px}.launch-card{padding:24px 16px 32px}.student-choice-grid{grid-template-columns:1fr}.student-workspace-body,.student-report-grid{grid-template-columns:1fr}}
 @media(max-width:760px){.launch-overlay{left:0;top:54px;padding:150px 16px 28px}.audit-space-wrap{height:390px}.audit-space-key{display:none}.home-workflow-bar{grid-template-columns:1fr}.home-workflow-label{text-align:center}.workflow-start{border-left:0;border-top:1px solid #CFDBEC}}
 @media(max-width:500px){.launch-orbs{grid-template-columns:repeat(2,minmax(112px,150px));gap:17px}.launch-card p{font-size:.9rem}.launch-brand{gap:8px}.launch-brand img{width:78px;height:78px}.launch-brand-copy strong{font-size:2.35rem}.launch-brand-copy small{font-size:.38rem;letter-spacing:.07em}.launch-orb{font-size:1.05rem;box-shadow:inset 0 -10px 15px rgba(0,0,0,.2),inset 0 7px 12px rgba(255,255,255,.25),0 11px 0 var(--orb-dark),0 18px 26px -10px rgba(9,35,76,.55)}}
 .report-callout{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.report-mini{padding:13px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line)}.report-mini b{display:block;font-family:var(--f-mono);font-size:1.35rem;color:var(--report-color,var(--accent))}.report-mini span{font-size:.72rem;color:var(--ink-3)}
 .ask-chatgpt{border:1px solid #9FC4FF;background:linear-gradient(135deg,#F5F9FF 0%,#EEF5FF 58%,#F1FBFF 100%);box-shadow:0 16px 38px -30px rgba(23,105,232,.8)}
 .ask-chatgpt .card-h{background:transparent;border-bottom-color:#CFE0FA}.ask-chatgpt textarea{background:#fff;min-height:92px}.ask-chatgpt-note{display:flex;align-items:flex-start;gap:9px;color:var(--ink-2);font-size:.82rem;line-height:1.5}.ask-chatgpt-note::before{content:"✓";display:grid;place-items:center;flex:0 0 22px;height:22px;border-radius:50%;background:var(--ok-soft);color:var(--ok);font-weight:800}
 :root[data-theme="dark"] .ask-chatgpt{background:linear-gradient(135deg,#172844,#14243B);border-color:#355784}:root[data-theme="dark"] .ask-chatgpt .card-h{border-bottom-color:#2F496C}:root[data-theme="dark"] .ask-chatgpt textarea{background:var(--surface)}
+
+/* Student Module */
+.student-hero{padding:25px;border:1px solid #C6D9F6;border-radius:20px;background:linear-gradient(145deg,#F7FBFF,#F4F0FF 54%,#EDFFF4);box-shadow:0 22px 50px -38px rgba(22,75,150,.65)}
+.student-intro{max-width:720px;margin:0 auto 22px;text-align:center}.student-intro h2{margin:0 0 7px;font-family:var(--f-display);font-size:2rem;color:#10264D}.student-intro p{margin:0;color:var(--ink-2);line-height:1.55}
+.student-choice-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.student-choice{--student-color:#2F80FF;min-height:196px;padding:22px 16px;border:0;border-radius:22px;background:linear-gradient(145deg,color-mix(in srgb,var(--student-color) 78%,#fff),var(--student-color));color:#fff;cursor:pointer;box-shadow:inset 0 -12px 16px rgba(0,0,0,.14),inset 0 6px 10px rgba(255,255,255,.24),0 11px 0 color-mix(in srgb,var(--student-color) 70%,#14244C),0 20px 27px -15px rgba(12,38,82,.65);text-align:center;transition:transform .16s ease,filter .16s ease}
+.student-choice:hover,.student-choice:focus-visible{transform:translateY(-5px);filter:saturate(1.12) brightness(1.04)}.student-choice:active{transform:translateY(7px);box-shadow:inset 0 -8px 12px rgba(0,0,0,.15),0 3px 0 color-mix(in srgb,var(--student-color) 70%,#14244C)}
+.student-choice.brainstorm{--student-color:#8B5CF6}.student-choice.research{--student-color:#15B9D6}.student-choice.homework{--student-color:#35C866}
+.student-choice-icon{display:block;font-size:3.7rem;line-height:1;margin-bottom:13px;filter:drop-shadow(0 5px 6px rgba(0,0,0,.18))}.student-choice strong{display:block;font:800 1.35rem var(--f-display)}.student-choice small{display:block;margin-top:7px;font-size:.77rem;line-height:1.35;color:rgba(255,255,255,.9)}
+.student-workspace{max-width:930px;margin:0 auto}.student-workspace-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:17px}.student-workspace-head h2{margin:0 0 5px;font-family:var(--f-display);font-size:1.8rem}.student-workspace-head p{margin:0;color:var(--ink-2)}
+.student-workspace-body{display:grid;grid-template-columns:minmax(0,1fr) 215px;gap:22px;align-items:center}.student-fields{display:flex;flex-direction:column;gap:13px}.student-fields textarea{min-height:128px;background:#fff}
+.brain-button{width:184px;height:164px;justify-self:center;border:0;border-radius:46% 54% 44% 56% / 50% 45% 55% 50%;background:radial-gradient(circle at 32% 24%,rgba(255,255,255,.65),transparent 19%),linear-gradient(145deg,#B875FF,#6C32DF);color:#fff;cursor:pointer;box-shadow:inset 0 -13px 18px rgba(50,10,108,.24),inset 0 7px 12px rgba(255,255,255,.24),0 12px 0 #46209F,0 23px 30px -13px rgba(49,20,112,.7);transition:transform .16s ease}.brain-button:hover{transform:translateY(-5px)}.brain-button:active{transform:translateY(7px);box-shadow:inset 0 -9px 14px rgba(50,10,108,.24),0 4px 0 #46209F}.brain-button:disabled{opacity:.6;cursor:wait}
+.brain-button .brain-emoji{display:block;font-size:4.7rem;line-height:.9;filter:drop-shadow(0 4px 5px rgba(0,0,0,.18))}.brain-button strong{display:block;margin-top:12px;font:800 1.05rem var(--f-display)}
+.student-privacy{padding:10px 12px;border-radius:10px;background:#E9F9EF;color:#176339;font-size:.76rem;line-height:1.45}.brainstorm-output{margin-top:22px;padding:19px;border:1px solid #C9B8F8;border-radius:15px;background:#fff;white-space:pre-wrap;line-height:1.6}.brainstorm-output h3{margin:0 0 10px;color:#6C32DF;font-family:var(--f-display)}
+.student-report-grid{display:grid;grid-template-columns:minmax(280px,.8fr) minmax(0,1.2fr);gap:18px;margin-top:18px}.word-cloud{min-height:225px;display:flex;align-items:center;justify-content:center;align-content:center;flex-wrap:wrap;gap:8px 14px;padding:20px;background:radial-gradient(circle at 50% 48%,#F2EAFF,#F8FBFF 68%);border-radius:12px}.word-cloud span{font-weight:800;line-height:1;color:var(--word-color,#7B4EF2);text-shadow:0 2px 7px rgba(55,40,120,.1)}
+:root[data-theme="dark"] .student-hero{background:linear-gradient(145deg,#152642,#251D43 55%,#12352A);border-color:#355784}:root[data-theme="dark"] .student-intro h2{color:#F2F7FF}:root[data-theme="dark"] .student-fields textarea,:root[data-theme="dark"] .brainstorm-output{background:#15243B}:root[data-theme="dark"] .student-privacy{background:#173B2D;color:#A7F2C6}:root[data-theme="dark"] .word-cloud{background:radial-gradient(circle at 50% 48%,#29204C,#14233B 68%)}
 
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --accent:#73A2FF;--accent-2:#9AB8FF;--accent-soft:#20335A;
@@ -770,6 +786,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
       <div class="nav-h">Controls</div>
       <button data-p="check" aria-current="false"><span class="ic ic-nav ic-1" data-ic="ledger"></span><span class="nav-t">Fact-check<span class="nav-i">P1</span></span><span class="nav-dot" id="dot-check"></span></button>
       <button data-p="console"><span class="ic ic-nav ic-2" data-ic="dial"></span><span class="nav-t">AI Instructions<span class="nav-i">P2</span></span><span class="nav-dot" id="dot-console"></span></button>
+      <button data-p="student"><span class="ic ic-nav ic-2" aria-hidden="true">🧠</span><span class="nav-t">Student Module</span><span class="nav-dot" id="dot-student"></span></button>
       <button data-p="rag"><span class="ic ic-nav ic-3" data-ic="layers"></span><span class="nav-t">Grounding<span class="nav-i">P2</span></span><span class="nav-dot" id="dot-rag"></span></button>
       <button data-p="judge"><span class="ic ic-nav ic-4" data-ic="meter"></span><span class="nav-t">Judge &amp; tests<span class="nav-i">P3</span></span><span class="nav-dot" id="dot-judge"></span></button>
       <div class="nav-h" style="padding-top:14px">Governance</div>
@@ -812,6 +829,34 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
     </header>
 
     <main>
+      <!-- ============ STUDENT MODULE ============ -->
+      <section class="panel" id="p-student">
+        <div class="phead"><div><span class="ic ic-head ic-2" aria-hidden="true">🧠</span><div class="kicker">Student Module · Elementary learners</div><h1 class="ptitle">What are you working on today?</h1><p class="psub">Choose an activity. RAB·BIT will use age-friendly instructions, help you think, and keep the work ready for a grown-up to review.</p></div></div>
+        <div class="student-hero">
+          <div id="student-choices">
+            <div class="student-intro"><h2>Pick one to get started</h2><p>You do not need to know which AI model to use yet. RAB·BIT will help you choose after you select an activity.</p></div>
+            <div class="student-choice-grid">
+              <button class="student-choice brainstorm" data-student-choice="brainstorm" type="button"><span class="student-choice-icon">🧠</span><strong>Brainstorm</strong><small>Come up with several ideas and questions to explore.</small></button>
+              <button class="student-choice research" data-student-choice="research" type="button"><span class="student-choice-icon">📚</span><strong>Research Paper</strong><small>Plan a paper, find search terms, and verify the facts.</small></button>
+              <button class="student-choice homework" data-student-choice="homework" type="button"><span class="student-choice-icon">✏️</span><strong>Homework Question</strong><small>Get hints and an explanation, then check the answer.</small></button>
+            </div>
+          </div>
+          <div class="student-workspace" id="student-brainstorm" hidden>
+            <div class="student-workspace-head"><div><h2>🧠 Brainstorm with AI</h2><p>Tell the AI what you want ideas about. It will help you think—not do the whole assignment for you.</p></div><button class="btn sm" id="btn-student-back" type="button">← Activities</button></div>
+            <div class="student-workspace-body">
+              <div class="student-fields">
+                <label class="fld"><span class="fld-k">Grade level</span><select id="student-grade"><option value="k-2">Kindergarten–Grade 2</option><option value="3-5" selected>Grades 3–5</option></select></label>
+                <label class="fld"><span class="fld-k">What would you like to brainstorm?</span><textarea id="student-topic" maxlength="4000" placeholder="Example: I need an idea for a science project about plants."></textarea></label>
+                <div class="student-privacy"><b>Keep personal information private.</b> Do not type your name, school, address, phone number, or exact location.</div>
+                <div class="hint" id="student-brainstorm-status"></div>
+              </div>
+              <button class="brain-button" id="btn-student-brainstorm" type="button" data-needs-ai><span class="brain-emoji">🧠</span><strong>Brainstorm</strong></button>
+            </div>
+            <div class="brainstorm-output" id="student-brainstorm-output" hidden><h3>Your idea garden</h3><div id="student-brainstorm-answer"></div><div class="row" style="margin-top:16px"><button class="btn pri" id="btn-save-brainstorm" data-save-audit type="button">Save brainstorm</button></div></div>
+          </div>
+        </div>
+      </section>
+
       <!-- ============ PRACTICE 1 ============ -->
       <section class="panel" id="p-check">
         <div class="phead">
@@ -827,12 +872,12 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
         </div>
 
         <div class="card ask-chatgpt" id="ask-chatgpt" hidden>
-          <div class="card-h"><span class="card-t">Ask AI</span><span class="tag risk-medium">Uses your protected AI connections</span></div>
+          <div class="card-h"><span class="card-t" id="ask-ai-card-title">Ask AI</span><span class="tag risk-medium">Uses your protected AI connections</span></div>
           <form class="card-b" id="ask-chatgpt-form" style="display:flex;flex-direction:column;gap:12px">
             <label class="fld"><span class="fld-k">What would you like to know?</span>
               <textarea id="ask-chatgpt-q" rows="3" maxlength="12000" placeholder="Type the question you want an AI model to answer…"></textarea></label>
             <div class="row"><button class="btn pri" id="btn-ask-chatgpt" type="submit" data-needs-ai>Choose your AI model</button><span class="hint" id="ask-chatgpt-status"></span></div>
-            <div class="ask-chatgpt-note">Choose a connected OpenAI or Claude model. RAB·BIT will record your choice, generate the answer, and automatically break it into claims. The claims remain unverified until you check them against trustworthy sources.</div>
+            <div class="ask-chatgpt-note" id="ask-ai-note">Choose a connected OpenAI or Claude model. RAB·BIT will record your choice, generate the answer, and automatically break it into claims. The claims remain unverified until you check them against trustworthy sources.</div>
           </form>
         </div>
 
@@ -1123,6 +1168,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
               <button class="launch-orb review" data-start-path="review" type="button">Review an<br>Answer</button>
               <button class="launch-orb build" data-start-path="build" type="button">Create from<br>Trusted Sources</button>
               <button class="launch-orb askai" data-start-path="ask" type="button">Ask AI</button>
+              <button class="launch-orb student" data-student-module type="button">Student<br>Module</button>
             </div>
           </div>
         </div>
@@ -1131,6 +1177,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
           <button class="workflow-start review" data-start-path="review" type="button">Review an answer</button>
           <button class="workflow-start build" data-start-path="build" type="button">Create from Trusted Sources</button>
           <button class="workflow-start ask" data-start-path="ask" type="button">Ask AI</button>
+          <button class="workflow-start student" data-student-module type="button">Student Module</button>
         </div>
         <div class="phead">
           <div>
@@ -1274,6 +1321,7 @@ var DEFAULT_RUBRIC=[
 var S={
   title:"Untitled audit",
   response:SEED_RESPONSE, prompt:"", askQuestion:"", model:"unspecified", appliedTier:null,
+  student:null,
   isExample:false,
   claims:seedClaims(),
   cfg:{temp:0.1,cot:"evidence",ground:true,cite:true,uncert:true,refuse:true,scope:true,structured:false,tier:"default",topK:5,minMatch:0,gran:"balanced",proof:2,strict:"standard",pass:3.5},
@@ -1578,7 +1626,9 @@ var HELP_KB=[
 "",
 "WHAT IT IS. RAB·BIT stands for Rigor Above Belief, Built for Integrity & Trust: a claim is settled by evidence, not by how confident the answer sounded. It breaks an AI answer into individual claims, has a person check each one against an independent source, and keeps the record.",
 "",
-"THE HOMEPAGE AND GUIDED RUN. RAB·BIT opens on the Reports homepage with four large choices. Go to Homepage dismisses the welcome choices and leaves the reports visible. Review an answer, Create from Trusted Sources, and Ask AI each open the correct workspace and highlight step one. The homepage keeps those same three workflow buttons at the top. 'Review an answer' (5 steps) is for an answer that already exists: paste it, break it into claims, clear each claim, optionally grade it, save. 'Create from Trusted Sources' (7 steps) is for an answer you are producing from trusted material: load the sources, set the rules in AI Instructions, generate a grounded answer, then complete the same claim review. 'Ask AI' (5 steps) lets a signed-in user ask a normal question, choose a connected OpenAI or Claude model, and record that model automatically; RAB·BIT then puts the answer into Fact-check and extracts its claims. Every path ends at the claim ledger because generating or grounding an answer never proves what it said. The Guide button hides the step bar.",
+"THE HOMEPAGE AND GUIDED RUN. RAB·BIT opens on the Reports homepage with five large choices. Go to Homepage dismisses the welcome choices and leaves the reports visible. Review an answer, Create from Trusted Sources, Ask AI, and Student Module each open the correct workspace. The homepage keeps those same four workflow choices at the top. 'Review an answer' is for an answer that already exists. 'Create from Trusted Sources' produces an answer from trusted material. 'Ask AI' asks a connected OpenAI or Claude model and then starts verification. Student Module offers Brainstorm, Research Paper, and Homework Question for elementary learners. Every factual-answer path ends at the claim ledger because generating an answer never proves what it said. The Guide button hides the step bar.",
+"",
+"STUDENT MODULE. Brainstorm asks for a grade band and topic, then offers a brain-shaped button and a model picker. It returns eight age-friendly ideas rather than a finished assignment. Research Paper routes through Ask AI with a learning-coach prompt that builds a topic, outline, search terms, questions, and source checklist. Homework Question routes through Ask AI with hints and step-by-step teaching. Both automatically continue to fact-checking. Student prompts tell the model not to request personal information and not to impersonate the child. Saved work appears in Reports as activity counts, grade-band counts, and a word cloud made from saved brainstorms.",
 "",
 "FACT-CHECK PANEL. Paste the answer, press Extract claims, and an available model splits it into checkable claims with suggested search queries linked to Google Search and Scholar. Each claim starts Unverified. You set the outcome: Verified, Unsupported, Refuted, or Opinion. Opinion means the statement is subjective and cannot be proven true or false; it counts as reviewed but never as a verified fact. Three Source Check ticks record the work: claim isolated, citation provided, independent source matched. ChatGPT and Gemini can run automatic AI cross-checks when their API keys are connected. Without a Claude API key, the Claude button copies the question and opens the free Claude website; paste Claude's answer back into the claim to save it. AI cross-checks never change a claim's status. Two dials: claim granularity (coarse 8 claims / balanced 15 / fine 25) and STANDARD OF PROOF, which sets how many of the three ticks are required before a claim may be marked Verified — below that bar the Verified button is disabled and clicking it explains why. Raising the bar shows a banner offering to reopen claims cleared under a lower standard.",
 "",
@@ -1590,7 +1640,7 @@ var HELP_KB=[
 "",
 "OPERATIONS. This is RAB·BIT's control plane. Policy profiles apply a consistent bundle of review settings: Standard, High-stakes, or Rapid screening. The RAB·BIT verification score is a transparent 100-point readiness checklist, not an AI opinion. Provider health shows whether Claude, ChatGPT, Gemini, and Supabase are configured. Telemetry shows route, HTTP status, latency, and provider for the current Render process only; it never stores prompts, answers, claims, IP addresses, or keys. Active alerts call out disconnected services, high error rates, recent rate limits, and an audit score below 70.",
 "",
-"SAVED AUDITS AND REPORTS. Saving keeps the response, every claim and verdict, the dial settings and the judge scores, as separate database rows rather than a blob — which is what makes the Reports panel possible. Reports shows headline quality measures, a model-share pie chart, claim outcomes, the evidence-completion funnel, source and judge coverage, failure rate by risk and claim type, rubric averages, weekly volume, verdict and proof-standard usage, recent audits, and reviewer discipline. The Audit Subject 3D map groups audits with similar titles or questions around larger subject nodes: drag to rotate, use the mouse wheel to zoom, hover for labels, and click a node for details. It refuses an untitled audit and asks for a name. The archive is shared with everyone who can open this page.",
+"SAVED AUDITS AND REPORTS. Saving keeps the response, every claim and verdict, student activity details, the dial settings and the judge scores. Reports shows headline quality measures, student activity and grade-band counts, a brainstorm word cloud, a model-share pie chart, claim outcomes, the evidence-completion funnel, source and judge coverage, failure rate by risk and claim type, rubric averages, weekly volume, recent audits, and reviewer discipline. The Audit Subject 3D map groups audits with similar titles or questions around larger subject nodes. The archive is shared with everyone who can open this page.",
 "",
 "VERITY FEEDBACK. Helpful and Not helpful buttons appear below each Verity answer. A rating guides later Verity answers during the current browser visit. When the optional Supabase help_feedback table is installed, RAB·BIT also stores the question, answer, rating and optional reason so the product guidance can be improved over time. This feedback does not retrain OpenAI's base model automatically.",
 "",
@@ -1599,7 +1649,7 @@ var HELP_KB=[
 
 function helpState(){
   var panel=(document.querySelector(".panel.on")||{}).id||"", names={
-    "p-check":"Fact-check","p-console":"AI Instructions","p-rag":"Grounding","p-judge":"Judge & tests","p-ops":"Operations","p-reports":"Reports","p-records":"Saved audits"};
+    "p-check":"Fact-check","p-student":"Student Module","p-console":"AI Instructions","p-rag":"Grounding","p-judge":"Judge & tests","p-ops":"Operations","p-reports":"Reports","p-records":"Saved audits"};
   var n=function(st){return S.claims.filter(function(c){return c.status===st}).length};
   var st=steps()[curStep()];
   return ["WHAT THE USER IS LOOKING AT RIGHT NOW (use it only if relevant):",
@@ -1814,10 +1864,15 @@ function steps(){ return PATHS[S.wiz.path].steps }
 function syncPathUi(){
   var isAsk=S.wiz.path==="ask", card=$("#ask-chatgpt");
   if(card) card.hidden=!isAsk;
-  $("#check-title").textContent=isAsk?"Ask AI, then verify the answer":"Break the answer into claims, then check each one";
+  var activity=S.student&&S.student.activity;
+  var studentTitle=activity==="research"?"Plan a research paper, then verify it":activity==="homework"?"Work through a homework question, then verify it":"Ask AI, then verify the answer";
+  $("#check-title").textContent=isAsk?studentTitle:"Break the answer into claims, then check each one";
   $("#check-subtitle").textContent=isAsk
-    ?"Start with a normal question, choose an OpenAI or Claude model, and RAB·BIT will capture its answer, record the model, and guide you through checking every claim."
+    ?(activity?"A learning coach will use age-friendly language, then RAB·BIT will guide you through checking each factual claim.":"Start with a normal question, choose an OpenAI or Claude model, and RAB·BIT will capture its answer, record the model, and guide you through checking every claim.")
     :"Citations are a starting point, not proof. Split the response into atomic claims, confirm each against an independent source, and record who cleared it.";
+  if($("#ask-ai-card-title")) $("#ask-ai-card-title").textContent=activity==="research"?"Research Paper Coach":activity==="homework"?"Homework Helper":"Ask AI";
+  if($("#ask-chatgpt-q")) $("#ask-chatgpt-q").placeholder=activity==="research"?"What topic would you like to research?":activity==="homework"?"Type the homework question and what you have tried so far…":"Type the question you want an AI model to answer…";
+  if($("#ask-ai-note")) $("#ask-ai-note").textContent=activity?"Choose a connected AI model. It will coach instead of silently doing the assignment, and RAB·BIT will automatically begin the verification steps.":"Choose a connected OpenAI or Claude model. RAB·BIT will record your choice, generate the answer, and automatically break it into claims. The claims remain unverified until you check them against trustworthy sources.";
 }
 /* Until the user navigates, the current step is the first unfinished one. Once
    they click, they are driving: the pin is honoured even on a finished step, so
@@ -1875,8 +1930,9 @@ $("#steps").addEventListener("click",function(e){
   if(e.target.closest("#step-back")) return goStep(curStep()-1);
   if(e.target.closest("#step-next")) return goStep(curStep()+1);
 });
-function startWorkflow(path){
+function startWorkflow(path,keepStudent){
   if(!PATHS[path]) return;
+  if(!keepStudent) S.student=null;
   $("#launch-overlay").hidden=true;
   S.wiz.on=true; S.wiz.path=path; S.wiz.at=0;
   pinWasDone=steps()[0].done();
@@ -1908,6 +1964,8 @@ function playLaunchClick(){
   }catch(e){}
 }
 $("#home-workflow-bar").addEventListener("click",function(e){
+  var student=e.target.closest("[data-student-module]");
+  if(student){e.stopPropagation();playLaunchClick();return openStudentModule()}
   var start=e.target.closest("[data-start-path]");
   if(!start) return;
   e.stopPropagation();
@@ -1915,6 +1973,8 @@ $("#home-workflow-bar").addEventListener("click",function(e){
   startWorkflow(start.dataset.startPath);
 });
 document.addEventListener("click",function(e){
+  var student=e.target.closest("[data-student-module]");
+  if(student){playLaunchClick();return openStudentModule()}
   var start=e.target.closest("[data-start-path]");
   if(start){playLaunchClick();return startWorkflow(start.dataset.startPath)}
   if(e.target.closest("[data-home]")){
@@ -1925,6 +1985,14 @@ document.addEventListener("click",function(e){
     toast("Homepage ready. Choose a workflow whenever you want to begin.");
   }
 });
+function openStudentModule(){
+  $("#launch-overlay").hidden=true;
+  S.wiz.on=false;
+  $("#student-choices").hidden=false;
+  $("#student-brainstorm").hidden=true;
+  show("student");
+  setTimeout(function(){var first=$("#student-choices [data-student-choice]");if(first)first.focus()},0);
+}
 $("#btn-guide").addEventListener("click",function(){
   S.wiz.on=!S.wiz.on; renderSteps();
   if(S.wiz.on) show(steps()[curStep()].panel);
@@ -2195,15 +2263,63 @@ function saveManualClaude(c,wrap){
 function askAnswerModels(){
   return SERVER.models.filter(function(m){return m.available!==false&&(m.provider==="openai"||m.provider==="anthropic")});
 }
+function studentActivityLabel(activity){return activity==="research"?"Research Paper":activity==="homework"?"Homework Question":"Brainstorm"}
+function studentGradeLabel(grade){return grade==="k-2"?"Kindergarten–Grade 2":"Grades 3–5"}
+function chooseStudentGrade(activity){
+  ask("Choose a grade level","This helps the AI use words and steps that fit the student.","Continue",function(grade){
+    S.student={activity:activity,gradeBand:grade,topic:"",ideasText:""};
+    startWorkflow("ask",true);
+    $("#ask-chatgpt-q").value="";
+    $("#ask-chatgpt-status").textContent=studentGradeLabel(grade)+" learning coach is ready.";
+  },{select:{value:"3-5",options:[{value:"k-2",label:"Kindergarten–Grade 2"},{value:"3-5",label:"Grades 3–5"}]}});
+}
+$("#student-choices").addEventListener("click",function(e){
+  var b=e.target.closest("[data-student-choice]");if(!b)return;
+  playLaunchClick();
+  if(b.dataset.studentChoice==="brainstorm"){
+    S.student={activity:"brainstorm",gradeBand:$("#student-grade").value,topic:"",ideasText:""};
+    $("#student-choices").hidden=true;$("#student-brainstorm").hidden=false;
+    setTimeout(function(){$("#student-topic").focus()},0);
+  }else chooseStudentGrade(b.dataset.studentChoice);
+});
+$("#btn-student-back").addEventListener("click",function(){
+  $("#student-brainstorm").hidden=true;$("#student-choices").hidden=false;
+});
+function runStudentBrainstorm(topic,modelId){
+  var btn=$("#btn-student-brainstorm"),st=$("#student-brainstorm-status"),models=askAnswerModels();
+  var chosen=models.filter(function(m){return m.id===modelId})[0];
+  if(!chosen){st.innerHTML='<span class="err">That model is not available. Choose another model.</span>';return;}
+  var grade=$("#student-grade").value;
+  btn.disabled=true;st.innerHTML='<span class="busy">'+esc(chosen.label)+' is growing some ideas</span>';
+  fetch("/api/ask",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({question:topic,model:modelId,studentMode:"brainstorm",gradeBand:grade})})
+    .then(function(r){return r.json().then(function(d){if(d.error)return Promise.reject(d.error);return d})})
+    .then(function(d){
+      var answer=String(d.answer||"").trim();
+      S.student={activity:"brainstorm",gradeBand:grade,topic:topic,ideasText:answer,model:d.model||modelId};
+      S.title="Student Brainstorm — "+topic.slice(0,65);S.prompt=topic;S.askQuestion=topic;S.response=answer;S.model=d.model||modelId;S.claims=[];S.scores=null;S.saved=false;
+      $("#runname").value=S.title;$("#student-brainstorm-answer").textContent=answer;$("#student-brainstorm-output").hidden=false;
+      st.textContent="Ideas ready. Save this brainstorm when you are finished.";stats();
+      setTimeout(function(){$("#student-brainstorm-output").scrollIntoView({behavior:"smooth",block:"center"})},100);
+    }).catch(function(err){st.innerHTML='<span class="err">'+esc(aiErr(err))+'</span>'})
+    .then(function(){btn.disabled=false});
+}
+$("#btn-student-brainstorm").addEventListener("click",function(){
+  var topic=$("#student-topic").value.trim(),st=$("#student-brainstorm-status"),models=askAnswerModels();
+  if(!topic){st.innerHTML='<span class="err">Tell the brain what you would like ideas about.</span>';$("#student-topic").focus();return;}
+  if(!models.length){st.innerHTML='<span class="err">No OpenAI or Claude model is connected.</span>';return;}
+  var preferred=models.filter(function(m){return m.id===S.model})[0]||models[0];
+  ask("Choose your brainstorming AI","Pick the AI that should help grow ideas. The choice will be saved with this activity.","Brainstorm",function(modelId){runStudentBrainstorm(topic,modelId)},{select:{value:preferred.id,options:models.map(function(m){return {value:m.id,label:m.label+(m.note?" — "+m.note:""),group:m.provider==="openai"?"OpenAI · ChatGPT":"Anthropic · Claude"}})}});
+});
 function runAskAi(q,modelId){
   var btn=$("#btn-ask-chatgpt"), st=$("#ask-chatgpt-status"), models=askAnswerModels();
   var chosen=models.filter(function(m){return m.id===modelId})[0];
   if(!chosen){st.innerHTML='<span class="err">That model is not available. Choose another model.</span>';return;}
   btn.disabled=true; btn.textContent="AI is answering…"; st.innerHTML='<span class="busy">'+esc(chosen.label)+' is answering</span>';
-  fetch("/api/ask",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({question:q,model:modelId})})
+  fetch("/api/ask",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({question:q,model:modelId,studentMode:S.student&&S.student.activity,gradeBand:S.student&&S.student.gradeBand})})
     .then(function(r){return r.json().then(function(d){if(d.error)return Promise.reject(d.error);return d})})
     .then(function(d){
       S.askQuestion=q; S.prompt=q; S.response=String(d.answer||"").trim(); S.model=d.model||modelId;
+      if(S.student){S.student.topic=q;S.student.model=S.model;S.student.ideasText="";if(untitled())S.title="Student "+studentActivityLabel(S.student.activity)+" — "+q.slice(0,55);$("#runname").value=S.title;}
       S.claims=[]; S.scores=null; S.saved=false; S.isExample=false; S.appliedTier=null;
       $("#in-prompt").value=q; $("#in-response").value=S.response; renderModelSelect(); $("#in-model").value=S.model;
       $("#ex-badge").innerHTML='<span class="exbadge">'+esc(d.label||chosen.label)+' answer · unverified</span>';
@@ -2910,6 +3026,16 @@ function renderReports(){
   out+='<div class="report-grid2"><div class="card report-card" style="--report-color:#2F80FF"><div class="card-h"><span class="card-t">Claims checked · last 30 days</span><span class="hint">Daily human review volume</span></div><div class="card-b">'+claimsLineChart(REPORTS.claimsDaily)+'</div></div>'+ 
     '<div class="card report-card claims-gauge-card" style="--report-color:#19D67F"><div class="card-h"><span class="card-t">Claims checked percentage</span><span class="hint">All saved claims</span></div>'+claimsGauge(pct(checked,t.claims||0),checked,Number(t.claims||0))+'</div></div>';
 
+  var studentActivities=REPORTS.studentActivities||[], studentGradeBands=REPORTS.studentGradeBands||[], brainstormWords=REPORTS.brainstormWords||[];
+  var studentTotal=studentActivities.reduce(function(n,r){return n+Number(r.audits||0)},0);
+  if(studentTotal){
+    var studentColors={brainstorm:"#8B5CF6",research:"#15B9D6",homework:"#35C866"};
+    var maxStudent=Math.max.apply(null,studentActivities.map(function(r){return Number(r.audits||0)}))||1;
+    var maxWord=Math.max.apply(null,brainstormWords.map(function(r){return Number(r.count||0)}))||1;
+    out+='<div class="student-report-grid"><div class="card report-card" style="--report-color:#35C866"><div class="card-h"><span class="card-t">Student activities</span><span class="hint">'+studentTotal+' saved</span></div><div class="card-b"><div class="chart">'+studentActivities.map(function(r){return bar(r.label,studentColors[r.activity],String(r.audits),100*Number(r.audits||0)/maxStudent,pct(r.audits,studentTotal)+"%");}).join("")+'</div><div class="report-callout" style="grid-template-columns:repeat(2,1fr);margin-top:16px">'+studentGradeBands.map(function(r,i){return '<div class="report-mini" style="--report-color:'+(i?'#15B9D6':'#8B5CF6')+'"><b>'+Number(r.audits||0)+'</b><span>'+esc(r.label)+'</span></div>';}).join("")+'</div></div></div>'+
+      '<div class="card report-card" style="--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Brainstorm idea cloud</span><span class="hint">Words across saved brainstorms</span></div><div class="card-b"><div class="word-cloud">'+(brainstormWords.length?brainstormWords.map(function(r,i){var size=.78+1.35*Number(r.count||0)/maxWord;var colors=["#8B5CF6","#2F80FF","#EC4899","#00AEBE","#28A95C","#F07824"];return '<span title="'+r.count+' mentions" style="font-size:'+size.toFixed(2)+'rem;--word-color:'+colors[i%colors.length]+'">'+esc(r.word)+'</span>';}).join(""):'<span style="font-size:.85rem">Save a brainstorm to grow this cloud.</span>')+'</div></div></div></div>';
+  }
+
   var auditSubjects=REPORTS.auditSubjects||[];
   if(auditSubjects.length){
     var mappedAudits=auditSubjects.reduce(function(n,s){return n+(s.audits||[]).length},0);
@@ -3020,7 +3146,7 @@ function snapshot(){
     verdict:verdict().t, judge:judgeAvg(), modelLabel:currentModel().label,
     appliedTier:S.appliedTier||null,
     claimCount:S.claims.length, cleared:S.claims.filter(function(c){return c.status==="verified"}).length,
-    payload:JSON.stringify({response:S.response,prompt:S.prompt,askQuestion:S.askQuestion,model:S.model,appliedTier:S.appliedTier,claims:S.claims,cfg:S.cfg,sources:S.sources,question:S.question,answer:S.answer,scores:S.scores,judgeRef:S.judgeRef})};
+    payload:JSON.stringify({response:S.response,prompt:S.prompt,askQuestion:S.askQuestion,model:S.model,appliedTier:S.appliedTier,student:S.student,claims:S.claims,cfg:S.cfg,sources:S.sources,question:S.question,answer:S.answer,scores:S.scores,judgeRef:S.judgeRef})};
 }
 function untitled(){
   var t=(S.title||"").trim();
@@ -3062,9 +3188,10 @@ function doSave(b){
 }
 $("#btn-new").addEventListener("click",function(){
   ask("Start a new audit?","This clears the response, the claim ledger and the judge's scores. Anything you have not saved is lost. The evidence set and prompt settings are kept.","Start new",function(){
-    S.title="Untitled audit"; S.response=""; S.prompt=""; S.askQuestion=""; S.claims=[]; S.scores=null; S.answer=""; S.retrieved=[]; S.isExample=false; S.judgeRef=""; S.appliedTier=null; S.saved=false; S.wiz.at=0; pinWasDone=false;
+    S.title="Untitled audit"; S.response=""; S.prompt=""; S.askQuestion=""; S.student=null; S.claims=[]; S.scores=null; S.answer=""; S.retrieved=[]; S.isExample=false; S.judgeRef=""; S.appliedTier=null; S.saved=false; S.wiz.at=0; pinWasDone=false;
     $("#runname").value=S.title; $("#in-response").value=""; $("#in-prompt").value=""; $("#ask-chatgpt-q").value=""; $("#ask-chatgpt-status").textContent=""; renderModelNote(); renderRunButton();
     $("#judge-ref").value=""; $("#ex-badge").innerHTML=""; $("#extract-status").textContent="";
+    $("#student-topic").value=""; $("#student-brainstorm-status").textContent=""; $("#student-brainstorm-output").hidden=true;
     $("#judge-status").textContent=""; $("#rag-status").textContent="";
     $("#st2").textContent="Idle"; $("#st3").textContent="Idle"; $("#st4").textContent="Idle";
     for(var i=1;i<4;i++) $("#pipe").children[i].classList.remove("done");
@@ -3127,12 +3254,13 @@ $("#records").addEventListener("click",function(e){
   }
   var p; try{ p=JSON.parse(r.payload||"{}") }catch(err){ toast("This record could not be read — its saved data is corrupt.",true); return; }
   S.title=r.title||"Untitled"; S.response=p.response||""; S.prompt=p.prompt||""; S.askQuestion=p.askQuestion||"";
+  S.student=p.student||null;
   S.model=p.model||"unspecified"; S.appliedTier=p.appliedTier||null;
   S.claims=(p.claims||[]).map(function(c){ c.checks=c.checks||{claim:false,citation:false,independent:false}; c.aiChecks=c.aiChecks||{}; return c });
   S.cfg=Object.assign(S.cfg,p.cfg||{}); S.sources=p.sources||S.sources; S.question=p.question||"";
   S.answer=p.answer||""; S.scores=p.scores||null; S.judgeRef=p.judgeRef||"";
   S.isExample=false; S.saved=true; S.wiz.at=null;
-  hydrate(); show("check");
+  hydrate(); show(S.student&&S.student.activity==="brainstorm"?"student":"check");
 });
 $("#btn-refresh").addEventListener("click",function(){
   if(!DB){ renderRecords(); return; }
@@ -3150,6 +3278,11 @@ function hydrate(){
   $("#runname").value=S.title;
   $("#in-response").value=S.response; $("#in-prompt").value=S.prompt;
   $("#ask-chatgpt-q").value=S.askQuestion||"";
+  if(S.student&&S.student.activity==="brainstorm"){
+    $("#student-grade").value=S.student.gradeBand||"3-5";$("#student-topic").value=S.student.topic||"";
+    $("#student-brainstorm-answer").textContent=S.student.ideasText||S.response||"";
+    $("#student-choices").hidden=true;$("#student-brainstorm").hidden=false;$("#student-brainstorm-output").hidden=!(S.student.ideasText||S.response);
+  }
   renderModelSelect(); renderModelNote(); renderRunButton();
   $("#rag-q").value=S.question; $("#judge-ref").value=S.judgeRef;
   $("#ex-badge").innerHTML=S.isExample?'<span class="exbadge">Example</span>':"";
