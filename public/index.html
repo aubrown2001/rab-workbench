@@ -728,12 +728,13 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 .launch-orb:hover{filter:saturate(1.15) brightness(1.07);transform:translateY(-12px);box-shadow:inset 0 -13px 20px rgba(0,0,0,.2),inset 0 9px 15px rgba(255,255,255,.25),0 21px 0 color-mix(in srgb,var(--orb-dark) 78%,#071426),0 31px 40px -10px rgba(9,35,76,.58)}
 .launch-orb:active{transform:translateY(6px);box-shadow:inset 0 -8px 15px rgba(0,0,0,.2),inset 0 7px 12px rgba(255,255,255,.2),0 4px 0 var(--orb-dark),0 10px 20px -9px rgba(9,35,76,.55)}
 .launch-orb.home{--orb:#1677FF;--orb-dark:#074BAE}.launch-orb.review{--orb:#7C4DFF;--orb-dark:#4A25B6}.launch-orb.build{--orb:#08B8D9;--orb-dark:#06738D}.launch-orb.askai{--orb:#F04F9B;--orb-dark:#A91F63}
-.workflow-launchbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:-2px 0 20px;padding:12px 14px;border:1px solid #C8DCF8;border-radius:12px;background:linear-gradient(90deg,#F2F7FF,#F8F4FF)}
-:root[data-theme="dark"] .workflow-launchbar{background:linear-gradient(90deg,#172844,#251D43);border-color:#355784}
-.workflow-launchbar b{margin-right:auto;font-size:.9rem;color:var(--ink)}
-.workflow-start{border:1px solid var(--accent);border-radius:999px;background:var(--surface);color:var(--accent);padding:7px 13px;font-weight:750;cursor:pointer}.workflow-start:hover{background:var(--accent);color:#fff}
+.home-workflow-bar{display:grid;grid-template-columns:minmax(180px,1fr) repeat(3,minmax(150px,1fr));align-items:stretch;margin:0 0 20px;border:1px solid #BFD3F2;border-radius:13px;overflow:hidden;background:#FFFFFF;box-shadow:0 12px 28px -24px rgba(14,62,130,.75)}
+.home-workflow-label{display:flex;flex-direction:column;justify-content:center;padding:10px 15px;background:linear-gradient(135deg,#E8F2FF,#F1ECFF);color:#14294C}.home-workflow-label b{font-size:.88rem}.home-workflow-label span{font-size:.68rem;color:#62738D}
+.workflow-start{border:0;border-left:1px solid #CFDBEC;background:#FFFFFF;color:#23436F;padding:12px 14px;font-weight:750;cursor:pointer;transition:color .15s ease,background .15s ease,box-shadow .15s ease}.workflow-start:hover,.workflow-start:focus-visible{position:relative;color:#FFFFFF;background:linear-gradient(135deg,#1769E8,#2B7FFF);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+.workflow-start.review:hover,.workflow-start.review:focus-visible{background:linear-gradient(135deg,#7448EE,#925FFF)}.workflow-start.build:hover,.workflow-start.build:focus-visible{background:linear-gradient(135deg,#079FBC,#16C6DD)}.workflow-start.ask:hover,.workflow-start.ask:focus-visible{background:linear-gradient(135deg,#DC3C86,#F45AA2)}
+:root[data-theme="dark"] .home-workflow-bar{background:#17233A;border-color:#355784}:root[data-theme="dark"] .home-workflow-label{background:linear-gradient(135deg,#172844,#251D43);color:#FFFFFF}:root[data-theme="dark"] .home-workflow-label span{color:#AFC0DD}:root[data-theme="dark"] .workflow-start{background:#17233A;border-color:#355074;color:#DCE7FA}
 @media(max-width:900px){.launch-orbs{grid-template-columns:repeat(2,minmax(140px,210px));justify-content:center}.launch-overlay{padding:24px 16px}.launch-card{padding:24px 16px 32px}}
-@media(max-width:760px){.launch-overlay{left:0;top:54px;padding:150px 16px 28px}.audit-space-wrap{height:390px}.audit-space-key{display:none}}
+@media(max-width:760px){.launch-overlay{left:0;top:54px;padding:150px 16px 28px}.audit-space-wrap{height:390px}.audit-space-key{display:none}.home-workflow-bar{grid-template-columns:1fr}.home-workflow-label{text-align:center}.workflow-start{border-left:0;border-top:1px solid #CFDBEC}}
 @media(max-width:500px){.launch-orbs{grid-template-columns:repeat(2,minmax(112px,150px));gap:17px}.launch-card p{font-size:.9rem}.launch-brand{gap:8px}.launch-brand img{width:78px;height:78px}.launch-brand-copy strong{font-size:2.35rem}.launch-brand-copy small{font-size:.38rem;letter-spacing:.07em}.launch-orb{font-size:1.05rem;box-shadow:inset 0 -10px 15px rgba(0,0,0,.2),inset 0 7px 12px rgba(255,255,255,.25),0 11px 0 var(--orb-dark),0 18px 26px -10px rgba(9,35,76,.55)}}
 .report-callout{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.report-mini{padding:13px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line)}.report-mini b{display:block;font-family:var(--f-mono);font-size:1.35rem;color:var(--report-color,var(--accent))}.report-mini span{font-size:.72rem;color:var(--ink-3)}
 .ask-chatgpt{border:1px solid #9FC4FF;background:linear-gradient(135deg,#F5F9FF 0%,#EEF5FF 58%,#F1FBFF 100%);box-shadow:0 16px 38px -30px rgba(23,105,232,.8)}
@@ -1125,6 +1126,12 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
             </div>
           </div>
         </div>
+        <div class="home-workflow-bar" id="home-workflow-bar" aria-label="Start a workflow from the homepage">
+          <div class="home-workflow-label"><b>Start a workflow</b><span>These choices are always available here.</span></div>
+          <button class="workflow-start review" data-start-path="review" type="button">Review an answer</button>
+          <button class="workflow-start build" data-start-path="build" type="button">Build from evidence</button>
+          <button class="workflow-start ask" data-start-path="ask" type="button">Ask AI</button>
+        </div>
         <div class="phead">
           <div>
             <span class="ic ic-head ic-1" data-ic="chart"></span>
@@ -1134,7 +1141,6 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
           </div>
           <div class="row"><button class="btn" id="btn-reports-refresh">Refresh</button></div>
         </div>
-        <div class="workflow-launchbar"><b>Choose a workflow</b><button class="workflow-start" data-start-path="review">Review an answer</button><button class="workflow-start" data-start-path="build">Build from evidence</button><button class="workflow-start" data-start-path="ask">Ask AI</button></div>
         <div id="reports-body"><div class="empty">Loading…</div></div>
       </section>
 
@@ -1901,6 +1907,13 @@ function playLaunchClick(){
     osc.start(now); osc.stop(now+.065);
   }catch(e){}
 }
+$("#home-workflow-bar").addEventListener("click",function(e){
+  var start=e.target.closest("[data-start-path]");
+  if(!start) return;
+  e.stopPropagation();
+  playLaunchClick();
+  startWorkflow(start.dataset.startPath);
+});
 document.addEventListener("click",function(e){
   var start=e.target.closest("[data-start-path]");
   if(start){playLaunchClick();return startWorkflow(start.dataset.startPath)}
@@ -1908,6 +1921,7 @@ document.addEventListener("click",function(e){
     playLaunchClick();
     $("#launch-overlay").hidden=true;
     show("reports");
+    setTimeout(function(){var first=$("#home-workflow-bar .workflow-start");if(first)first.focus()},0);
     toast("Homepage ready. Choose a workflow whenever you want to begin.");
   }
 });
