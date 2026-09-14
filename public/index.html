@@ -1922,6 +1922,7 @@ function goStep(i){
 $("#steps").addEventListener("click",function(e){
   var p=e.target.closest("[data-path]");
   if(p){
+    if(p.dataset.path!==S.wiz.path) S.student=null;
     S.wiz.path=p.dataset.path; S.wiz.at=0; pinWasDone=steps()[0].done(); renderSteps(); show(steps()[curStep()].panel);
     if(S.wiz.path==="ask") setTimeout(function(){$("#ask-chatgpt-q").focus()},0);
     return;
