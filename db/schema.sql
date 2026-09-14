@@ -23,7 +23,7 @@ create table if not exists audits (
   response        text,
   prompt          text,
   question        text,
-  answer          text,                       -- grounded answer, when Build path was used
+  answer          text,                       -- grounded answer from Create from Trusted Sources
 
   -- the standard it was held to (so a cleared audit is comparable to another)
   proof_standard  smallint,                   -- 1..3 source-check ticks required
@@ -31,7 +31,7 @@ create table if not exists audits (
   strictness      text,                       -- lenient | standard | harsh
   pass_mark       numeric(2,1),
   temperature     numeric(3,2),
-  run_model       text,                       -- model used to generate, when Build path
+  run_model       text,                       -- model used to generate in that workflow
   top_k           smallint,
   min_match       smallint,
 

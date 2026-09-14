@@ -20,7 +20,7 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
   <aside class="side">
     <div class="brand-row"><img class="brand-mark" src="/rabbit-mark-full-v2.png" alt=""><div><div class="brand">RAB<span>·BIT</span></div><div class="sub">Help Center</div></div></div>
     <nav aria-label="Help topics">
-      <a href="#start">Start here</a><a href="#topbar">Top bar</a><a href="#factcheck">Fact-check</a><a href="#console">Prompt console</a><a href="#grounding">Grounding</a><a href="#judge">Judge & tests</a><a href="#operations">Operations</a><a href="#audits">Saved audits</a><a href="#reports">Reports</a><a href="#assistant">Verity</a><a href="#errors">Problems & errors</a><a href="#glossary">Plain-English glossary</a>
+      <a href="#start">Start here</a><a href="#topbar">Top bar</a><a href="#factcheck">Fact-check</a><a href="#console">AI Instructions</a><a href="#grounding">Grounding</a><a href="#judge">Judge & tests</a><a href="#operations">Operations</a><a href="#audits">Saved audits</a><a href="#reports">Reports</a><a href="#assistant">Verity</a><a href="#errors">Problems & errors</a><a href="#glossary">Plain-English glossary</a>
     </nav>
     <a class="back" href="/">← Back to RAB·BIT</a>
   </aside>
@@ -34,9 +34,9 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
     <div class="no-results" id="no-results">No help topic matched that search. Try a shorter word, or ask Verity inside RAB·BIT.</div>
 
     <section class="section" id="start"><div class="section-head"><span class="num">1</span><h2>Start here</h2></div><div class="grid">
-      <article class="topic wide"><h3>The Reports homepage</h3><p>RAB·BIT opens on Reports with four large choices. <strong>Go to Homepage</strong> removes the welcome choices so you can read the dashboard. A permanent <strong>Start a workflow</strong> bar then remains at the top of Reports with Review an answer, Build from evidence, and Ask AI. You can use those choices at any time without reopening the welcome screen.</p></article>
+      <article class="topic wide"><h3>The Reports homepage</h3><p>RAB·BIT opens on Reports with four large choices. <strong>Go to Homepage</strong> removes the welcome choices so you can read the dashboard. A permanent <strong>Start a workflow</strong> bar then remains at the top of Reports with Review an answer, Create from Trusted Sources, and Ask AI. You can use those choices at any time without reopening the welcome screen.</p></article>
       <article class="topic wide"><h3>If you already have an AI answer</h3><div class="steps"><div class="step"><p>Open <strong>Fact-check</strong> and paste the answer.</p></div><div class="step"><p>Press <strong>Extract claims</strong>. RAB·BIT breaks the answer into smaller statements that can be checked.</p></div><div class="step"><p>Check each claim against a real source and record the result.</p></div><div class="step"><p>Optionally use <strong>Judge & tests</strong>, then give the audit a useful name and save it.</p></div></div></article>
-      <article class="topic wide"><h3>If you want RAB·BIT to build the answer</h3><div class="steps"><div class="step"><p>Add trusted information under <strong>Grounding</strong>.</p></div><div class="step"><p>Use <strong>Prompt console</strong> to choose the rules for the answer.</p></div><div class="step"><p>Retrieve passages and generate a cited answer.</p></div><div class="step"><p>Send that answer to Fact-check, review it, judge it, and save it.</p></div></div></article>
+      <article class="topic wide"><h3>If you choose Create from Trusted Sources</h3><div class="steps"><div class="step"><p>Add trusted information under <strong>Grounding</strong>.</p></div><div class="step"><p>Use <strong>AI Instructions</strong> to choose the rules for the answer.</p></div><div class="step"><p>Retrieve passages and generate a cited answer.</p></div><div class="step"><p>Send that answer to Fact-check, review it, judge it, and save it.</p></div></div></article>
     </div><div class="callout"><strong>Important:</strong> RAB·BIT helps organize verification. An AI cross-check is a second opinion—not proof. A human still needs to open and read trustworthy sources.</div></section>
 
     <section class="section" id="topbar"><div class="section-head"><span class="num">2</span><h2>The top bar</h2></div><div class="grid">
@@ -51,7 +51,7 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
     </div></section>
 
     <section class="section" id="factcheck"><div class="section-head"><span class="num">3</span><h2>Fact-check</h2></div><div class="grid">
-      <article class="topic"><h3>Review an answer / Build an answer / Ask AI</h3><p>Choose whether you pasted an existing answer, are creating one from trusted evidence, or want to ask a connected AI model inside RAB·BIT.</p></article>
+      <article class="topic"><h3>Review an answer / Create from Trusted Sources / Ask AI</h3><p>Choose whether you pasted an existing answer, are creating one from trusted evidence, or want to ask a connected AI model inside RAB·BIT.</p></article>
       <article class="topic wide"><h3>Ask AI</h3><p>Type a normal question, then press <strong>Choose your AI model</strong>. The dropdown shows the OpenAI and Claude models connected to this RAB·BIT deployment. After you choose one, RAB·BIT records the model, generates the answer, copies it into Fact-check, and extracts its claims. The answer is still unverified until you check those claims against trustworthy sources.</p></article>
       <article class="topic"><h3>AI output to verify</h3><p>Paste the complete answer you want to check here.</p></article>
       <article class="topic"><h3>Originating prompt</h3><p>Optionally record the question that produced the answer. This helps future reviewers understand the context.</p></article>
@@ -74,7 +74,7 @@ a{color:var(--blue)}.layout{display:grid;grid-template-columns:270px minmax(0,1f
       <article class="topic"><h3>Save audit to archive</h3><p>Stores the completed record in Supabase so it appears under Saved audits and Reports.</p></article>
     </div></section>
 
-    <section class="section" id="console"><div class="section-head"><span class="num">4</span><h2>Prompt console</h2></div><div class="grid">
+    <section class="section" id="console"><div class="section-head"><span class="num">4</span><h2>AI Instructions</h2></div><div class="grid">
       <article class="topic"><h3>Run with</h3><p>Selects the connected model RAB·BIT will use to generate an answer.</p></article>
       <article class="topic"><h3>Temperature</h3><p>Low values make answers more repeatable. High values encourage variety. Keep it low for facts and anything you plan to publish.</p></article>
       <article class="topic"><h3>Reasoning format</h3><p>Choose a visible, reviewable structure: direct answer, steps, evidence first, or assumptions and unknowns.</p></article>

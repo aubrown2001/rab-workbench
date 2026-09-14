@@ -769,7 +769,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
     <nav class="nav" id="nav">
       <div class="nav-h">Controls</div>
       <button data-p="check" aria-current="false"><span class="ic ic-nav ic-1" data-ic="ledger"></span><span class="nav-t">Fact-check<span class="nav-i">P1</span></span><span class="nav-dot" id="dot-check"></span></button>
-      <button data-p="console"><span class="ic ic-nav ic-2" data-ic="dial"></span><span class="nav-t">Prompt console<span class="nav-i">P2</span></span><span class="nav-dot" id="dot-console"></span></button>
+      <button data-p="console"><span class="ic ic-nav ic-2" data-ic="dial"></span><span class="nav-t">AI Instructions<span class="nav-i">P2</span></span><span class="nav-dot" id="dot-console"></span></button>
       <button data-p="rag"><span class="ic ic-nav ic-3" data-ic="layers"></span><span class="nav-t">Grounding<span class="nav-i">P2</span></span><span class="nav-dot" id="dot-rag"></span></button>
       <button data-p="judge"><span class="ic ic-nav ic-4" data-ic="meter"></span><span class="nav-t">Judge &amp; tests<span class="nav-i">P3</span></span><span class="nav-dot" id="dot-judge"></span></button>
       <div class="nav-h" style="padding-top:14px">Governance</div>
@@ -901,9 +901,9 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
       <section class="panel" id="p-console">
         <div class="phead">
           <div>
-            <span class="ic ic-head ic-2" data-ic="dial"></span><div class="kicker">Practice 2 · Prompt and parameters</div>
+            <span class="ic ic-head ic-2" data-ic="dial"></span><div class="kicker">Practice 2 · AI Instructions</div>
             <h1 class="ptitle">Constrain the model before you correct it</h1>
-            <p class="psub">Lower the temperature for determinism, make the reasoning auditable, and bind the answer to supplied evidence. The console compiles your settings into a prompt you can paste into any model.</p>
+            <p class="psub">Lower the temperature for consistency, make the reasoning reviewable, and limit the answer to supplied evidence. AI Instructions compiles your choices into a prompt you can paste into any model.</p>
           </div>
           <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
             <div class="row">
@@ -1121,7 +1121,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
             <div class="launch-orbs">
               <button class="launch-orb home" data-home type="button">Go to<br>Homepage</button>
               <button class="launch-orb review" data-start-path="review" type="button">Review an<br>Answer</button>
-              <button class="launch-orb build" data-start-path="build" type="button">Build from<br>Evidence</button>
+              <button class="launch-orb build" data-start-path="build" type="button">Create from<br>Trusted Sources</button>
               <button class="launch-orb askai" data-start-path="ask" type="button">Ask AI</button>
             </div>
           </div>
@@ -1129,7 +1129,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
         <div class="home-workflow-bar" id="home-workflow-bar" aria-label="Start a workflow from the homepage">
           <div class="home-workflow-label"><b>Start a workflow</b><span>These choices are always available here.</span></div>
           <button class="workflow-start review" data-start-path="review" type="button">Review an answer</button>
-          <button class="workflow-start build" data-start-path="build" type="button">Build from evidence</button>
+          <button class="workflow-start build" data-start-path="build" type="button">Create from Trusted Sources</button>
           <button class="workflow-start ask" data-start-path="ask" type="button">Ask AI</button>
         </div>
         <div class="phead">
@@ -1578,11 +1578,11 @@ var HELP_KB=[
 "",
 "WHAT IT IS. RAB·BIT stands for Rigor Above Belief, Built for Integrity & Trust: a claim is settled by evidence, not by how confident the answer sounded. It breaks an AI answer into individual claims, has a person check each one against an independent source, and keeps the record.",
 "",
-"THE HOMEPAGE AND GUIDED RUN. RAB·BIT opens on the Reports homepage with four large choices. Go to Homepage dismisses the welcome choices and leaves the reports visible. Review an answer, Build from evidence, and Ask AI each open the correct workspace and highlight step one. The homepage keeps those same three workflow buttons at the top. 'Review an answer' (5 steps) is for an answer that already exists: paste it, break it into claims, clear each claim, optionally grade it, save. 'Build from evidence' (7 steps) is for one you are producing from trusted material: load evidence, set constraints in the console, generate a grounded answer, then the same claim work. 'Ask AI' (5 steps) lets a signed-in user ask a normal question, choose a connected OpenAI or Claude model, and record that model automatically; RAB·BIT then puts the answer into Fact-check and extracts its claims. Every path ends at the claim ledger because generating or grounding an answer never proves what it said. The Guide button hides the step bar.",
+"THE HOMEPAGE AND GUIDED RUN. RAB·BIT opens on the Reports homepage with four large choices. Go to Homepage dismisses the welcome choices and leaves the reports visible. Review an answer, Create from Trusted Sources, and Ask AI each open the correct workspace and highlight step one. The homepage keeps those same three workflow buttons at the top. 'Review an answer' (5 steps) is for an answer that already exists: paste it, break it into claims, clear each claim, optionally grade it, save. 'Create from Trusted Sources' (7 steps) is for an answer you are producing from trusted material: load the sources, set the rules in AI Instructions, generate a grounded answer, then complete the same claim review. 'Ask AI' (5 steps) lets a signed-in user ask a normal question, choose a connected OpenAI or Claude model, and record that model automatically; RAB·BIT then puts the answer into Fact-check and extracts its claims. Every path ends at the claim ledger because generating or grounding an answer never proves what it said. The Guide button hides the step bar.",
 "",
 "FACT-CHECK PANEL. Paste the answer, press Extract claims, and an available model splits it into checkable claims with suggested search queries linked to Google Search and Scholar. Each claim starts Unverified. You set the outcome: Verified, Unsupported, Refuted, or Opinion. Opinion means the statement is subjective and cannot be proven true or false; it counts as reviewed but never as a verified fact. Three Source Check ticks record the work: claim isolated, citation provided, independent source matched. ChatGPT and Gemini can run automatic AI cross-checks when their API keys are connected. Without a Claude API key, the Claude button copies the question and opens the free Claude website; paste Claude's answer back into the claim to save it. AI cross-checks never change a claim's status. Two dials: claim granularity (coarse 8 claims / balanced 15 / fine 25) and STANDARD OF PROOF, which sets how many of the three ticks are required before a claim may be marked Verified — below that bar the Verified button is disabled and clicking it explains why. Raising the bar shows a banner offering to reopen claims cleared under a lower standard.",
 "",
-"PROMPT CONSOLE. Temperature dial with three bands, chain-of-thought scaffolds, and switches for grounding, citations, flagging uncertainty, refusing rather than guessing, saying what could not be answered, and structured JSON output. It compiles all of that into a prompt you can copy. The run button sends the answer to the fact-check ledger. Temperature IS live in this deployment: the value is sent with every run. Internal calls (extraction, AI cross-checks, judge) always run at 0 so they do not vary.",
+"AI INSTRUCTIONS. Use the temperature dial and plain-language switches to tell the AI how to answer: stay grounded, include citations, flag uncertainty, refuse rather than guess, identify what could not be answered, and optionally return structured JSON. RAB·BIT compiles those choices into a prompt you can copy. The run button sends the answer to the fact-check ledger. Temperature is live in this deployment: the value is sent with every run. Internal calls such as extraction, AI cross-checks, and judging always run at 0 so they do not vary.",
 "",
 "GROUNDING PANEL. Add trusted sources, then Retrieve passages runs a real relevance search over them and shows match percentages. Two dials: how many passages are retrieved, and a minimum match below which passages are dropped. Generate cited answer sends ONLY those passages to the model, which must cite [S1.1] markers and flag UNCERTAIN. The four numbered stages are a status display, not buttons. The page cannot fetch URLs — paste the source text itself.",
 "",
@@ -1599,7 +1599,7 @@ var HELP_KB=[
 
 function helpState(){
   var panel=(document.querySelector(".panel.on")||{}).id||"", names={
-    "p-check":"Fact-check","p-console":"Prompt console","p-rag":"Grounding","p-judge":"Judge & tests","p-ops":"Operations","p-reports":"Reports","p-records":"Saved audits"};
+    "p-check":"Fact-check","p-console":"AI Instructions","p-rag":"Grounding","p-judge":"Judge & tests","p-ops":"Operations","p-reports":"Reports","p-records":"Saved audits"};
   var n=function(st){return S.claims.filter(function(c){return c.status===st}).length};
   var st=steps()[curStep()];
   return ["WHAT THE USER IS LOOKING AT RIGHT NOW (use it only if relevant):",
@@ -1695,7 +1695,7 @@ function helpAsk(q){
   var idx=helpTurns.length-1;
   /* ChatGPT sees the knowledge base and live workbench state as a leading turn,
      then the conversation so far. The explicit OpenAI model prevents this help
-     tool from following a Claude selection made in the Prompt Console. */
+     tool from following a Claude selection made in AI Instructions. */
   var convo=helpTurns.slice(0,-1).filter(function(t){return !t.err}).slice(-8)
     .map(function(t){return {role:t.role,content:t.content}});
   var input=[
@@ -1769,7 +1769,7 @@ var PATHS={
      hint:"Save it, so the verdicts and who set them outlive this session.",
      done:function(){return S.saved===true}}
   ]},
-  build:{label:"Build from evidence",steps:[
+  build:{label:"Create from Trusted Sources",steps:[
     {id:"evidence",n:"Load evidence",panel:"rag",
      hint:"Add the policies, documents and validated data the answer is allowed to draw on.",
      done:function(){return S.sources.some(function(s){return (s.text||"").trim().length>40})}},
@@ -2385,7 +2385,7 @@ $("#btn-runprompt").addEventListener("click",function(){
     S.response=r.text; $("#in-response").value=r.text; S.isExample=false; $("#ex-badge").innerHTML="";
     S.appliedTier=r.modelTierApplied||tier;
     S.claims=[]; renderLedger(); show("check");
-    $("#extract-status").textContent="Generated with your console settings at the "+S.appliedTier+" tier"+
+    $("#extract-status").textContent="Generated with your AI Instructions settings at the "+S.appliedTier+" tier"+
       (S.appliedTier!==tier?" — your plan did not allow the "+tier+" tier":"")+". Press Extract claims to start verifying it.";
   }).catch(function(e){ if(e&&e.code!=="cancelled") toast(aiErr(e),true); })
   .then(function(){b.disabled=false;b.textContent=old});
