@@ -708,7 +708,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 .report-table{width:100%;border-collapse:collapse}.report-table th{text-align:left;padding:9px 10px;color:var(--ink-3);font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;border-bottom:1px solid var(--line)}.report-table td{padding:11px 10px;border-bottom:1px solid var(--line);font-size:.82rem}.report-table tbody tr:last-child td{border-bottom:0}.report-table .titlecell{font-weight:700;max-width:320px}.report-table .num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .verdict-pill{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:.68rem;font-weight:700;background:var(--surface-3);color:var(--ink-2)}.verdict-pill.cleared{background:#D8FFEB;color:#008A4D}.verdict-pill.refuted{background:#FFE0E9;color:#CF174C}.verdict-pill.partial,.verdict-pill.in-review,.verdict-pill.below-bar{background:#FFF0CE;color:#A45B00}
 .claims-line-wrap{min-height:252px}.claims-line{display:block;width:100%;height:auto;overflow:visible}.claims-line .grid{stroke:#DDE7F3;stroke-width:1}.claims-line .axis-label{fill:var(--ink-3);font:11px var(--f-mono)}.claims-line .area{fill:url(#claimsArea)}.claims-line .trend{fill:none;stroke:var(--r-blue);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 5px 6px rgba(47,128,255,.25))}.claims-line .point{fill:#FFFFFF;stroke:var(--r-blue);stroke-width:3}.claims-line-total{display:flex;align-items:baseline;gap:9px;margin-bottom:7px}.claims-line-total strong{font:750 2rem var(--f-mono);color:var(--r-blue)}.claims-line-total span{font-size:.76rem;color:var(--ink-3)}
-.claims-gauge-card{background:linear-gradient(145deg,#202C59,#141D3E);border:0;color:#FFFFFF;overflow:hidden}.claims-gauge-card .card-h{background:rgba(255,255,255,.035);border-color:rgba(255,255,255,.12)}.claims-gauge-card .card-t,.claims-gauge-card .hint{color:#FFFFFF}.claims-gauge-card .hint{opacity:.7}.claims-gauge-body{display:grid;place-items:center;min-height:270px;padding:17px}.claims-gauge{width:min(330px,100%);height:auto}.claims-gauge .g-bg{fill:none;stroke:#536083;stroke-width:23;stroke-linecap:butt}.claims-gauge .g-progress{fill:none;stroke:url(#gaugeBright);stroke-width:23;stroke-linecap:butt}.claims-gauge .claim-gauge-needle{stroke:#FFFFFF;stroke-width:6;stroke-linecap:round;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35))}.claims-gauge .g-hub{fill:#FFFFFF}.claims-gauge .g-label{fill:#AEBCE3;font:12px var(--f-mono)}.claims-gauge .g-value{fill:#FFFFFF;font:700 34px var(--f-mono)}.claims-gauge-note{margin-top:-22px;color:#C9D4F3;font-size:.78rem;text-align:center}
+.claims-gauge-card{background:linear-gradient(145deg,#202C59,#141D3E);border:0;color:#FFFFFF;overflow:hidden}.claims-gauge-card .card-h{background:rgba(255,255,255,.035);border-color:rgba(255,255,255,.12)}.claims-gauge-card .card-t,.claims-gauge-card .hint{color:#FFFFFF}.claims-gauge-card .hint{opacity:.7}.claims-gauge-body{display:grid;place-items:center;min-height:300px;padding:20px}.claims-gauge{width:min(330px,100%);height:auto}.claims-gauge .g-bg{fill:none;stroke:#536083;stroke-width:23;stroke-linecap:butt}.claims-gauge .g-progress{fill:none;stroke-width:23;stroke-linecap:butt}.claims-gauge .claim-gauge-needle{stroke:#FFFFFF;stroke-width:6;stroke-linecap:round;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35))}.claims-gauge .g-hub{fill:#FFFFFF}.claims-gauge .g-label{fill:#AEBCE3;font:12px var(--f-mono)}.claims-gauge .g-value{fill:#FFFFFF;font:700 34px var(--f-mono)}.claims-gauge-note{margin-top:8px;color:#C9D4F3;font-size:.78rem;line-height:1.45;text-align:center}
 .reports-panel{position:relative}
 .reports-fullscreen{overflow-y:scroll}
 .reports-fullscreen .shell{display:block;min-height:100vh}
@@ -1647,7 +1647,7 @@ var HELP_KB=[
 "",
 "OPERATIONS. This is RAB·BIT's control plane. Policy profiles apply a consistent bundle of review settings: Standard, High-stakes, or Rapid screening. The RAB·BIT verification score is a transparent 100-point readiness checklist, not an AI opinion. Provider health shows whether Claude, ChatGPT, Gemini, and Supabase are configured. Telemetry shows route, HTTP status, latency, and provider for the current Render process only; it never stores prompts, answers, claims, IP addresses, or keys. Active alerts call out disconnected services, high error rates, recent rate limits, and an audit score below 70.",
 "",
-"SAVED AUDITS AND REPORTS. Saving keeps the response, every claim and verdict, student activity details, the dial settings and the judge scores. Reports shows headline quality measures, student activity and grade-band counts, a brainstorm word cloud, a model-share pie chart, claim outcomes, the evidence-completion funnel, source and judge coverage, failure rate by risk and claim type, rubric averages, weekly volume, recent audits, and reviewer discipline. The Audit Subject 3D map groups audits with similar titles or questions around larger subject nodes. The archive is shared with everyone who can open this page.",
+"SAVED AUDITS AND REPORTS. Saving keeps the response, every claim and verdict, student activity details, the dial settings and the judge scores. Reports shows headline quality measures, large gauges for claims checked and judge coverage, student activity and grade-band counts, a brainstorm word cloud, a model-share pie chart, claim outcomes, the evidence-completion funnel, source coverage, rubric averages, weekly volume, recent audits, and reviewer discipline. The Audit Subject 3D map groups audits with similar titles or questions around larger subject nodes. The archive is shared with everyone who can open this page.",
 "",
 "VERITY FEEDBACK. Helpful and Not helpful buttons appear below each Verity answer. A rating guides later Verity answers during the current browser visit. When the optional Supabase help_feedback table is installed, RAB·BIT also stores the question, answer, rating and optional reason so the product guidance can be improved over time. This feedback does not retrain OpenAI's base model automatically.",
 "",
@@ -2997,10 +2997,10 @@ function claimsLineChart(rows){
   var total=vals.reduce(function(n,v){return n+v},0);
   return '<div class="claims-line-total"><strong>'+total+'</strong><span>claims checked during this 30-day window</span></div><div class="claims-line-wrap"><svg class="claims-line" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Claims checked each day for the last 30 days"><defs><linearGradient id="claimsArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2F80FF" stop-opacity=".42"/><stop offset="1" stop-color="#22C7F2" stop-opacity=".03"/></linearGradient></defs>'+grid+ylabels+'<path class="area" d="'+area+'"/><path class="trend" d="'+path+'"/>'+dots+xlabels+'</svg></div>';
 }
-function claimsGauge(value,checked,total){
+function percentageGauge(value,detail,id,label){
   var p=Math.max(0,Math.min(100,Number(value)||0)),angle=Math.PI-Math.PI*p/100;
   var nx=120+78*Math.cos(angle),ny=120-78*Math.sin(angle);
-  return '<div class="claims-gauge-body"><div><svg class="claims-gauge" viewBox="0 0 240 170" role="img" aria-label="'+p.toFixed(1)+' percent of claims checked"><defs><linearGradient id="gaugeBright"><stop offset="0" stop-color="#22C7F2"/><stop offset=".62" stop-color="#2F80FF"/><stop offset="1" stop-color="#19D67F"/></linearGradient></defs><path class="g-bg" pathLength="100" d="M20 120 A100 100 0 0 1 220 120"/><path class="g-progress" pathLength="100" stroke-dasharray="'+p+' 100" d="M20 120 A100 100 0 0 1 220 120"/><line class="claim-gauge-needle" x1="120" y1="120" x2="'+nx.toFixed(1)+'" y2="'+ny.toFixed(1)+'"/><circle class="g-hub" cx="120" cy="120" r="8"/><text class="g-label" x="17" y="145">0%</text><text class="g-label" x="223" y="145" text-anchor="end">100%</text><text class="g-value" x="120" y="163" text-anchor="middle">'+Math.round(p)+'%</text></svg><div class="claims-gauge-note">'+checked+' of '+total+' extracted claims have a human verdict</div></div></div>';
+  return '<div class="claims-gauge-body"><div><svg class="claims-gauge" viewBox="0 0 240 190" role="img" aria-label="'+p.toFixed(1)+' percent '+esc(label)+'"><defs><linearGradient id="'+id+'"><stop offset="0" stop-color="#22C7F2"/><stop offset=".62" stop-color="#2F80FF"/><stop offset="1" stop-color="#19D67F"/></linearGradient></defs><path class="g-bg" pathLength="100" d="M20 120 A100 100 0 0 1 220 120"/><path class="g-progress" pathLength="100" stroke="url(#'+id+')" stroke-dasharray="'+p+' 100" d="M20 120 A100 100 0 0 1 220 120"/><line class="claim-gauge-needle" x1="120" y1="120" x2="'+nx.toFixed(1)+'" y2="'+ny.toFixed(1)+'"/><circle class="g-hub" cx="120" cy="120" r="8"/><text class="g-label" x="17" y="145">0%</text><text class="g-label" x="223" y="145" text-anchor="end">100%</text><text class="g-value" x="120" y="178" text-anchor="middle">'+Math.round(p)+'%</text></svg><div class="claims-gauge-note">'+esc(detail)+'</div></div></div>';
 }
 function renderReports(){
   var el=$("#reports-body");
@@ -3020,13 +3020,14 @@ function renderReports(){
   out+='<div class="rgrid">'+
     tile("Audits saved",String(t.audits),"Completed reviews in the archive.")+
     tile("Source coverage",Number(q.sourceCoverage||0).toFixed(1)+"%","Decided claims with a source recorded.")+
-    tile("Judge coverage",Number(q.judgeCoverage||0).toFixed(1)+"%","Saved audits that were scored by the judge.")+
     tile("Average judge score",t.avgJudge!=null?Number(t.avgJudge).toFixed(1)+"/5":"—","Across audits that were graded.",t.avgJudge>=4?"ok":t.avgJudge>=3?"warn":t.avgJudge!=null?"bad":"")+
     (models.length?modelPieWidget(models):"")+
   '</div>';
 
-  out+='<div class="report-grid2"><div class="card report-card" style="--report-color:#2F80FF"><div class="card-h"><span class="card-t">Claims checked · last 30 days</span><span class="hint">Daily human review volume</span></div><div class="card-b">'+claimsLineChart(REPORTS.claimsDaily)+'</div></div>'+ 
-    '<div class="card report-card claims-gauge-card" style="--report-color:#19D67F"><div class="card-h"><span class="card-t">Claims checked percentage</span><span class="hint">All saved claims</span></div>'+claimsGauge(pct(checked,t.claims||0),checked,Number(t.claims||0))+'</div></div>';
+  out+='<div class="card report-card" style="--report-color:#2F80FF"><div class="card-h"><span class="card-t">Claims checked · last 30 days</span><span class="hint">Daily human review volume</span></div><div class="card-b">'+claimsLineChart(REPORTS.claimsDaily)+'</div></div>';
+  var judgePct=Number(q.judgeCoverage||0),judgedCount=Math.round(judgePct*Number(t.audits||0)/100);
+  out+='<div class="report-grid2"><div class="card report-card claims-gauge-card" style="--report-color:#19D67F"><div class="card-h"><span class="card-t">Claims checked percentage</span><span class="hint">All saved claims</span></div>'+percentageGauge(pct(checked,t.claims||0),checked+' of '+Number(t.claims||0)+' extracted claims have a human verdict','claimsGaugeBright','of claims checked')+'</div>'+ 
+    '<div class="card report-card claims-gauge-card" style="--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Judge coverage</span><span class="hint">All saved audits</span></div>'+percentageGauge(judgePct,judgedCount+' of '+Number(t.audits||0)+' saved audits received an AI judge score','judgeGaugeBright','of audits judged')+'</div></div>';
 
   var studentActivities=REPORTS.studentActivities||[], studentGradeBands=REPORTS.studentGradeBands||[], brainstormWords=REPORTS.brainstormWords||[];
   var studentTotal=studentActivities.reduce(function(n,r){return n+Number(r.audits||0)},0);
@@ -3059,26 +3060,9 @@ function renderReports(){
   out+='<div class="report-grid2"><div class="card report-card" style="--report-color:#8B5CF6"><div class="card-h"><span class="card-t">Claim outcomes</span><span class="hint">'+notCleared+' did not survive</span></div><div class="card-b donut-wrap"><div class="report-donut" style="background:'+donut+'"><div><strong>'+t.claims+'</strong><span>Total claims</span></div></div><div class="report-legend">'+legend+'</div></div></div>'+
     '<div class="card report-card" style="--report-color:#22C7F2"><div class="card-h"><span class="card-t">Evidence completion funnel</span><span class="hint">How claims move toward approval</span></div><div class="card-b"><div class="chart">'+funnelRows.map(function(r){return bar(r[0],r[2],String(r[1]||0),pct(r[1]||0,funnel.claims||1),pct(r[1]||0,funnel.claims||1)+"%")}).join("")+'</div></div></div></div>';
 
-  /* Risk exposure and rubric performance. */
-  var risks=REPORTS.riskLevels||[], criteria=REPORTS.criteria||[];
-  if(risks.length||criteria.length){
-    out+='<div class="report-grid2">';
-    if(risks.length) out+='<div class="card report-card" style="--report-color:#FF7A2F"><div class="card-h"><span class="card-t">Failure rate by claim risk</span></div><div class="card-b"><div class="chart">'+risks.map(function(r){var v=r.failurePct==null?0:Number(r.failurePct);return bar((r.risk||"unspecified")+" risk",reportRiskColor(r.risk),r.failurePct==null?"—":v.toFixed(1)+"%",v,r.checked+" checked")}).join("")+'</div></div></div>';
-    if(criteria.length) out+='<div class="card report-card" style="--report-color:#19D67F"><div class="card-h"><span class="card-t">Judge rubric averages</span></div><div class="card-b"><div class="chart">'+criteria.map(function(r){var v=Number(r.average||0);return bar(r.criterion,REPORT_STATUS_COLORS.verified,v.toFixed(1)+"/5",20*v,r.scores+" scores")}).join("")+'</div></div></div>';
-    out+='</div>';
-  }
-
-  /* Claim-type exposure. */
-  var types=(REPORTS.claimTypes||[]).filter(function(r){return r.not_cleared_pct!=null});
-  if(types.length){
-    var maxT=Math.max.apply(null,types.map(function(r){return Number(r.not_cleared_pct)}))||1;
-    out+='<div class="card report-card" style="margin-top:18px;--report-color:#FF3D71"><div class="card-h"><span class="card-t">Which kinds of claim fail checking</span></div>'+
-      '<div class="card-b"><p class="hint" style="margin:0 0 14px">Share of checked claims that came back unsupported or refuted. High bars are where this tool earns its keep — and where the model under review is least trustworthy.</p><div class="chart">';
-    types.forEach(function(r,i){
-      out+=bar(r.claim_type,REPORT_STATUS_COLORS.refuted,Number(r.not_cleared_pct).toFixed(1)+"%",100*Number(r.not_cleared_pct)/maxT,"n="+r.claims);
-    });
-    out+='</div></div></div>';
-  }
+  /* Judge performance. */
+  var criteria=REPORTS.criteria||[];
+  if(criteria.length) out+='<div class="card report-card" style="margin-top:18px;--report-color:#19D67F"><div class="card-h"><span class="card-t">Judge rubric averages</span></div><div class="card-b"><div class="chart">'+criteria.map(function(r){var v=Number(r.average||0);return bar(r.criterion,REPORT_STATUS_COLORS.verified,v.toFixed(1)+"/5",20*v,r.scores+" scores")}).join("")+'</div></div></div>';
 
   /* Audit outcomes and activity over time. */
   var wk=(REPORTS.weekly||[]).slice(-12);
