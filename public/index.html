@@ -802,7 +802,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
       <button data-p="check" aria-current="false"><span class="ic ic-nav ic-1" data-ic="ledger"></span><span class="nav-t">Fact-check</span><span class="nav-dot" id="dot-check"></span></button>
       <button data-p="console"><span class="ic ic-nav ic-2" data-ic="dial"></span><span class="nav-t">AI Instructions</span><span class="nav-dot" id="dot-console"></span></button>
       <button data-p="student"><span class="ic ic-nav ic-2" aria-hidden="true">🧠</span><span class="nav-t">Student Module</span><span class="nav-dot" id="dot-student"></span></button>
-      <button data-p="rag"><span class="ic ic-nav ic-3" data-ic="layers"></span><span class="nav-t">Grounding</span><span class="nav-dot" id="dot-rag"></span></button>
+      <button data-p="rag"><span class="ic ic-nav ic-3" data-ic="layers"></span><span class="nav-t">Trusted Sources</span><span class="nav-dot" id="dot-rag"></span></button>
       <button data-p="judge"><span class="ic ic-nav ic-4" data-ic="meter"></span><span class="nav-t">Judge &amp; tests</span><span class="nav-dot" id="dot-judge"></span></button>
       <div class="nav-h" style="padding-top:14px">Governance</div>
       <button data-p="ops"><span class="ic ic-nav ic-2" data-ic="target"></span><span class="nav-t">Operations</span><span class="nav-dot" id="dot-ops"></span></button>
@@ -1019,9 +1019,9 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
       <section class="panel" id="p-rag">
         <div class="phead">
           <div>
-            <span class="ic ic-head ic-3" data-ic="layers"></span><div class="kicker">Practice 2 · Grounding</div>
-            <h1 class="ptitle">RAG turns guessing into retrieval</h1>
-            <p class="psub">The model answers from a controlled evidence set instead of relying on its general training. Load the trusted sources, retrieve the relevant passages, and generate an answer that can only cite what was retrieved.</p>
+            <span class="ic ic-head ic-3" data-ic="layers"></span><div class="kicker">Practice 2 · Trusted Sources</div>
+            <h1 class="ptitle">Ground answers in trusted sources</h1>
+            <p class="psub">Add reliable source material and check AI answers against it.</p>
           </div>
         </div>
 
@@ -1667,7 +1667,7 @@ var HELP_KB=[
 
 function helpState(){
   var panel=(document.querySelector(".panel.on")||{}).id||"", names={
-    "p-check":"Fact-check","p-student":"Student Module","p-console":"AI Instructions","p-rag":"Grounding","p-judge":"Judge & tests","p-ops":"Operations","p-reports":"Reports","p-records":"Saved audits"};
+    "p-check":"Fact-check","p-student":"Student Module","p-console":"AI Instructions","p-rag":"Trusted Sources","p-judge":"Judge & tests","p-ops":"Operations","p-reports":"Reports","p-records":"Saved audits"};
   var n=function(st){return S.claims.filter(function(c){return c.status===st}).length};
   var st=steps()[curStep()];
   return ["WHAT THE USER IS LOOKING AT RIGHT NOW (use it only if relevant):",
