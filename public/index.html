@@ -258,6 +258,23 @@ a{color:var(--accent)}
   border-bottom-color:rgba(255,255,255,.12);
 }
 
+
+/* ---------- reports action button contrast ---------- */
+:root[data-theme="dark"] #btn-new,
+:root[data-theme="dark"] #btn-reports-refresh{
+  background:var(--surface-2);
+  border-color:var(--line-2);
+  color:var(--ink);
+}
+:root[data-theme="dark"] #btn-new:hover,
+:root[data-theme="dark"] #btn-new:focus-visible,
+:root[data-theme="dark"] #btn-reports-refresh:hover,
+:root[data-theme="dark"] #btn-reports-refresh:focus-visible{
+  background:var(--surface-3);
+  border-color:var(--accent);
+  color:var(--ink);
+}
+
 @media (max-width:760px){.help{width:100vw}}
 
 /* ---------- rubric gauges ----------
