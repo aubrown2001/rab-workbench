@@ -185,6 +185,79 @@ a{color:var(--accent)}
 .help-chips button:hover{border-color:var(--accent);color:var(--ink)}
 .help-form{display:flex;gap:9px;align-items:flex-end}
 .help-form textarea{flex:1;font-size:17px}
+
+/* ---------- dark-mode contrast repair ---------- */
+:root[data-theme="dark"] .psub,
+:root[data-theme="dark"] .hint,
+:root[data-theme="dark"] .fld-k,
+:root[data-theme="dark"] .dial-l,
+:root[data-theme="dark"] .report-table th,
+:root[data-theme="dark"] .report-donut span,
+:root[data-theme="dark"] .claims-line-total span,
+:root[data-theme="dark"] .sparkx span,
+:root[data-theme="dark"] .cval em{
+  color:var(--ink-2);
+}
+:root[data-theme="dark"] .card-t,
+:root[data-theme="dark"] .report-table td,
+:root[data-theme="dark"] .report-table .titlecell,
+:root[data-theme="dark"] .report-legend-row,
+:root[data-theme="dark"] .report-donut strong,
+:root[data-theme="dark"] .clab,
+:root[data-theme="dark"] .cval{
+  color:var(--ink);
+}
+:root[data-theme="dark"] textarea,
+:root[data-theme="dark"] input[type=text],
+:root[data-theme="dark"] input[type=url],
+:root[data-theme="dark"] select{
+  color:var(--ink);
+}
+:root[data-theme="dark"] .card{
+  border-color:var(--line);
+}
+:root[data-theme="dark"] .card-h{
+  background:linear-gradient(180deg,var(--surface-2),var(--surface));
+  border-bottom-color:var(--line);
+}
+:root[data-theme="dark"] .card-b{
+  color:var(--ink);
+}
+:root[data-theme="dark"] .note{
+  background:linear-gradient(90deg,var(--accent-soft),var(--surface-2));
+  color:var(--ink);
+}
+:root[data-theme="dark"] #reports-body{
+  color:var(--ink);
+}
+:root[data-theme="dark"] #reports-body .report-card .card-t{
+  color:color-mix(in srgb,var(--report-color,var(--accent)) 55%,#FFFFFF);
+}
+:root[data-theme="dark"] .report-table th,
+:root[data-theme="dark"] .report-table td{
+  border-bottom-color:var(--line);
+}
+:root[data-theme="dark"] .claims-line .grid{
+  stroke:var(--line-2);
+}
+:root[data-theme="dark"] .claims-line .point{
+  fill:var(--surface);
+}
+:root[data-theme="dark"] #reports-body .claims-gauge-card .card-h{
+  background:rgba(255,255,255,.035);
+  border-bottom-color:rgba(255,255,255,.12);
+}
+:root[data-theme="dark"] #reports-body .claims-gauge-card .card-t,
+:root[data-theme="dark"] #reports-body .claims-gauge-card .hint,
+:root[data-theme="dark"] #reports-body .audit-space-card .card-t,
+:root[data-theme="dark"] #reports-body .audit-space-card .hint{
+  color:#FFFFFF;
+}
+:root[data-theme="dark"] #reports-body .audit-space-card .card-h{
+  background:linear-gradient(90deg,#142553,#261A59);
+  border-bottom-color:rgba(255,255,255,.12);
+}
+
 @media (max-width:760px){.help{width:100vw}}
 
 /* ---------- rubric gauges ----------
