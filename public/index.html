@@ -275,6 +275,20 @@ a{color:var(--accent)}
   color:var(--ink);
 }
 
+
+/* ---------- modal cancel button contrast ---------- */
+:root[data-theme="dark"] #modal-cancel{
+  background:var(--surface-2);
+  border-color:var(--line-2);
+  color:var(--ink);
+}
+:root[data-theme="dark"] #modal-cancel:hover,
+:root[data-theme="dark"] #modal-cancel:focus-visible{
+  background:var(--surface-3);
+  border-color:var(--accent);
+  color:var(--ink);
+}
+
 @media (max-width:760px){.help{width:100vw}}
 
 /* ---------- rubric gauges ----------
