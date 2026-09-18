@@ -958,6 +958,25 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
   #p-check.research-flow .research-dispositions .st,.research-remove{width:100%}
 }
 
+
+.research-crosscheck-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-top:16px}
+.research-crosscheck-head h4{margin:0;color:var(--ink);font-size:.9rem}
+.research-crosscheck-head p{margin:4px 0 0;color:var(--ink-3);font-size:.76rem}
+.research-optional-tag{flex:none;padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink-3);font-size:.66rem;font-weight:750;letter-spacing:.06em;text-transform:uppercase}
+.research-tool-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.research-tool-btn{min-width:0;min-height:76px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);display:flex;align-items:center;gap:10px;text-align:left;text-decoration:none;cursor:pointer;box-shadow:0 8px 22px -22px rgba(12,38,80,.7);transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease}
+.research-tool-btn:hover,.research-tool-btn:focus-visible{transform:translateY(-2px);border-color:var(--tool-color,var(--accent));box-shadow:0 14px 25px -20px color-mix(in srgb,var(--tool-color,var(--accent)) 70%,transparent)}
+.research-tool-btn:disabled{opacity:.42;cursor:not-allowed;transform:none;box-shadow:none}
+.research-tool-icon{display:grid;place-items:center;flex:0 0 34px;height:34px;border-radius:10px;background:color-mix(in srgb,var(--tool-color,var(--accent)) 14%,var(--surface));color:var(--tool-color,var(--accent));font-size:.96rem;font-weight:850}
+.research-tool-copy{min-width:0;display:block}
+.research-tool-copy b{display:block;font-size:.78rem;line-height:1.2}
+.research-tool-copy small{display:block;margin-top:4px;color:var(--ink-3);font-size:.66rem;line-height:1.25}
+.research-tool-btn.web{--tool-color:#1769E8}.research-tool-btn.scholar{--tool-color:#6B58C9}.research-tool-btn.claude{--tool-color:#C76532}.research-tool-btn.openai{--tool-color:#13866F}.research-tool-btn.gemini{--tool-color:#3576E8}
+.research-crosscheck-note{padding:10px 12px;border-radius:10px;background:var(--accent-soft);color:var(--ink-2);font-size:.76rem;line-height:1.45}
+.research-tool-results{display:flex;flex-direction:column;gap:10px}
+@media(max-width:1000px){.research-tool-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:620px){.research-tool-grid{grid-template-columns:1fr 1fr}.research-tool-btn{min-height:68px}.research-crosscheck-head{flex-direction:column}}
+
 @keyframes researchScreenIn{from{opacity:0;transform:translateX(54px)}to{opacity:1;transform:translateX(0)}}
 @keyframes researchClaimIn{from{opacity:0;transform:translateX(38px)}to{opacity:1;transform:translateX(0)}}
 @media(max-width:760px){
@@ -2418,6 +2437,21 @@ function checkButtons(){
       (on?'':' disabled title="Add a free '+p.key+' in Render to connect '+p.label+'"')+'>'+p.label+'</button>';
   }).join("");
 }
+function researchCrosscheckTools(c){
+  var query=(c.queries&&c.queries[0])||c.text, encoded=encodeURIComponent(query);
+  var tools=
+    '<a class="research-tool-btn web" href="https://www.google.com/search?q='+encoded+'" target="_blank" rel="noopener"><span class="research-tool-icon">W</span><span class="research-tool-copy"><b>Search Web</b><small>Find independent sources</small></span></a>'+
+    '<a class="research-tool-btn scholar" href="https://scholar.google.com/scholar?q='+encoded+'" target="_blank" rel="noopener"><span class="research-tool-icon">S</span><span class="research-tool-copy"><b>Google Scholar</b><small>Search academic research</small></span></a>';
+  tools+=CHECK_PROVIDERS.map(function(p){
+    var on=!!SERVER.providers[p.id], act=p.id==="anthropic"&&!on?"manual-check":"ai-check";
+    var icon=p.id==="anthropic"?"C":p.id==="openai"?"G":"✦";
+    var note=p.id==="anthropic"?"Ask Claude":p.id==="openai"?"Ask ChatGPT":"Ask Gemini";
+    return '<button type="button" class="research-tool-btn '+(p.id==="anthropic"?"claude":p.id)+'" data-act="'+act+'" data-provider="'+p.id+'"'+
+      (on||act==="manual-check"?'':' disabled title="This AI connection is not currently available."')+'>'+
+      '<span class="research-tool-icon">'+icon+'</span><span class="research-tool-copy"><b>'+p.label+'</b><small>'+note+' for a second opinion</small></span></button>';
+  }).join("");
+  return tools;
+}
 function checkResults(c){
   var checks=c.aiChecks||{};
   return CHECK_PROVIDERS.map(function(p){
@@ -2451,18 +2485,19 @@ function renderResearchClaim(c,claimNumber,total){
       '</div>'+
       (decided?'<div class="research-choice-note ready">✓ Disposition selected. You can continue to the next claim.</div>':'<div class="research-choice-note required">● Choose a disposition before moving to the next claim.</div>')+
       (c.why?'<div class="research-why"><b>Why this claim deserves a closer look:</b> '+esc(c.why)+'</div>':"")+
-      '<details class="research-evidence">'+
-        '<summary><div>Optional evidence &amp; cross-checks<span>Add a source, reviewer note, or second AI opinion.</span></div></summary>'+
+      '<details class="research-evidence" open>'+
+        '<summary><div>Optional evidence &amp; cross-checks<span>Use any of these tools when they help. None are required.</span></div></summary>'+
         '<div class="research-evidence-body">'+
-          '<div class="mini"><span class="mini-k">Suggested searches</span><div class="lateral">'+
+          '<div class="research-crosscheck-head"><div><h4>Cross-check this claim</h4><p>Compare the claim with the web, academic sources, or another AI.</p></div><span class="research-optional-tag">Optional</span></div>'+
+          '<div class="research-tool-grid">'+researchCrosscheckTools(c)+'</div>'+
+          '<div class="research-crosscheck-note">These tools provide additional perspectives. The student still chooses the disposition, and no cross-check is required to continue.</div>'+
+          '<div class="research-tool-results"><div class="ai-results" data-role="ai-results">'+checkResults(c)+'</div>'+manualClaudeBox()+'</div>'+
+          '<div class="mini"><span class="mini-k">Suggested search phrases</span><div class="lateral">'+
             (c.queries&&c.queries.length?c.queries.map(searchLinks).join(""):'<span class="hint">No searches suggested.</span>')+'</div></div>'+
           '<div class="grid2" style="gap:10px">'+
             '<label class="fld"><span class="fld-k">Independent source (optional)</span><input type="text" data-act="url" value="'+esc(c.url)+'" placeholder="Paste a URL or citation"></label>'+
             '<label class="fld"><span class="fld-k">Reviewer note (optional)</span><input type="text" data-act="note" value="'+esc(c.note)+'" placeholder="What did you learn?"></label>'+
           '</div>'+
-          '<div class="ai-check"><div class="ai-check-head"><span class="mini-k">AI cross-check (optional)</span>'+checkButtons()+'</div>'+
-            '<div class="ai-check-note">A second AI opinion may reveal disagreements, but it is not proof and does not choose the disposition for you.</div>'+
-            '<div class="ai-results" data-role="ai-results">'+checkResults(c)+'</div>'+manualClaudeBox()+'</div>'+
         '</div>'+
       '</details>'+
     '</div>'+
@@ -2571,7 +2606,10 @@ $("#ledger").addEventListener("input",function(e){
 
 function providerCheck(c,wrap,btn,provider){
   var out=wrap.querySelector('[data-role="ai-results"]');
-  var label=btn.textContent; btn.disabled=true; btn.textContent=label+'…';
+  var isTool=btn.classList.contains("research-tool-btn"), original=btn.innerHTML, label=btn.textContent;
+  btn.disabled=true;
+  if(isTool){btn.setAttribute("aria-busy","true");btn.classList.add("is-loading")}
+  else btn.textContent=label+'…';
   fetch("/api/check",{method:"POST",headers:{"content-type":"application/json"},
     body:JSON.stringify({provider:provider,claim:c.text,reference:S.judgeRef||""})})
   .then(function(res){return res.json().then(function(d){if(d.error) return Promise.reject(d.error);return d})})
@@ -2579,7 +2617,9 @@ function providerCheck(c,wrap,btn,provider){
     c.aiChecks=c.aiChecks||{}; c.aiChecks[provider]=r; S.saved=false; renderLedger();
   }).catch(function(e){
     out.innerHTML=checkResults(c)+'<div class="ai-result err">'+esc((e&&e.message)||"The cross-check failed. Try again.")+'</div>';
-    btn.disabled=false; btn.textContent=label;
+    btn.disabled=false;
+    if(isTool){btn.innerHTML=original;btn.removeAttribute("aria-busy");btn.classList.remove("is-loading")}
+    else btn.textContent=label;
   });
 }
 function manualCheckPrompt(c){
