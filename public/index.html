@@ -894,6 +894,40 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
   .ops-grid,.scorecard{grid-template-columns:1fr}.score-ring{margin:0 auto}.policy-row{grid-template-columns:1fr}.event-table th:nth-child(2),.event-table td:nth-child(2){display:none}
   .report-grid2,.donut-wrap{grid-template-columns:1fr}.report-donut{margin:0 auto}.report-callout{grid-template-columns:1fr}.report-table th:nth-child(3),.report-table td:nth-child(3){display:none}
 }
+
+/* Research Paper guided horizontal workflow */
+.research-model-pick,.research-claim-nav{display:none}
+#p-check.research-flow .research-model-pick{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+#p-check.research-flow .ask-chatgpt{margin-bottom:18px}
+#p-check.research-flow .phead>.row{display:none}
+#p-check.research-flow .grid-side{grid-template-columns:minmax(0,1fr)}
+#p-check.research-flow .grid-side>div:last-child{display:none}
+#p-check.research-flow .dials{display:none}
+#p-check.research-flow .ledger-standard-actions{display:none}
+#p-check.research-flow .research-claim-nav{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+#p-check.research-flow .research-claim-nav strong{min-width:92px;text-align:center;color:var(--ink);font-size:.86rem}
+#p-check.research-flow[data-research-stage="1"] .grid-side,
+#p-check.research-flow[data-research-stage="1"] .claim-ledger-card,
+#p-check.research-flow[data-research-stage="1"] .save-strip{display:none}
+#p-check.research-flow[data-research-stage="1"] #ask-chatgpt{max-width:900px;margin:0 auto;animation:researchScreenIn .34s ease-out both}
+#p-check.research-flow[data-research-stage="2"] .grid-side,
+#p-check.research-flow[data-research-stage="2"] .claim-ledger-card,
+#p-check.research-flow[data-research-stage="2"] .save-strip{animation:researchScreenIn .38s ease-out both}
+#p-check.research-flow .claim{animation:researchClaimIn .28s ease-out both}
+@keyframes researchScreenIn{from{opacity:0;transform:translateX(54px)}to{opacity:1;transform:translateX(0)}}
+@keyframes researchClaimIn{from{opacity:0;transform:translateX(38px)}to{opacity:1;transform:translateX(0)}}
+@media(max-width:760px){
+  #p-check.research-flow .research-claim-nav{width:100%;justify-content:space-between}
+  #p-check.research-flow .card-h{align-items:flex-start}
+}
+@media(prefers-reduced-motion:reduce){
+  #p-check.research-flow[data-research-stage] #ask-chatgpt,
+  #p-check.research-flow[data-research-stage] .grid-side,
+  #p-check.research-flow[data-research-stage] .claim-ledger-card,
+  #p-check.research-flow[data-research-stage] .save-strip,
+  #p-check.research-flow .claim{animation:none}
+}
+
 </style>
 </head>
 <body>
@@ -996,6 +1030,7 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
           <form class="card-b" id="ask-chatgpt-form" style="display:flex;flex-direction:column;gap:12px">
             <label class="fld"><span class="fld-k">What would you like to know?</span>
               <textarea id="ask-chatgpt-q" rows="3" maxlength="12000" placeholder="Type the question you want an AI model to answer…"></textarea></label>
+            <label class="fld research-model-pick"><span class="fld-k">Choose your AI model</span><select id="research-ai-model" aria-label="Choose the AI model for this research paper"></select></label>
             <div class="row"><button class="btn pri" id="btn-ask-chatgpt" type="submit" data-needs-ai>Choose your AI model</button><span class="hint" id="ask-chatgpt-status"></span></div>
             <div class="ask-chatgpt-note" id="ask-ai-note">Choose a connected OpenAI or Claude model. Ask AI uses the temperature and response structure selected in AI Instructions, then automatically breaks the answer into claims. The claims remain unverified until you check them against trustworthy sources.</div>
           </form>
@@ -1037,10 +1072,15 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
           </div>
         </div>
 
-        <div class="card">
+        <div class="card claim-ledger-card">
           <div class="card-h">
             <span class="card-t">Claim ledger <span id="ledger-count" style="color:var(--ink-2)"></span></span>
-            <div class="row">
+            <div class="research-claim-nav" id="research-claim-nav" hidden>
+              <button class="btn sm" id="claim-prev" type="button">← Previous</button>
+              <strong id="claim-progress">Claim 1 of 1</strong>
+              <button class="btn sm pri" id="claim-next" type="button">Next claim →</button>
+            </div>
+            <div class="row ledger-standard-actions">
               <button class="btn sm" id="btn-addclaim">Add claim manually</button>
               <button class="btn sm" id="btn-sendjudge">Send to judge →</button>
             </div>
@@ -2038,6 +2078,18 @@ var PATHS={
   ]}
 };
 function steps(){ return PATHS[S.wiz.path].steps }
+function syncResearchFlow(){
+  var panel=$("#p-check"), research=!!(S.student&&S.student.activity==="research");
+  panel.classList.toggle("research-flow",research);
+  if(research){
+    if(!S.student.researchStage) S.student.researchStage=S.response?2:1;
+    panel.dataset.researchStage=String(S.student.researchStage);
+    populateResearchModelSelect();
+  }else{
+    panel.classList.remove("research-flow");
+    panel.removeAttribute("data-research-stage");
+  }
+}
 function syncPathUi(){
   var isAsk=S.wiz.path==="ask", card=$("#ask-chatgpt");
   if(card) card.hidden=!isAsk;
@@ -2049,7 +2101,9 @@ function syncPathUi(){
     :"Citations are a starting point, not proof. Split the response into atomic claims, confirm each against an independent source, and record who cleared it.";
   if($("#ask-ai-card-title")) $("#ask-ai-card-title").textContent=activity==="research"?"Research Paper Coach":activity==="homework"?"Homework Helper":"Ask AI";
   if($("#ask-chatgpt-q")) $("#ask-chatgpt-q").placeholder=activity==="research"?"What topic would you like to research?":activity==="homework"?"Type the homework question and what you have tried so far…":"Type the question you want an AI model to answer…";
-  if($("#ask-ai-note")) $("#ask-ai-note").textContent=activity?"Choose a connected AI model. It will coach instead of silently doing the assignment, and RAB·BIT will automatically begin the verification steps.":"Choose a connected OpenAI or Claude model. RAB·BIT will record your choice, generate the answer, and automatically break it into claims. The claims remain unverified until you check them against trustworthy sources.";
+  if($("#ask-ai-note")) $("#ask-ai-note").textContent=activity==="research"?"Choose a connected AI model and ask your research question. Your answer will move into review, where you will verify one claim at a time.":activity?"Choose a connected AI model. It will coach instead of silently doing the assignment, and RAB·BIT will automatically begin the verification steps.":"Choose a connected OpenAI or Claude model. RAB·BIT will record your choice, generate the answer, and automatically break it into claims. The claims remain unverified until you check them against trustworthy sources.";
+  if($("#btn-ask-chatgpt")) $("#btn-ask-chatgpt").textContent=activity==="research"?"Ask AI":"Choose your AI model";
+  syncResearchFlow();
 }
 /* Until the user navigates, the current step is the first unfinished one. Once
    they click, they are driving: the pin is honoured even on a finished step, so
@@ -2335,11 +2389,23 @@ function manualClaudeBox(){
 }
 function renderLedger(){
   renderReopen();
-  var el=$("#ledger");
-  if(!S.claims.length){ el.innerHTML='<div class="empty">No claims yet. Paste a response and press <b>Extract claims</b>, or add one by hand.</div>'; stats(); return; }
-  el.innerHTML=S.claims.map(function(c,i){
+  var el=$("#ledger"), researchMode=!!(S.student&&S.student.activity==="research");
+  var nav=$("#research-claim-nav"), progress=$("#claim-progress"), prev=$("#claim-prev"), next=$("#claim-next");
+  if(!S.claims.length){
+    if(nav) nav.hidden=true;
+    el.innerHTML='<div class="empty">No claims yet. Paste a response and press <b>Extract claims</b>, or add one by hand.</div>'; stats(); return;
+  }
+  var researchIndex=researchMode?Math.max(0,Math.min(S.claims.length-1,Number(S.student.claimIndex)||0)):0;
+  if(researchMode) S.student.claimIndex=researchIndex;
+  if(nav) nav.hidden=!researchMode;
+  if(progress) progress.textContent="Claim "+(researchIndex+1)+" of "+S.claims.length;
+  if(prev) prev.disabled=!researchMode||researchIndex===0;
+  if(next){next.disabled=!researchMode||researchIndex>=S.claims.length-1;next.textContent=researchIndex>=S.claims.length-1?"Last claim":"Next claim →";}
+  var ledgerClaims=researchMode?[S.claims[researchIndex]]:S.claims;
+  el.innerHTML=ledgerClaims.map(function(c,i){
+    var claimNumber=researchMode?researchIndex+i+1:i+1;
     return '<div class="claim sel-'+esc(c.status)+'" data-id="'+c.id+'">'+
-      '<div class="claim-top"><div class="claim-n">'+String(i+1).padStart(2,"0")+'</div><div>'+
+      '<div class="claim-top"><div class="claim-n">'+String(claimNumber).padStart(2,"0")+'</div><div>'+
         '<p class="claim-txt">'+esc(c.text)+'</p>'+
         '<div class="claim-meta"><div class="statuses">'+STATUSES.map(function(s){
           var block=s[0]==="verified"&&!meetsProof(c);
@@ -2370,6 +2436,14 @@ function renderLedger(){
   }).join("");
   stats();
 }
+$("#claim-prev").addEventListener("click",function(){
+  if(!(S.student&&S.student.activity==="research")) return;
+  S.student.claimIndex=Math.max(0,(Number(S.student.claimIndex)||0)-1); renderLedger();
+});
+$("#claim-next").addEventListener("click",function(){
+  if(!(S.student&&S.student.activity==="research")) return;
+  S.student.claimIndex=Math.min(S.claims.length-1,(Number(S.student.claimIndex)||0)+1); renderLedger();
+});
 $("#ledger").addEventListener("click",function(e){
   var b=e.target.closest("[data-act]"); if(!b) return;
   var wrap=e.target.closest(".claim"); if(!wrap) return;
@@ -2441,9 +2515,16 @@ function saveManualClaude(c,wrap){
 function askAnswerModels(){
   return SERVER.models.filter(function(m){return m.available!==false&&(m.provider==="openai"||m.provider==="anthropic")});
 }
+function populateResearchModelSelect(){
+  var sel=$("#research-ai-model"); if(!sel) return;
+  var models=askAnswerModels(), current=sel.value||S.model;
+  sel.innerHTML=models.map(function(m){return '<option value="'+esc(m.id)+'">'+esc(m.label+(m.note?" — "+m.note:""))+'</option>'}).join("");
+  var preferred=models.filter(function(m){return m.id===current})[0]||models.filter(function(m){return m.id==="gpt-5.6-terra"})[0]||models[0];
+  if(preferred) sel.value=preferred.id;
+}
 function studentActivityLabel(activity){return activity==="research"?"Research Paper":activity==="homework"?"Homework Question":"Brainstorm"}
 function startStudentAsk(activity){
-  S.student={activity:activity,topic:"",ideasText:""};
+  S.student={activity:activity,topic:"",ideasText:"",researchStage:activity==="research"?1:null,claimIndex:0};
   startWorkflow("ask",true);
   $("#ask-chatgpt-q").value="";
   $("#ask-chatgpt-status").textContent="Your learning coach is ready.";
@@ -2498,12 +2579,13 @@ function runAskAi(q,modelId){
       $("#in-prompt").value=q; $("#in-response").value=S.response; renderModelSelect(); $("#in-model").value=S.model;
       $("#ex-badge").innerHTML='<span class="exbadge">'+esc(d.label||chosen.label)+' answer · unverified</span>';
       st.textContent="Answer received. RAB·BIT is extracting its claims below…";
+      if(S.student&&S.student.activity==="research"){S.student.researchStage=2;S.student.claimIndex=0;}
       renderSteps();
       $("#btn-extract").click();
       setTimeout(function(){$("#in-response").scrollIntoView({behavior:"smooth",block:"center"})},120);
     })
     .catch(function(err){ st.innerHTML='<span class="err">'+esc(aiErr(err))+'</span>'; })
-    .then(function(){btn.disabled=false;btn.textContent="Choose your AI model"});
+    .then(function(){btn.disabled=false;btn.textContent=S.student&&S.student.activity==="research"?"Ask AI":"Choose your AI model"});
 }
 $("#ask-chatgpt-form").addEventListener("submit",function(e){
   e.preventDefault();
@@ -2511,6 +2593,11 @@ $("#ask-chatgpt-form").addEventListener("submit",function(e){
   if(!q){ st.innerHTML='<span class="err">Type a question first.</span>'; $("#ask-chatgpt-q").focus(); return; }
   if(!models.length){ st.innerHTML='<span class="err">No OpenAI or Claude model is connected. Add an API key in Render.</span>'; return; }
   var preferred=models.filter(function(m){return m.id===S.model})[0]||models.filter(function(m){return m.id==="gpt-5.6-terra"})[0]||models[0];
+  if(S.student&&S.student.activity==="research"){
+    var selected=$("#research-ai-model").value||preferred.id;
+    runAskAi(q,selected);
+    return;
+  }
   ask("Choose your AI model","Select the model that should answer this question. RAB·BIT will record your choice and begin verification automatically.","Generate & verify",function(modelId){runAskAi(q,modelId)},{select:{
     value:preferred.id,
     options:models.map(function(m){return {value:m.id,label:m.label+(m.note?" — "+m.note:""),group:m.provider==="openai"?"OpenAI · ChatGPT":"Anthropic · Claude"}})
@@ -2539,6 +2626,7 @@ $("#btn-extract").addEventListener("click",function(){
         status:"unverified",checks:{claim:true,independent:false},aiChecks:{},note:"",url:""};
     }).filter(function(c){return c.text});
     S.isExample=false; $("#ex-badge").innerHTML="";
+    if(S.student&&S.student.activity==="research") S.student.claimIndex=0;
     st.innerHTML=S.claims.length+" claims extracted. Every one starts unverified — clearing them is the human step.";
     renderLedger();
   }).catch(function(e){ st.innerHTML=aiErrHtml(e); })
