@@ -2471,9 +2471,10 @@ function renderResearchClaim(c,claimNumber,total){
 function renderLedger(){
   renderReopen();
   var el=$("#ledger"), researchMode=!!(S.student&&S.student.activity==="research");
-  var nav=$("#research-claim-nav"), progress=$("#claim-progress"), prev=$("#claim-prev"), next=$("#claim-next");
+  var nav=$("#research-claim-nav"), progress=$("#claim-progress"), prev=$("#claim-prev"), next=$("#claim-next"), gradeBtn=$("#btn-bottom-grade");
   if(!S.claims.length){
     if(nav) nav.hidden=true;
+    if(gradeBtn){gradeBtn.hidden=researchMode;gradeBtn.disabled=false;gradeBtn.title="";}
     el.innerHTML='<div class="empty">No claims yet. Paste a response and press <b>Extract claims</b>, or add one by hand.</div>'; stats(); return;
   }
   var researchIndex=researchMode?Math.max(0,Math.min(S.claims.length-1,Number(S.student.claimIndex)||0)):0;
@@ -2481,11 +2482,16 @@ function renderLedger(){
   if(nav) nav.hidden=!researchMode;
   if(progress) progress.textContent="Claim "+(researchIndex+1)+" of "+S.claims.length;
   if(prev) prev.disabled=!researchMode||researchIndex===0;
+  var current=S.claims[researchIndex], decided=!researchMode||current.status!=="unverified", last=researchIndex>=S.claims.length-1;
   if(next){
-    var current=S.claims[researchIndex], decided=!researchMode||current.status!=="unverified", last=researchIndex>=S.claims.length-1;
     next.disabled=!researchMode||last||!decided;
     next.textContent=last?(decided?"Claims complete ✓":"Choose a disposition"):(decided?"Next claim →":"Choose a disposition");
     next.title=!decided?"Choose Verified, Unsupported, Refuted, or Opinion before continuing.":"";
+  }
+  if(gradeBtn){
+    gradeBtn.hidden=researchMode&&!last;
+    gradeBtn.disabled=researchMode&&last&&!decided;
+    gradeBtn.title=gradeBtn.disabled?"Choose a disposition for the final claim before grading.":"";
   }
   var ledgerClaims=researchMode?[S.claims[researchIndex]]:S.claims;
   el.innerHTML=ledgerClaims.map(function(c,i){
