@@ -977,6 +977,10 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 @media(max-width:1000px){.research-tool-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:620px){.research-tool-grid{grid-template-columns:1fr 1fr}.research-tool-btn{min-height:68px}.research-crosscheck-head{flex-direction:column}}
 
+
+.research-bottom-nav{display:flex;justify-content:flex-end;margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}
+.research-bottom-next{min-width:148px;min-height:44px}
+
 @keyframes researchScreenIn{from{opacity:0;transform:translateX(54px)}to{opacity:1;transform:translateX(0)}}
 @keyframes researchClaimIn{from{opacity:0;transform:translateX(38px)}to{opacity:1;transform:translateX(0)}}
 @media(max-width:760px){
@@ -2469,7 +2473,7 @@ function manualClaudeBox(){
 }
 function renderResearchClaim(c,claimNumber,total){
   var choices=STATUSES.filter(function(s){return s[0]!=="unverified"});
-  var decided=c.status!=="unverified";
+  var decided=c.status!=="unverified", hasNext=claimNumber<total;
   return '<article class="claim research-review sel-'+esc(c.status)+'" data-id="'+c.id+'">'+
     '<div class="research-claim-focus">'+
       '<div class="research-claim-label"><b>Claim '+String(claimNumber).padStart(2,"0")+'</b><span>Review one statement at a time</span></div>'+
@@ -2500,6 +2504,7 @@ function renderResearchClaim(c,claimNumber,total){
           '</div>'+
         '</div>'+
       '</details>'+
+      (hasNext?'<div class="research-bottom-nav"><button class="btn pri research-bottom-next" type="button" data-act="next-claim"'+(decided?'':' disabled title="Choose a disposition before continuing."')+'>Next claim →</button></div>':"")+
     '</div>'+
   '</article>';
 }
@@ -2590,6 +2595,10 @@ $("#ledger").addEventListener("click",function(e){
     c.checks[b.dataset.k]=!c.checks[b.dataset.k];
     b.setAttribute("aria-pressed",String(!!c.checks[b.dataset.k]));
     renderLedger();   /* the Verified gate and the reopen banner both depend on this */
+  }
+  else if(a==="next-claim"){
+    if(c.status==="unverified"){toast("Choose a disposition before moving to the next claim.",true);return;}
+    S.student.claimIndex=Math.min(S.claims.length-1,(Number(S.student.claimIndex)||0)+1); renderLedger();
   }
   else if(a==="del"){ S.claims=S.claims.filter(function(x){return x.id!==c.id}); renderLedger(); }
   else if(a==="ai-check"){ providerCheck(c,wrap,b,b.dataset.provider); }
