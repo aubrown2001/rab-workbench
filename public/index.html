@@ -914,6 +914,50 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 #p-check.research-flow[data-research-stage="2"] .claim-ledger-card,
 #p-check.research-flow[data-research-stage="2"] .save-strip{animation:researchScreenIn .38s ease-out both}
 #p-check.research-flow .claim{animation:researchClaimIn .28s ease-out both}
+
+/* Modern one-claim Research Paper review */
+#p-check.research-flow .ledger{padding:18px;background:linear-gradient(180deg,var(--surface-2),var(--surface));}
+#p-check.research-flow .research-review{padding:0;border:1px solid color-mix(in srgb,var(--accent) 24%,var(--line));border-radius:22px;background:var(--surface);overflow:hidden;box-shadow:0 24px 60px -42px rgba(20,60,120,.72),0 2px 8px rgba(20,55,100,.06)}
+#p-check.research-flow .research-review.sel-verified,
+#p-check.research-flow .research-review.sel-unsupported,
+#p-check.research-flow .research-review.sel-refuted,
+#p-check.research-flow .research-review.sel-opinion{background:var(--surface)}
+.research-claim-focus{position:relative;padding:28px 30px 25px;background:radial-gradient(circle at 100% 0,color-mix(in srgb,var(--accent-soft) 72%,transparent),transparent 42%),var(--surface);border-bottom:1px solid var(--line)}
+.research-claim-focus::before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:linear-gradient(180deg,#2B7FFF,#49C8FF)}
+.research-claim-label{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px;color:var(--ink-3);font-size:.75rem;font-weight:750;letter-spacing:.1em;text-transform:uppercase}
+.research-claim-label b{display:inline-flex;align-items:center;justify-content:center;min-width:78px;padding:6px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:.72rem}
+.research-claim-text{max-width:900px;margin:0;color:var(--ink);font-family:var(--f-display);font-size:clamp(1.25rem,2vw,1.65rem);font-weight:600;line-height:1.48}
+.research-decision{padding:24px 30px}
+.research-disposition-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:13px}
+.research-disposition-head h3{margin:0;color:var(--ink);font-size:1rem}
+.research-disposition-head p{margin:4px 0 0;color:var(--ink-3);font-size:.82rem}
+.research-required-tag{flex:none;padding:5px 9px;border-radius:999px;background:#FFF1DB;border:1px solid #F1C36C;color:#805300;font-size:.68rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+.research-action-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+#p-check.research-flow .research-dispositions{gap:9px}
+#p-check.research-flow .research-dispositions .st{min-height:42px;padding:9px 16px;border-radius:12px;background:var(--surface-2);font-size:.86rem;font-weight:720;transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease}
+#p-check.research-flow .research-dispositions .st:hover{transform:translateY(-1px);box-shadow:0 7px 16px -13px rgba(12,38,80,.7)}
+#p-check.research-flow .research-dispositions .st[aria-pressed="true"]{box-shadow:inset 0 0 0 1px currentColor,0 7px 18px -14px currentColor}
+.research-remove{min-height:42px!important;border-color:var(--bad-line)!important;color:var(--bad)!important;background:var(--bad-soft)!important}
+.research-choice-note{display:flex;align-items:center;gap:8px;margin-top:14px;padding:10px 12px;border-radius:11px;background:var(--surface-2);color:var(--ink-2);font-size:.8rem}
+.research-choice-note.required{background:var(--warn-soft);color:var(--warn)}
+.research-choice-note.ready{background:var(--ok-soft);color:var(--ok)}
+.research-why{margin:16px 0 0;padding:12px 14px;border-left:3px solid var(--accent);border-radius:0 10px 10px 0;background:var(--accent-soft);color:var(--ink-2);font-size:.84rem;line-height:1.5}
+.research-evidence{margin-top:20px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2);overflow:hidden}
+.research-evidence summary{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 17px;cursor:pointer;color:var(--ink);font-weight:750;list-style:none}
+.research-evidence summary::-webkit-details-marker{display:none}
+.research-evidence summary::after{content:"＋";font-size:1.2rem;color:var(--accent)}
+.research-evidence[open] summary::after{content:"−"}
+.research-evidence summary span{display:block;margin-top:3px;color:var(--ink-3);font-size:.75rem;font-weight:500}
+.research-evidence-body{display:flex;flex-direction:column;gap:14px;padding:0 17px 17px;border-top:1px solid var(--line)}
+.research-evidence-body>.mini{margin-top:15px}
+:root[data-theme="dark"] .research-required-tag{background:#4B3910;border-color:#9F7623;color:#FFE18A}
+@media(max-width:700px){
+  .research-claim-focus,.research-decision{padding:21px 18px}
+  .research-action-row,.research-disposition-head{align-items:stretch;flex-direction:column}
+  #p-check.research-flow .research-dispositions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  #p-check.research-flow .research-dispositions .st,.research-remove{width:100%}
+}
+
 @keyframes researchScreenIn{from{opacity:0;transform:translateX(54px)}to{opacity:1;transform:translateX(0)}}
 @keyframes researchClaimIn{from{opacity:0;transform:translateX(38px)}to{opacity:1;transform:translateX(0)}}
 @media(max-width:760px){
@@ -2327,7 +2371,9 @@ function renderDials(){
    surfaced, with one button to reopen them. */
 function belowBar(){ return S.claims.filter(function(c){return c.status==="verified"&&!meetsProof(c)}) }
 function renderReopen(){
-  var n=belowBar().length, el=$("#reopen");
+  var el=$("#reopen");
+  if(S.student&&S.student.activity==="research"){el.hidden=true;el.innerHTML="";return;}
+  var n=belowBar().length;
   el.hidden=n===0;
   if(n) el.innerHTML='<span><b>'+n+'</b> '+(n===1?"claim was":"claims were")+' cleared under a lower standard of proof.</span>'+
     '<button class="btn sm" id="btn-reopen">Reopen '+(n===1?"it":"them")+'</button>';
@@ -2387,6 +2433,41 @@ function manualClaudeBox(){
     '<textarea data-role="manual-claude" placeholder="After Claude answers, copy its response and paste it here."></textarea></label>'+
     '<button class="btn sm" data-act="save-manual-claude">Save Claude response</button></div>';
 }
+function renderResearchClaim(c,claimNumber,total){
+  var choices=STATUSES.filter(function(s){return s[0]!=="unverified"});
+  var decided=c.status!=="unverified";
+  return '<article class="claim research-review sel-'+esc(c.status)+'" data-id="'+c.id+'">'+
+    '<div class="research-claim-focus">'+
+      '<div class="research-claim-label"><b>Claim '+String(claimNumber).padStart(2,"0")+'</b><span>Review one statement at a time</span></div>'+
+      '<p class="research-claim-text">'+esc(c.text)+'</p>'+
+    '</div>'+
+    '<div class="research-decision">'+
+      '<div class="research-disposition-head"><div><h3>What does the evidence support?</h3><p>Choose the best disposition for this claim.</p></div><span class="research-required-tag">Required</span></div>'+
+      '<div class="research-action-row">'+
+        '<div class="statuses research-dispositions" role="group" aria-label="Choose a disposition">'+choices.map(function(s){
+          return '<button class="st" data-act="status" data-v="'+s[0]+'" aria-pressed="'+(c.status===s[0])+'">'+s[1]+'</button>';
+        }).join("")+'</div>'+
+        '<button class="btn sm research-remove" data-act="del" type="button">Remove claim</button>'+
+      '</div>'+
+      (decided?'<div class="research-choice-note ready">✓ Disposition selected. You can continue to the next claim.</div>':'<div class="research-choice-note required">● Choose a disposition before moving to the next claim.</div>')+
+      (c.why?'<div class="research-why"><b>Why this claim deserves a closer look:</b> '+esc(c.why)+'</div>':"")+
+      '<details class="research-evidence">'+
+        '<summary><div>Optional evidence &amp; cross-checks<span>Add a source, reviewer note, or second AI opinion.</span></div></summary>'+
+        '<div class="research-evidence-body">'+
+          '<div class="mini"><span class="mini-k">Suggested searches</span><div class="lateral">'+
+            (c.queries&&c.queries.length?c.queries.map(searchLinks).join(""):'<span class="hint">No searches suggested.</span>')+'</div></div>'+
+          '<div class="grid2" style="gap:10px">'+
+            '<label class="fld"><span class="fld-k">Independent source (optional)</span><input type="text" data-act="url" value="'+esc(c.url)+'" placeholder="Paste a URL or citation"></label>'+
+            '<label class="fld"><span class="fld-k">Reviewer note (optional)</span><input type="text" data-act="note" value="'+esc(c.note)+'" placeholder="What did you learn?"></label>'+
+          '</div>'+
+          '<div class="ai-check"><div class="ai-check-head"><span class="mini-k">AI cross-check (optional)</span>'+checkButtons()+'</div>'+
+            '<div class="ai-check-note">A second AI opinion may reveal disagreements, but it is not proof and does not choose the disposition for you.</div>'+
+            '<div class="ai-results" data-role="ai-results">'+checkResults(c)+'</div>'+manualClaudeBox()+'</div>'+
+        '</div>'+
+      '</details>'+
+    '</div>'+
+  '</article>';
+}
 function renderLedger(){
   renderReopen();
   var el=$("#ledger"), researchMode=!!(S.student&&S.student.activity==="research");
@@ -2400,10 +2481,16 @@ function renderLedger(){
   if(nav) nav.hidden=!researchMode;
   if(progress) progress.textContent="Claim "+(researchIndex+1)+" of "+S.claims.length;
   if(prev) prev.disabled=!researchMode||researchIndex===0;
-  if(next){next.disabled=!researchMode||researchIndex>=S.claims.length-1;next.textContent=researchIndex>=S.claims.length-1?"Last claim":"Next claim →";}
+  if(next){
+    var current=S.claims[researchIndex], decided=!researchMode||current.status!=="unverified", last=researchIndex>=S.claims.length-1;
+    next.disabled=!researchMode||last||!decided;
+    next.textContent=last?(decided?"Claims complete ✓":"Choose a disposition"):(decided?"Next claim →":"Choose a disposition");
+    next.title=!decided?"Choose Verified, Unsupported, Refuted, or Opinion before continuing.":"";
+  }
   var ledgerClaims=researchMode?[S.claims[researchIndex]]:S.claims;
   el.innerHTML=ledgerClaims.map(function(c,i){
     var claimNumber=researchMode?researchIndex+i+1:i+1;
+    if(researchMode) return renderResearchClaim(c,claimNumber,S.claims.length);
     return '<div class="claim sel-'+esc(c.status)+'" data-id="'+c.id+'">'+
       '<div class="claim-top"><div class="claim-n">'+String(claimNumber).padStart(2,"0")+'</div><div>'+
         '<p class="claim-txt">'+esc(c.text)+'</p>'+
@@ -2442,7 +2529,9 @@ $("#claim-prev").addEventListener("click",function(){
 });
 $("#claim-next").addEventListener("click",function(){
   if(!(S.student&&S.student.activity==="research")) return;
-  S.student.claimIndex=Math.min(S.claims.length-1,(Number(S.student.claimIndex)||0)+1); renderLedger();
+  var i=Math.max(0,Math.min(S.claims.length-1,Number(S.student.claimIndex)||0));
+  if(S.claims[i]&&S.claims[i].status==="unverified"){toast("Choose a disposition before moving to the next claim.",true);return;}
+  S.student.claimIndex=Math.min(S.claims.length-1,i+1); renderLedger();
 });
 $("#ledger").addEventListener("click",function(e){
   var b=e.target.closest("[data-act]"); if(!b) return;
