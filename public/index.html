@@ -939,7 +939,6 @@ textarea,input[type=text],input[type=url],select{background:#F9FBFE;border-color
 #p-check.research-flow .research-dispositions .st[aria-pressed="true"]{box-shadow:inset 0 0 0 1px currentColor,0 7px 18px -14px currentColor}
 .research-remove{min-height:42px!important;border-color:var(--bad-line)!important;color:var(--bad)!important;background:var(--bad-soft)!important}
 .research-choice-note{display:flex;align-items:center;gap:8px;margin-top:14px;padding:10px 12px;border-radius:11px;background:var(--surface-2);color:var(--ink-2);font-size:.8rem}
-.research-choice-note.required{background:var(--warn-soft);color:var(--warn)}
 .research-choice-note.ready{background:var(--ok-soft);color:var(--ok)}
 .research-why{margin:16px 0 0;padding:12px 14px;border-left:3px solid var(--accent);border-radius:0 10px 10px 0;background:var(--accent-soft);color:var(--ink-2);font-size:.84rem;line-height:1.5}
 .research-evidence{margin-top:20px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2);overflow:hidden}
@@ -2477,9 +2476,10 @@ function manualClaudeBox(){
 function renderResearchClaim(c,claimNumber,total){
   var choices=STATUSES.filter(function(s){return s[0]!=="unverified"});
   var decided=c.status!=="unverified", hasNext=claimNumber<total;
+  var selected=choices.filter(function(s){return s[0]===c.status})[0];
   return '<article class="claim research-review sel-'+esc(c.status)+'" data-id="'+c.id+'">'+
     '<div class="research-claim-focus">'+
-      '<div class="research-claim-label"><b>Claim '+String(claimNumber).padStart(2,"0")+'</b><span>Review one statement at a time</span></div>'+
+      '<div class="research-claim-label"><b>Claim '+claimNumber+' of '+total+'</b><span>Review one statement at a time</span></div>'+
       '<p class="research-claim-text">'+esc(c.text)+'</p>'+
     '</div>'+
     '<div class="research-decision">'+
@@ -2490,7 +2490,7 @@ function renderResearchClaim(c,claimNumber,total){
         }).join("")+'</div>'+
         '<button class="btn sm research-remove" data-act="del" type="button">Remove claim</button>'+
       '</div>'+
-      (decided?'<div class="research-choice-note ready">✓ Disposition selected. You can continue to the next claim.</div>':'<div class="research-choice-note required">● Choose a disposition before moving to the next claim.</div>')+
+      (decided?'<div class="research-choice-note ready" role="status">✓ Claim '+claimNumber+' marked '+esc(selected?selected[1]:c.status)+'.'+(hasNext?' Ready for claim '+(claimNumber+1)+'.':' Ready to grade the response.')+'</div>':'<div class="research-choice-note" role="status">Claim '+claimNumber+' is awaiting your review. Each claim needs its own disposition; your earlier selections are kept.</div>')+
       (c.why?'<div class="research-why"><b>Why this claim deserves a closer look:</b> '+esc(c.why)+'</div>':"")+
       '<details class="research-evidence" open>'+
         '<summary><div>Optional evidence &amp; cross-checks<span>Use any of these tools when they help. None are required.</span></div></summary>'+

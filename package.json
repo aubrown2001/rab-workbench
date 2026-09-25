@@ -3,14 +3,19 @@
   "version": "1.0.1",
   "description": "RAB·BIT — Rigor Above Belief, Built for Integrity & Trust. A workbench for verifying AI output.",
   "main": "server.js",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js && node scripts/check-frontend.mjs",
+    "check": "node --check server.js && node scripts/check-frontend.mjs && node scripts/test-claim-navigation.mjs",
     "smoke": "node scripts/smoke-server.mjs"
   },
   "dependencies": {
-    "express": "^4.21.2",
-    "@supabase/supabase-js": "^2.48.1"
+    "@supabase/supabase-js": "^2.48.1",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "jsdom": "^30.1.1"
   }
 }
